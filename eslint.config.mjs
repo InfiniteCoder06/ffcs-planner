@@ -1,16 +1,33 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import css from "@eslint/css";
+import js from "@eslint/js";
+import { defineConfig } from "eslint/config";
+import pluginPrettier from "eslint-plugin-prettier";
+import pluginReact from "eslint-plugin-react";
+import tseslint from "typescript-eslint";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+export default defineConfig([
+  // Base JavaScript and TypeScript recommendations
+  js.configs.recommended,
+  tseslint.configs.recommended,
 
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+  // React recommendations
+  pluginReact.configs.flat.recommended,
+  pluginReact.configs.flat["jsx-runtime"],
 
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
-];
+  // CSS linting
+  {
+    files: ["**/*.css"],
+    language: "css/css",
+    plugins: { css },
+    extends: ["css/recommended"],
+  },
 
-export default eslintConfig;
+  {
+    plugins: {
+      prettier: pluginPrettier,
+    },
+    rules: {
+      "prettier/prettier": "warn",
+    },
+  },
+]);
