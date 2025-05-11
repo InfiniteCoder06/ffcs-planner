@@ -12,140 +12,140 @@ import { DeleteDialog } from "../dialogs/delete-dialog";
 import { useCallback } from "react";
 
 interface TeacherItemProps {
-  teacher: Teacher;
-  editMode: boolean;
-  clashedTeachers: Teacher[];
-  className?: string;
+	teacher: Teacher;
+	editMode: boolean;
+	clashedTeachers: Teacher[];
+	className?: string;
 }
 
 export default function TeacherItem({
-  teacher,
-  editMode,
-  clashedTeachers,
-  className,
+	teacher,
+	editMode,
+	clashedTeachers,
+	className,
 }: TeacherItemProps) {
-  const {
-    getCourse,
-    removeTeacher,
-    toggleTeacherInTimetable,
-    isTeacherSelected,
-  } = useScheduleStore();
-  const isSelected = isTeacherSelected(teacher.id);
-  const hasClash = clashedTeachers.length > 0;
+	const {
+		getCourse,
+		removeTeacher,
+		toggleTeacherInTimetable,
+		isTeacherSelected,
+	} = useScheduleStore();
+	const isSelected = isTeacherSelected(teacher.id);
+	const hasClash = clashedTeachers.length > 0;
 
-  const handleRemove = useCallback(() => {
-    removeTeacher(teacher.id);
-  }, [teacher.id, removeTeacher]);
+	const handleRemove = useCallback(() => {
+		removeTeacher(teacher.id);
+	}, [teacher.id, removeTeacher]);
 
-  const handleClashToast = () => {
-    toast.error("Clashing Teachers", {
-      description: (
-        <ul>
-          {clashedTeachers.map((clashedTeacher) => (
-            <li key={clashedTeacher.id}>
-              {clashedTeacher.name}
-              <ol className="pl-4 list-disc">
-                <li>
-                  Course:{" "}
-                  {getCourse(clashedTeacher.course)?.name ?? "Unknown Course"}
-                </li>
-                <li>{clashedTeacher.slots.join(", ")}</li>
-              </ol>
-            </li>
-          ))}
-        </ul>
-      ),
-    });
-  };
+	const handleClashToast = () => {
+		toast.error("Clashing Teachers", {
+			description: (
+				<ul>
+					{clashedTeachers.map((clashedTeacher) => (
+						<li key={clashedTeacher.id}>
+							{clashedTeacher.name}
+							<ol className="pl-4 list-disc">
+								<li>
+									Course:{" "}
+									{getCourse(clashedTeacher.course)?.name ?? "Unknown Course"}
+								</li>
+								<li>{clashedTeacher.slots.join(", ")}</li>
+							</ol>
+						</li>
+					))}
+				</ul>
+			),
+		});
+	};
 
-  const renderSlots = () =>
-    teacher.slots.map((slot, index) => (
-      <MotionDiv
-        key={index}
-        initial={{ opacity: 0, y: -5 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: index * 0.05 }}
-      >
-        <Badge
-          variant="outline"
-          className={cn(
-            "border-none select-none rounded-full",
-            getColorVariant(teacher.color as ColorVariant, ["border", "bg"]),
-            className,
-          )}
-        >
-          {slot}
-        </Badge>
-      </MotionDiv>
-    ));
+	const renderSlots = () =>
+		teacher.slots.map((slot, index) => (
+			<MotionDiv
+				key={index}
+				initial={{ opacity: 0, y: -5 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ delay: index * 0.05 }}
+			>
+				<Badge
+					variant="outline"
+					className={cn(
+						"border-none select-none rounded-full",
+						getColorVariant(teacher.color as ColorVariant, ["border", "bg"]),
+						className,
+					)}
+				>
+					{slot}
+				</Badge>
+			</MotionDiv>
+		));
 
-  const handleButtonClick = () => {
-    if (hasClash) {
-      handleClashToast();
-    } else {
-      toggleTeacherInTimetable(teacher.id);
-    }
-  };
+	const handleButtonClick = () => {
+		if (hasClash) {
+			handleClashToast();
+		} else {
+			toggleTeacherInTimetable(teacher.id);
+		}
+	};
 
-  return (
-    <MotionLi
-      className={cn(
-        "p-3 rounded-md flex justify-between items-center gap-2 bg-slate-100 dark:bg-slate-800",
-        getColorVariant(teacher.color as ColorVariant, ["bg", "bgLight"]),
-      )}
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.2 }}
-      whileHover={{ scale: 1.01 }}
-      layout
-    >
-      <div className={className}>
-        <p className="font-medium">{teacher.name}</p>
-        {teacher.venue && (
-          <p className="text-xs text-muted-foreground">
-            Venue: {teacher.venue}
-          </p>
-        )}
-      </div>
-      <div className="flex items-center gap-2">
-        {renderSlots()}
-        {editMode ? (
-          <>
-            <AddTeacherDialog
-              teacherToEdit={teacher}
-              buttonVariant="warning"
-              buttonSize="sm"
-              buttonIcon="edit"
-              buttonText=""
-            />
-            <DeleteDialog
-              description="Are you sure you want to remove this teacher?"
-              onConfirm={handleRemove}
-            />
-          </>
-        ) : (
-          <Button
-            key={`${teacher.id}-${isSelected}`}
-            variant={isSelected ? "default" : "outline"}
-            size="sm"
-            className={cn(
-              "h-8 w-8",
-              getColorVariant(
-                teacher.color as ColorVariant,
-                isSelected ? ["bg", "bgHover", "text"] : ["text"],
-              ),
-            )}
-            onClick={handleButtonClick}
-          >
-            {isSelected ? (
-              <Check className="w-4 h-4" />
-            ) : (
-              <Plus className="w-4 h-4" />
-            )}
-          </Button>
-        )}
-      </div>
-    </MotionLi>
-  );
+	return (
+		<MotionLi
+			className={cn(
+				"p-3 rounded-md flex justify-between items-center gap-2 bg-slate-100 dark:bg-slate-800",
+				getColorVariant(teacher.color as ColorVariant, ["bg", "bgLight"]),
+			)}
+			initial={{ opacity: 0, scale: 0.95 }}
+			animate={{ opacity: 1, scale: 1 }}
+			exit={{ opacity: 0, scale: 0.95 }}
+			transition={{ duration: 0.2 }}
+			whileHover={{ scale: 1.01 }}
+			layout
+		>
+			<div className={className}>
+				<p className="font-medium">{teacher.name}</p>
+				{teacher.venue && (
+					<p className="text-xs text-muted-foreground">
+						Venue: {teacher.venue}
+					</p>
+				)}
+			</div>
+			<div className="flex items-center gap-2">
+				{renderSlots()}
+				{editMode ? (
+					<>
+						<AddTeacherDialog
+							teacherToEdit={teacher}
+							buttonVariant="warning"
+							buttonSize="sm"
+							buttonIcon="edit"
+							buttonText=""
+						/>
+						<DeleteDialog
+							description="Are you sure you want to remove this teacher?"
+							onConfirm={handleRemove}
+						/>
+					</>
+				) : (
+					<Button
+						key={`${teacher.id}-${isSelected}`}
+						variant={isSelected ? "default" : "outline"}
+						size="sm"
+						className={cn(
+							"h-8 w-8",
+							getColorVariant(
+								teacher.color as ColorVariant,
+								isSelected ? ["bg", "bgHover", "text"] : ["text"],
+							),
+						)}
+						onClick={handleButtonClick}
+					>
+						{isSelected ? (
+							<Check className="w-4 h-4" />
+						) : (
+							<Plus className="w-4 h-4" />
+						)}
+					</Button>
+				)}
+			</div>
+		</MotionLi>
+	);
 }
