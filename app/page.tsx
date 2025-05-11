@@ -3,8 +3,11 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { SelectedCoursesTable } from "@/components/selected-courses-table";
 import { Timetable } from "@/components/timetable";
 import { fadeIn, MotionDiv, slideInFromBottom } from "@/components/ui/motion";
+import { Toaster } from "@/components/ui/sonner";
+import { TriangleAlert } from "lucide-react";
 
 export default function Home() {
+
   return (
     <main className="container p-4 mx-auto">
       <MotionDiv
@@ -43,6 +46,10 @@ export default function Home() {
       </MotionDiv>
 
       <ModeToggle />
+
+      <Toaster icons={{
+        error: <TriangleAlert className="w-4 h-4" />,
+      }} richColors />
     </main>
   );
 }

@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useScheduleStore, type Teacher } from "@/lib/store";
 import { AddTeacherDialog } from "../dialogs/add-teacher-dialog";
 import TeacherItem from "../items/teacher-item";
+import { AnimatePresenceWrapper, MotionDiv, MotionUl } from "../ui/motion";
 
 interface TeacherListProps {
   courseTeachers: Teacher[];
@@ -49,35 +50,43 @@ export default function TeacherList({
       </div>
 
       {courseTeachers.length === 0 ? (
-        <p className="text-xs text-muted-foreground">
-          No teachers assigned to this course yet.
-        </p>
+        <MotionDiv
+          className="p-4 text-center border rounded-lg text-muted-foreground"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.3 }}
+        >
+          No teachers selected. Add teachers to your timetable to see them here.
+        </MotionDiv>
       ) : (
-        <ul className="space-y-3">
-          {unclashedTeachers.map((teacher) => (
-            <TeacherItem
-              key={teacher.id}
-              teacher={teacher}
-              editMode={editMode}
-              clashedTeachers={[]}
-            />
-          ))}
+        <AnimatePresenceWrapper>
+          <MotionUl className="space-y-3">
+            {unclashedTeachers.map((teacher) => (
+              <TeacherItem
+                key={teacher.id}
+                teacher={teacher}
+                editMode={editMode}
+                clashedTeachers={[]}
+              />
+            ))}
 
-          {clashedTeachers.length > 0 && (
-            <>
-              <p className="text-xs text-muted-foreground">Teachers clashing</p>
-              {clashedTeachers.map(({ teacher, clashes }) => (
-                <TeacherItem
-                  key={teacher.id}
-                  teacher={teacher}
-                  editMode={editMode}
-                  clashedTeachers={clashes}
-                  className="opacity-50"
-                />
-              ))}
-            </>
-          )}
-        </ul>
+            {clashedTeachers.length > 0 && (
+              <>
+                <p className="text-xs text-muted-foreground">Teachers clashing</p>
+                {clashedTeachers.map(({ teacher, clashes }) => (
+                  <TeacherItem
+                    key={teacher.id}
+                    teacher={teacher}
+                    editMode={editMode}
+                    clashedTeachers={clashes}
+                    className="opacity-50"
+                  />
+                ))}
+              </>
+            )}
+          </MotionUl>
+        </AnimatePresenceWrapper>
       )}
     </div>
   );

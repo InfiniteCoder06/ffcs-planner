@@ -82,3 +82,4 @@ export const MotionDivClient = MotionDiv;
 export const MotionTr = motion.tr;
 export const MotionTd = motion.td;
 export const MotionLi = motion.li;
+export const MotionUl = motion.ul;
