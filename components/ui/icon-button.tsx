@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "./button";
+import { Button, SimpleButton } from "./button";
 import {
 	PlusIcon,
 	PencilIcon,
@@ -19,6 +19,7 @@ interface IconButtonProps {
 	disabled?: boolean;
 	className?: string;
 	label?: string;
+	useAnimation?: boolean;
 }
 
 export function IconButton({
@@ -29,6 +30,7 @@ export function IconButton({
 	disabled,
 	className,
 	label,
+	useAnimation = true,
 }: IconButtonProps) {
 	const getIcon = () => {
 		switch (icon) {
@@ -46,15 +48,28 @@ export function IconButton({
 	};
 
 	return (
-		<Button
-			variant={variant}
-			size={size}
-			onClick={onClick}
-			disabled={disabled}
-			className={className}
-		>
-			{getIcon()}
-			{label && label}
-		</Button>
+		useAnimation ? (
+			<Button
+				variant={variant}
+				size={size}
+				onClick={onClick}
+				disabled={disabled}
+				className={className}
+			>
+				{getIcon()}
+				{label && label}
+			</Button>
+		) : (
+			<SimpleButton
+				variant={variant}
+				size={size}
+				onClick={onClick}
+				disabled={disabled}
+				className={className}
+			>
+				{getIcon()}
+				{label && label}
+			</SimpleButton>
+		)
 	);
 }

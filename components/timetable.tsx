@@ -152,9 +152,9 @@ export function Timetable() {
 
 				colorCache[slotKey] = matchedTeacher
 					? getColorVariant(matchedTeacher.color as ColorVariant, [
-							"bg",
-							"text",
-						])
+						"bg",
+						"text",
+					])
 					: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200";
 
 				teacherCache[slotKey] = matchedTeacher?.name || "";
@@ -185,7 +185,7 @@ export function Timetable() {
 
 	return (
 		<div className="overflow-x-auto">
-			<table className="w-full overflow-hidden border-collapse divide-gray-200 rounded-lg dark:divide-gray-700">
+			<table className="w-full overflow-hidden border border-collapse divide-gray-200 rounded-lg dark:divide-gray-700">
 				<thead className="p-2 font-bold bg-gray-100 border dark:bg-gray-800">
 					<tr>
 						<th className="p-2 font-bold bg-gray-100 border dark:bg-gray-800">

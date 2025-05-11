@@ -11,6 +11,8 @@ import { useScheduleStore } from "@/lib/store";
 import { cn, ColorVariant, getColorVariant } from "@/lib/utils";
 
 import { IconButton } from "./ui/icon-button";
+import { Button, SimpleButton } from "./ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 
 export function SelectedCoursesTable() {
 	const { selectedTeachers, courses, toggleTeacherInTimetable } =
@@ -28,6 +30,8 @@ export function SelectedCoursesTable() {
 		return (courseA?.name || "").localeCompare(courseB?.name || "");
 	});
 
+
+
 	return (
 		<AnimatePresenceWrapper mode="wait">
 			{sortedTeachers.length === 0 ? (
@@ -42,13 +46,13 @@ export function SelectedCoursesTable() {
 			) : (
 				<MotionDiv
 					key="courses-table"
-					className="border rounded-lg"
+					className="rounded-lg"
 					{...slideInFromBottom}
 					transition={{ duration: 0.4 }}
 				>
 					<div className="overflow-x-auto">
-						<table className="w-full overflow-hidden border-collapse divide-gray-200 rounded-lg dark:divide-gray-700">
-							<thead className="p-2 font-bold text-center bg-gray-100 border select-none dark:bg-gray-800">
+						<table className="w-full overflow-hidden border border-collapse divide-gray-200 rounded-lg dark:divide-gray-700">
+							<thead className="p-2 font-bold text-center bg-gray-100 select-none dark:bg-gray-800">
 								<tr>
 									<th className="px-6 py-3 text-xs font-medium tracking-wider uppercase text-start">
 										Course
@@ -118,6 +122,7 @@ export function SelectedCoursesTable() {
 														icon="delete"
 														variant="error"
 														size="sm"
+														useAnimation={false}
 														onClick={() => toggleTeacherInTimetable(teacher.id)}
 													></IconButton>
 												</td>

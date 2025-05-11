@@ -71,7 +71,7 @@ function Button({
 	);
 }
 
-function NonAniButton({
+function SimpleButton({
 	className,
 	variant,
 	size,
@@ -92,4 +92,4 @@ function NonAniButton({
 	);
 }
 
-export { Button, NonAniButton, buttonVariants };
+export { Button, SimpleButton, buttonVariants };
