@@ -34,8 +34,8 @@ export function ClashDetails({ clashes }: ClashDetailsProps) {
       key={"clash-details"}
       className="border rounded-lg overflow-hidden bg-white dark:bg-gray-900"
     >
-      <div className="p-3 bg-red-50 border-b border-red-200 dark:bg-red-900/20 dark:border-red-800">
-        <h4 className="font-medium text-red-800 dark:text-red-200 flex items-center gap-2">
+      <div className={cn("p-3 border-b", getColorVariant("red", ["bgLight", "border"]))}>
+        <h4 className={cn("font-mediumflex items-center gap-2", getColorVariant("red", ["text"]))}>
           <AlertCircle className="h-4 w-4" />
           Clash Details
         </h4>
@@ -52,9 +52,9 @@ export function ClashDetails({ clashes }: ClashDetailsProps) {
                 transition={{ duration: 0.3, delay: groupIndex * 0.1 }}
                 className="mb-4 last:mb-0"
               >
-                <div className="flex items-center gap-2 mb-2">
-                  <Clock className="h-4 w-4 text-red-500 dark:text-red-400" />
-                  <h5 className="font-medium text-red-700 dark:text-red-300">
+                <div className={cn("flex items-center gap-2 mb-2", getColorVariant("red", ["text"]))}>
+                  <Clock className="h-4 w-4" />
+                  <h5 className="font-medium">
                     Slot {slot} ({slotClashes.length} clash
                     {slotClashes.length > 1 ? "es" : ""})
                   </h5>
@@ -80,7 +80,7 @@ export function ClashDetails({ clashes }: ClashDetailsProps) {
                         }}
                         className="text-sm"
                       >
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 p-2 rounded-md bg-red-50 dark:bg-red-900/10">
+                        <div className={cn("flex flex-col sm:flex-row sm:items-center gap-2 p-2 rounded-md", getColorVariant("red", ["bgLight"]))}>
                           <div className="flex items-center gap-2 flex-1">
                             <Badge
                               className={cn(

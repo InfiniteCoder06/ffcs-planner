@@ -107,9 +107,9 @@ export function Timetable() {
         } else {
           colorCache[slotKey] = matchedTeacher
             ? getColorVariant(matchedTeacher.color as ColorVariant, [
-                "bg",
-                "text",
-              ])
+              "bg",
+              "text",
+            ])
             : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200";
         }
 
@@ -301,9 +301,13 @@ export function Timetable() {
                                 className="absolute top-1 right-1"
                                 initial={{ opacity: 0, scale: 0 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.3, type: "spring" }}
+                                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                whileHover={{
+                                  rotate: [0, -10, 10, -10, 0],
+                                  transition: { duration: 0.5 },
+                                }}
                               >
-                                <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                                <AlertCircle className={cn("h-4 w-4", getColorVariant("red", ["text"]))} />
                               </MotionDiv>
                             )}
                           </MotionTd>
@@ -311,7 +315,7 @@ export function Timetable() {
                         {hasClash(slot) && (
                           <TooltipContent
                             side="top"
-                            className="bg-red-50 border-red-200 text-red-800 dark:bg-red-900/80 dark:border-red-800 dark:text-red-100"
+                            className={cn(getColorVariant("red", ["bgLight", "border", "text"]))}
                           >
                             <div className="p-1">
                               <p className="font-bold mb-1">
