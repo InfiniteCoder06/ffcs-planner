@@ -2,7 +2,7 @@
 
 import { Check, Plus } from "lucide-react";
 import { Button } from "../ui/button";
-import { cn, ColorVariant, getColorVariant } from "@/lib/utils";
+import { cn, type ColorVariant, getColorVariant } from "@/lib/utils";
 import { AddTeacherDialog } from "../dialogs/add-teacher-dialog";
 import { useScheduleStore, type Teacher } from "@/lib/store";
 import { Badge } from "../ui/badge";
@@ -16,6 +16,7 @@ interface TeacherItemProps {
 	editMode: boolean;
 	clashedTeachers: Teacher[];
 	className?: string;
+	index: number;
 }
 
 export default function TeacherItem({
@@ -23,6 +24,7 @@ export default function TeacherItem({
 	editMode,
 	clashedTeachers,
 	className,
+	index,
 }: TeacherItemProps) {
 	const {
 		getCourse,
@@ -59,12 +61,12 @@ export default function TeacherItem({
 	};
 
 	const renderSlots = () =>
-		teacher.slots.map((slot, index) => (
+		teacher.slots.map((slot, slotIndex) => (
 			<MotionDiv
-				key={index}
+				key={slotIndex}
 				initial={{ opacity: 0, y: -5 }}
 				animate={{ opacity: 1, y: 0 }}
-				transition={{ delay: index * 0.05 }}
+				transition={{ delay: slotIndex * 0.05 + index * 0.03 }}
 			>
 				<Badge
 					variant="outline"
@@ -93,11 +95,11 @@ export default function TeacherItem({
 				"p-3 rounded-md flex justify-between items-center gap-2 bg-slate-100 dark:bg-slate-800",
 				getColorVariant(teacher.color as ColorVariant, ["bg", "bgLight"]),
 			)}
-			initial={{ opacity: 0, scale: 0.95 }}
-			animate={{ opacity: 1, scale: 1 }}
-			exit={{ opacity: 0, scale: 0.95 }}
-			transition={{ duration: 0.2 }}
-			whileHover={{ scale: 1.01 }}
+			initial={{ opacity: 0, scale: 0.95, y: 10 }}
+			animate={{ opacity: 1, scale: 1, y: 0 }}
+			exit={{ opacity: 0, scale: 0.95, y: -10 }}
+			transition={{ duration: 0.3, delay: index * 0.05 }}
+			whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}
 			layout
 		>
 			<div className={className}>

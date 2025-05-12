@@ -11,7 +11,12 @@ import {
 	SelectValue,
 } from "../ui/select";
 import CourseItem from "../items/course-item";
-import { fadeIn, MotionDiv } from "../ui/motion";
+import {
+	AnimatePresenceWrapper,
+	fadeIn,
+	MotionDiv,
+	MotionUl,
+} from "../ui/motion";
 
 interface CourseListProps {
 	editMode: boolean;
@@ -67,17 +72,26 @@ export function CourseList({ editMode }: CourseListProps) {
 					No courses added yet. Add your first course!
 				</MotionDiv>
 			) : (
-				<ul className="space-y-4">
-					{sortedCourses.map((course, index) => (
-						<CourseItem
-							key={course.id}
-							index={index}
-							course={course}
-							courseTeachers={getTeachersForCourse(course.id)}
-							editMode={editMode}
-						/>
-					))}
-				</ul>
+				<AnimatePresenceWrapper>
+					<MotionUl
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						exit={{ opacity: 0, y: -20 }}
+						transition={{ duration: 0.3, delay: 0.2 }}
+						className="space-y-3"
+						layout
+					>
+						{sortedCourses.map((course, index) => (
+							<CourseItem
+								key={course.id}
+								index={index}
+								course={course}
+								courseTeachers={getTeachersForCourse(course.id)}
+								editMode={editMode}
+							/>
+						))}
+					</MotionUl>
+				</AnimatePresenceWrapper>
 			)}
 		</div>
 	);

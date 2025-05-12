@@ -5,14 +5,13 @@ import {
 	fadeIn,
 	MotionDiv,
 	MotionTr,
+	ScrollAnimation,
 	slideInFromBottom,
 } from "@/components/ui/motion";
 import { useScheduleStore } from "@/lib/store";
-import { cn, ColorVariant, getColorVariant } from "@/lib/utils";
+import { cn, type ColorVariant, getColorVariant } from "@/lib/utils";
 
 import { IconButton } from "./ui/icon-button";
-import { Button, SimpleButton } from "./ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 
 export function SelectedCoursesTable() {
 	const { selectedTeachers, courses, toggleTeacherInTimetable } =
@@ -30,27 +29,25 @@ export function SelectedCoursesTable() {
 		return (courseA?.name || "").localeCompare(courseB?.name || "");
 	});
 
-
-
 	return (
-		<AnimatePresenceWrapper mode="wait">
-			{sortedTeachers.length === 0 ? (
-				<MotionDiv
-					key="no-courses"
-					className="p-4 text-center border rounded-lg text-muted-foreground"
-					{...fadeIn}
-					transition={{ duration: 0.3 }}
-				>
-					No courses selected. Add courses to your timetable to see them here.
-				</MotionDiv>
-			) : (
-				<MotionDiv
-					key="courses-table"
-					className="rounded-lg"
-					{...slideInFromBottom}
-					transition={{ duration: 0.4 }}
-				>
-					<div className="overflow-x-auto">
+		<ScrollAnimation animation="slideUp" threshold={0.1} duration={0.6}>
+			<AnimatePresenceWrapper mode="wait">
+				{sortedTeachers.length === 0 ? (
+					<MotionDiv
+						key="no-courses"
+						className="p-4 text-center border rounded-lg text-muted-foreground"
+						{...fadeIn}
+						transition={{ duration: 0.3 }}
+					>
+						No courses selected. Add courses to your timetable to see them here.
+					</MotionDiv>
+				) : (
+					<MotionDiv
+						key="courses-table"
+						className="overflow-x-auto rounded-lg shadow-sm"
+						{...slideInFromBottom}
+						transition={{ duration: 0.4 }}
+					>
 						<table className="w-full overflow-hidden border border-collapse divide-gray-200 rounded-lg dark:divide-gray-700">
 							<thead className="p-2 font-bold text-center bg-gray-100 select-none dark:bg-gray-800">
 								<tr>
@@ -88,8 +85,14 @@ export function SelectedCoursesTable() {
 												animate={{ opacity: 1, y: 0 }}
 												exit={{ opacity: 0, x: -10 }}
 												transition={{
-													duration: 0.2,
+													type: "spring",
+													stiffness: 500,
+													damping: 30,
 													delay: index * 0.05, // Staggered animation
+												}}
+												whileHover={{
+													backgroundColor: "rgba(0, 0, 0, 0.02)",
+													transition: { duration: 0.2 },
 												}}
 											>
 												<td className="px-6 py-4 text-sm font-medium text-start whitespace-nowrap">
@@ -147,9 +150,9 @@ export function SelectedCoursesTable() {
 								</tr>
 							</tfoot>
 						</table>
-					</div>
-				</MotionDiv>
-			)}
-		</AnimatePresenceWrapper>
+					</MotionDiv>
+				)}
+			</AnimatePresenceWrapper>
+		</ScrollAnimation>
 	);
 }

@@ -1,10 +1,17 @@
 "use client";
-import { motion, AnimatePresence } from "motion/react";
+import {
+	motion,
+	AnimatePresence,
+	useInView,
+	useScroll,
+	useTransform,
+	useSpring,
+} from "motion/react";
 import { cn } from "@/lib/utils";
+import { useRef } from "react";
 
 import type React from "react";
 
-// Type-safe props for motion.div
 interface MotionProps extends React.ComponentProps<typeof motion.div> {
 	children: React.ReactNode;
 	className?: string;
@@ -77,6 +84,140 @@ export const scaleUp = {
 	initial: { scale: 0.9, opacity: 0 },
 	animate: { scale: 1, opacity: 1 },
 };
+
+// Scroll animation components
+interface ScrollAnimationProps {
+	children: React.ReactNode;
+	className?: string;
+	animation?: "fadeIn" | "slideUp" | "slideLeft" | "slideRight" | "scale";
+	threshold?: number;
+	delay?: number;
+	duration?: number;
+	once?: boolean;
+}
+
+export function ScrollAnimation({
+	children,
+	className,
+	animation = "fadeIn",
+	threshold = 0.1,
+	delay = 0,
+	duration = 0.5,
+	once = true,
+}: ScrollAnimationProps) {
+	const ref = useRef(null);
+	const isInView = useInView(ref, { once, amount: threshold });
+
+	const getAnimationProps = () => {
+		switch (animation) {
+			case "fadeIn":
+				return {
+					initial: { opacity: 0 },
+					animate: isInView ? { opacity: 1 } : { opacity: 0 },
+				};
+			case "slideUp":
+				return {
+					initial: { opacity: 0, y: 50 },
+					animate: isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 },
+				};
+			case "slideLeft":
+				return {
+					initial: { opacity: 0, x: 50 },
+					animate: isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 },
+				};
+			case "slideRight":
+				return {
+					initial: { opacity: 0, x: -50 },
+					animate: isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 },
+				};
+			case "scale":
+				return {
+					initial: { opacity: 0, scale: 0.8 },
+					animate: isInView
+						? { opacity: 1, scale: 1 }
+						: { opacity: 0, scale: 0.8 },
+				};
+			default:
+				return {
+					initial: { opacity: 0 },
+					animate: isInView ? { opacity: 1 } : { opacity: 0 },
+				};
+		}
+	};
+
+	return (
+		<motion.div
+			ref={ref}
+			className={className}
+			{...getAnimationProps()}
+			transition={{ duration, delay }}
+		>
+			{children}
+		</motion.div>
+	);
+}
+
+// Parallax effect component
+interface ParallaxProps {
+	children: React.ReactNode;
+	className?: string;
+	speed?: number;
+	direction?: "up" | "down" | "left" | "right";
+}
+
+export function Parallax({
+	children,
+	className,
+	speed = 0.5,
+	direction = "up",
+}: ParallaxProps) {
+	const ref = useRef(null);
+	const { scrollYProgress } = useScroll({
+		target: ref,
+		offset: ["start end", "end start"],
+	});
+
+	// Calculate transform based on direction
+	let transformX = useTransform(scrollYProgress, [0, 1], ["0%", "0%"]);
+	let transformY = useTransform(scrollYProgress, [0, 1], ["0%", "0%"]);
+
+	const amount = 100 * speed;
+
+	switch (direction) {
+		case "up":
+			transformY = useTransform(scrollYProgress, [0, 1], [`0%`, `-${amount}%`]);
+			break;
+		case "down":
+			transformY = useTransform(scrollYProgress, [0, 1], [`0%`, `${amount}%`]);
+			break;
+		case "left":
+			transformX = useTransform(scrollYProgress, [0, 1], [`0%`, `-${amount}%`]);
+			break;
+		case "right":
+			transformX = useTransform(scrollYProgress, [0, 1], [`0%`, `${amount}%`]);
+			break;
+	}
+
+	const springTransformX = useSpring(transformX, {
+		stiffness: 100,
+		damping: 30,
+	});
+	const springTransformY = useSpring(transformY, {
+		stiffness: 100,
+		damping: 30,
+	});
+
+	const style =
+		direction === "up" || direction === "down"
+			? { y: springTransformY }
+			: { x: springTransformX };
+
+	return (
+		<motion.div ref={ref} className={className} style={style}>
+			{children}
+		</motion.div>
+	);
+}
 
 export const MotionDivClient = MotionDiv;
 export const MotionTr = motion.tr;

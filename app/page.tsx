@@ -2,45 +2,31 @@ import { CoursePreferences } from "@/components/course-preferences";
 import { ModeToggle } from "@/components/mode-toggle";
 import { SelectedCoursesTable } from "@/components/selected-courses-table";
 import { Timetable } from "@/components/timetable";
-import { fadeIn, MotionDiv, slideInFromBottom } from "@/components/ui/motion";
+import { MotionDiv, Parallax, ScrollAnimation } from "@/components/ui/motion";
 
 export default function Home() {
   return (
     <main className="container p-4 mx-auto">
-      <MotionDiv
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <h1 className="mb-6 text-2xl font-bold text-center">FFCS Planner</h1>
-      </MotionDiv>
+      <Parallax className="mb-6" speed={0.2}>
+        <MotionDiv initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }}>
+          <h1 className="mb-6 text-2xl font-bold text-center">FFCS Planner</h1>
+        </MotionDiv>
+      </Parallax>
 
-      <MotionDiv
-        {...fadeIn}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        className="mb-6"
-      >
-        <h2 className="mb-3 text-xl font-semibold">Timetable</h2>
+      <ScrollAnimation animation="fadeIn" duration={0.6} className="mb-6">
+        <h2 className="mb-3 text-xl font-semibold">Course Management</h2>
         <CoursePreferences />
-      </MotionDiv>
+      </ScrollAnimation>
 
-      <MotionDiv
-        {...slideInFromBottom}
-        transition={{ duration: 0.5, delay: 0.3 }}
-        className="mb-6"
-      >
+      <ScrollAnimation animation="slideUp" duration={0.6} className="mb-6">
         <h2 className="mb-3 text-xl font-semibold">Timetable</h2>
         <Timetable />
-      </MotionDiv>
+      </ScrollAnimation>
 
-      <MotionDiv
-        {...slideInFromBottom}
-        transition={{ duration: 0.5, delay: 0.5 }}
-        className="mb-8"
-      >
+      <ScrollAnimation animation="slideUp" duration={0.6} className="mb-8">
         <h2 className="mb-3 text-xl font-semibold">Selected Courses</h2>
         <SelectedCoursesTable />
-      </MotionDiv>
+      </ScrollAnimation>
 
       <ModeToggle />
     </main>

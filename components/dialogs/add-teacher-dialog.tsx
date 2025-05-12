@@ -120,7 +120,12 @@ export function AddTeacherDialog({
 					</DialogHeader>
 
 					<div className="grid gap-4 py-4">
-						<div className="grid gap-2">
+						<MotionDiv
+							initial={{ opacity: 0, x: -20 }}
+							animate={{ opacity: 1, x: 0 }}
+							transition={{ duration: 0.3, delay: 0.05 }}
+							className="grid gap-2"
+						>
 							<Label>Course</Label>
 							<Select
 								value={selectedCourse}
@@ -143,10 +148,15 @@ export function AddTeacherDialog({
 									No courses available. Please add a course first.
 								</p>
 							)}
-						</div>
+						</MotionDiv>
 
 						<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-							<div className="grid gap-2">
+							<MotionDiv
+								initial={{ opacity: 0, x: -20 }}
+								animate={{ opacity: 1, x: 0 }}
+								transition={{ duration: 0.3, delay: 0.1 }}
+								className="grid gap-2"
+							>
 								<Label htmlFor="teacherName">Teacher Name</Label>
 								<Input
 									id="teacherName"
@@ -154,9 +164,14 @@ export function AddTeacherDialog({
 									onChange={(e) => setTeacherName(e.target.value)}
 									placeholder="Dr. Smith"
 								/>
-							</div>
+							</MotionDiv>
 
-							<div className="grid gap-2">
+							<MotionDiv
+								initial={{ opacity: 0, x: -20 }}
+								animate={{ opacity: 1, x: 0 }}
+								transition={{ duration: 0.3, delay: 0.1 }}
+								className="grid gap-2"
+							>
 								<Label htmlFor="color">Color</Label>
 								<Select value={selectedColor} onValueChange={setSelectedColor}>
 									<SelectTrigger>
@@ -181,11 +196,16 @@ export function AddTeacherDialog({
 										))}
 									</SelectContent>
 								</Select>
-							</div>
+							</MotionDiv>
 						</div>
 
 						<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-							<div className="grid gap-2">
+							<MotionDiv
+								initial={{ opacity: 0, x: -20 }}
+								animate={{ opacity: 1, x: 0 }}
+								transition={{ duration: 0.3, delay: 0.15 }}
+								className="grid gap-2"
+							>
 								<Label htmlFor="slots">Slots</Label>
 								<Input
 									id="slots"
@@ -193,9 +213,14 @@ export function AddTeacherDialog({
 									onChange={(e) => setSlots(e.target.value)}
 									placeholder="e.g. A1+TA1"
 								/>
-							</div>
+							</MotionDiv>
 
-							<div className="grid gap-2">
+							<MotionDiv
+								initial={{ opacity: 0, x: -20 }}
+								animate={{ opacity: 1, x: 0 }}
+								transition={{ duration: 0.3, delay: 0.15 }}
+								className="grid gap-2"
+							>
 								<Label htmlFor="venue">Venue</Label>
 								<Input
 									id="venue"
@@ -203,7 +228,7 @@ export function AddTeacherDialog({
 									onChange={(e) => setVenue(e.target.value)}
 									placeholder="e.g. Room 101"
 								/>
-							</div>
+							</MotionDiv>
 						</div>
 					</div>
 

@@ -47,29 +47,27 @@ export function IconButton({
 		}
 	};
 
-	return (
-		useAnimation ? (
-			<Button
-				variant={variant}
-				size={size}
-				onClick={onClick}
-				disabled={disabled}
-				className={className}
-			>
-				{getIcon()}
-				{label && label}
-			</Button>
-		) : (
-			<SimpleButton
-				variant={variant}
-				size={size}
-				onClick={onClick}
-				disabled={disabled}
-				className={className}
-			>
-				{getIcon()}
-				{label && label}
-			</SimpleButton>
-		)
+	return useAnimation ? (
+		<Button
+			variant={variant}
+			size={size}
+			onClick={onClick}
+			disabled={disabled}
+			className={className}
+		>
+			{getIcon()}
+			{label && label}
+		</Button>
+	) : (
+		<SimpleButton
+			variant={variant}
+			size={size}
+			onClick={onClick}
+			disabled={disabled}
+			className={className}
+		>
+			{getIcon()}
+			{label && label}
+		</SimpleButton>
 	);
 }

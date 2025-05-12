@@ -1,8 +1,8 @@
 "use client";
-import { cn, ColorVariant, getColorVariant } from "@/lib/utils";
+import { cn, type ColorVariant, getColorVariant } from "@/lib/utils";
 import { useScheduleStore } from "@/lib/store";
 import { useMemo } from "react";
-import { MotionDiv, MotionTd } from "./ui/motion";
+import { MotionDiv, MotionTd, ScrollAnimation } from "./ui/motion";
 
 export function Timetable() {
 	const { selectedTeachers } = useScheduleStore();
@@ -152,9 +152,9 @@ export function Timetable() {
 
 				colorCache[slotKey] = matchedTeacher
 					? getColorVariant(matchedTeacher.color as ColorVariant, [
-						"bg",
-						"text",
-					])
+							"bg",
+							"text",
+						])
 					: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200";
 
 				teacherCache[slotKey] = matchedTeacher?.name || "";
@@ -184,130 +184,134 @@ export function Timetable() {
 	};
 
 	return (
-		<div className="overflow-x-auto">
-			<table className="w-full overflow-hidden border border-collapse divide-gray-200 rounded-lg dark:divide-gray-700">
-				<thead className="p-2 font-bold bg-gray-100 border dark:bg-gray-800">
-					<tr>
-						<th className="p-2 font-bold bg-gray-100 border dark:bg-gray-800">
-							THEORY
-							<br />
-							HOURS
-						</th>
-						{theoryHours.map((hour, index) => (
-							<th
-								key={index}
-								className={cn(
-									"p-2 text-xs font-bold text-center border w-24 max-w-24",
-									getColorVariant("blue", ["bg", "text"]),
-								)}
-							>
-								{hour.start.length > 1 && (
-									<>
-										{hour.start}
-										<br />
-										to
-										<br />
-										{hour.end}
-									</>
-								)}
-								{hour.start.length == 1 && <>-</>}
-								{!hour.start && (
-									<div className="flex items-center justify-center h-16">
-										LUNCH
-									</div>
-								)}
+		<ScrollAnimation animation="fadeIn" duration={0.8}>
+			<div className="overflow-x-auto shadow-sm rounded-lg">
+				<table className="w-full overflow-hidden border border-collapse divide-gray-200 rounded-lg dark:divide-gray-700">
+					<thead className="p-2 font-bold bg-gray-100 border dark:bg-gray-800">
+						<tr>
+							<th className="p-2 font-bold bg-gray-100 border dark:bg-gray-800">
+								THEORY
+								<br />
+								HOURS
 							</th>
-						))}
-					</tr>
-					<tr>
-						<th
-							key={"lab-hours"}
-							className="p-2 font-bold bg-gray-100 border dark:bg-gray-800"
-						>
-							LAB
-							<br />
-							HOURS
-						</th>
-						{labHours.map((hour, index) => (
-							<th
-								key={index}
-								className={cn(
-									"p-2 text-xs font-bold text-center border w-24 max-w-24",
-									getColorVariant("blue", ["bg", "text"]),
-								)}
-								colSpan={hour.start.length == 0 ? 1 : 2}
-							>
-								{hour.start && (
-									<>
-										{hour.start}
-										<br />
-										to
-										<br />
-										{hour.end}
-									</>
-								)}
-								{!hour.start && (
-									<div className="flex items-center justify-center h-16 text-center">
-										LUNCH
-									</div>
-								)}
-							</th>
-						))}
-						<th
-							className={cn("p-2", getColorVariant("blue", ["bg", "text"]))}
-						></th>
-					</tr>
-				</thead>
-				<tbody>
-					{days.map((day, dayIndex) => (
-						<tr key={dayIndex}>
-							<td className="p-2 font-bold text-center bg-gray-100 border dark:bg-gray-800 dark:border-gray-700">
-								{day}
-							</td>
-							{timetableData[day].map((slot, slotIndex) =>
-								slotIndex == 6 ? (
-									dayIndex == 0 ? (
-										<td
-											key={slotIndex}
-											className="p-2 text-center bg-gray-100 border dark:bg-gray-800"
-											rowSpan={5}
-										>
-											<div className="flex items-center justify-center h-16 text-center">
-												LUNCH
-											</div>
-										</td>
-									) : null
-								) : (
-									<MotionTd
-										key={slotIndex}
-										className={cn(
-											"border p-2 text-center text-xs transition-colors duration-200 max-w-24 overflow-hidden h-24 max-h-24",
-											getColorForSlot(slot),
-										)}
-										initial={{ opacity: 0 }}
-										animate={{ opacity: 1 }}
-										transition={{
-											delay: slotIndex * 0.01,
-											duration: 0.3,
-										}}
-									>
-										{slot.join(" / ")}
-										<MotionDiv
-											className="mt-1 font-semibold"
-											initial={{ opacity: 0 }}
-											animate={{ opacity: 1 }}
-											transition={{ delay: 0.1 }}
-										>
-											<p>{getTeacherForSlot(slot)}</p>
-											<p>{getVenueForSlot(slot)}</p>
-										</MotionDiv>
-									</MotionTd>
-								),
-							)}
+							{theoryHours.map((hour, index) => (
+								<th
+									key={index}
+									className={cn(
+										"p-2 text-xs font-bold text-center border w-24 max-w-24",
+										getColorVariant("blue", ["bg", "text"]),
+									)}
+								>
+									{hour.start.length > 1 && (
+										<>
+											{hour.start}
+											<br />
+											to
+											<br />
+											{hour.end}
+										</>
+									)}
+									{hour.start.length == 1 && <>-</>}
+									{!hour.start && (
+										<div className="flex items-center justify-center h-16">
+											LUNCH
+										</div>
+									)}
+								</th>
+							))}
 						</tr>
-					))}
-				</tbody>
-			</table>
-		</div>
+						<tr>
+							<th
+								key={"lab-hours"}
+								className="p-2 font-bold bg-gray-100 border dark:bg-gray-800"
+							>
+								LAB
+								<br />
+								HOURS
+							</th>
+							{labHours.map((hour, index) => (
+								<th
+									key={index}
+									className={cn(
+										"p-2 text-xs font-bold text-center border w-24 max-w-24",
+										getColorVariant("blue", ["bg", "text"]),
+									)}
+									colSpan={hour.start.length == 0 ? 1 : 2}
+								>
+									{hour.start && (
+										<>
+											{hour.start}
+											<br />
+											to
+											<br />
+											{hour.end}
+										</>
+									)}
+									{!hour.start && (
+										<div className="flex items-center justify-center h-16 text-center">
+											LUNCH
+										</div>
+									)}
+								</th>
+							))}
+							<th
+								className={cn("p-2", getColorVariant("blue", ["bg", "text"]))}
+							></th>
+						</tr>
+					</thead>
+					<tbody>
+						{days.map((day, dayIndex) => (
+							<tr key={dayIndex}>
+								<td className="p-2 font-bold text-center bg-gray-100 border dark:bg-gray-800 dark:border-gray-700">
+									{day}
+								</td>
+								{timetableData[day].map((slot, slotIndex) =>
+									slotIndex == 6 ? (
+										dayIndex == 0 ? (
+											<td
+												key={slotIndex}
+												className="p-2 text-center bg-gray-100 border dark:bg-gray-800"
+												rowSpan={5}
+											>
+												<div className="flex items-center justify-center h-16 text-center">
+													LUNCH
+												</div>
+											</td>
+										) : null
+									) : (
+										<MotionTd
+											key={slotIndex}
+											className={cn(
+												"border p-2 text-center text-xs transition-colors duration-200 max-w-24 overflow-hidden h-24 max-h-24",
+												getColorForSlot(slot),
+											)}
+											initial={{ opacity: 0, scale: 0.9 }}
+											animate={{ opacity: 1, scale: 1 }}
+											transition={{
+												type: "spring",
+												stiffness: 500,
+												damping: 30,
+												delay: slotIndex * 0.01 + dayIndex * 0.03,
+											}}
+										>
+											{slot.join(" / ")}
+											<MotionDiv
+												className="mt-1 font-semibold"
+												initial={{ opacity: 0 }}
+												animate={{ opacity: 1 }}
+												transition={{ delay: 0.2 }}
+											>
+												<p>{getTeacherForSlot(slot)}</p>
+												<p>{getVenueForSlot(slot)}</p>
+											</MotionDiv>
+										</MotionTd>
+									),
+								)}
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+		</ScrollAnimation>
 	);
 }

@@ -7,7 +7,6 @@ import { useScheduleStore, type Course, type Teacher } from "@/lib/store";
 import { AddCourseDialog } from "../dialogs/add-course-dialog";
 import TeacherList from "../list/teacher-list";
 import { Button } from "../ui/button";
-import { IconButton } from "../ui/icon-button";
 import { AnimatePresenceWrapper, MotionDiv, MotionLi } from "../ui/motion";
 import { DeleteDialog } from "../dialogs/delete-dialog";
 
@@ -37,12 +36,21 @@ const CourseItem = React.memo(function CourseItem({
 
 	return (
 		<MotionLi
-			className="overflow-hidden border rounded-md"
+			className="overflow-hidden border rounded-md shadow-sm"
 			layout
 			initial={{ opacity: 0, y: 20 }}
 			animate={{ opacity: 1, y: 0 }}
 			exit={{ opacity: 0, y: -20 }}
-			transition={{ duration: 0.5, delay: index * 0.05 }}
+			transition={{
+				type: "spring",
+				stiffness: 500,
+				damping: 30,
+				delay: index * 0.05,
+			}}
+			whileHover={{
+				boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+				transition: { duration: 0.2 },
+			}}
 		>
 			<div className="flex items-center justify-between p-3">
 				<div>
@@ -57,6 +65,7 @@ const CourseItem = React.memo(function CourseItem({
 						size="sm"
 						onClick={toggleExpanded}
 						aria-label={isExpanded ? "Collapse teachers" : "Expand teachers"}
+						className="transition-transform duration-200"
 					>
 						{isExpanded ? (
 							<ChevronUpIcon className="w-4 h-4" />
@@ -87,7 +96,11 @@ const CourseItem = React.memo(function CourseItem({
 						initial={{ height: 0, opacity: 0 }}
 						animate={{ height: "auto", opacity: 1 }}
 						exit={{ height: 0, opacity: 0 }}
-						transition={{ duration: 0.2 }}
+						transition={{
+							type: "spring",
+							stiffness: 500,
+							damping: 30,
+						}}
 					>
 						<TeacherList courseTeachers={courseTeachers} editMode={editMode} />
 					</MotionDiv>
