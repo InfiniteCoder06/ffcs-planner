@@ -142,11 +142,7 @@ export function CoursePreferences() {
           className="flex items-center justify-end p-4 border-t"
         >
           <div className="flex flex-wrap gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleUploadTimetable}
-            >
+            <Button variant="outline" size="sm" onClick={handleUploadTimetable}>
               Upload TT
             </Button>
             <DownloadTimetableDialog disabled={courseCount === 0} />

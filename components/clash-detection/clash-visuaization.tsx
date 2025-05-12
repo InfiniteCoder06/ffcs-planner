@@ -52,10 +52,10 @@ export function ClashVisualization() {
                 animate={
                   animateAlert && clashCount > 0
                     ? {
-                      scale: [1, 1.2, 1],
-                      rotate: [-5, 0, 5, 0],
-                      transition: { duration: 0.5, ease: "easeInOut" },
-                    }
+                        scale: [1, 1.2, 1],
+                        rotate: [-5, 0, 5, 0],
+                        transition: { duration: 0.5, ease: "easeInOut" },
+                      }
                     : {}
                 }
               >
@@ -65,7 +65,10 @@ export function ClashVisualization() {
                   />
                 ) : (
                   <CheckCircle2
-                    className={cn("h-6 w-6", getColorVariant("green", ["text"]))}
+                    className={cn(
+                      "h-6 w-6",
+                      getColorVariant("green", ["text"]),
+                    )}
                   />
                 )}
               </MotionDiv>
