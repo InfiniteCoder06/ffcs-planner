@@ -22,6 +22,7 @@ interface TeacherItemProps {
   clashedTeachers: Teacher[];
   className?: string;
   index: number;
+  highlightedSlot?: string;
 }
 
 export default function TeacherItem({
@@ -30,6 +31,7 @@ export default function TeacherItem({
   clashedTeachers,
   className,
   index,
+  highlightedSlot,
 }: TeacherItemProps) {
   const {
     getCourse,
@@ -45,25 +47,30 @@ export default function TeacherItem({
   }, [teacher.id, removeTeacher]);
 
   const renderSlots = () =>
-    teacher.slots.map((slot, slotIndex) => (
-      <MotionDiv
-        key={slotIndex}
-        initial={{ opacity: 0, y: -5 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: slotIndex * 0.05 + index * 0.03 }}
-      >
-        <Badge
-          variant="outline"
-          className={cn(
-            "border-none select-none rounded-full",
-            getColorVariant(teacher.color as ColorVariant, ["border", "bg"]),
-            className,
-          )}
+    teacher.slots.map((slot, slotIndex) => {
+      const isHighlighted = highlightedSlot === slot;
+
+      return (
+        <MotionDiv
+          key={slotIndex}
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: slotIndex * 0.05 + index * 0.03 }}
         >
-          {slot}
-        </Badge>
-      </MotionDiv>
-    ));
+          <Badge
+            variant="outline"
+            className={cn(
+              "border-none select-none rounded-full",
+              getColorVariant(teacher.color as ColorVariant, ["border", "bg"]),
+              isHighlighted && "ring-2 ring-offset-1 ring-primary",
+              className,
+            )}
+          >
+            {slot}
+          </Badge>
+        </MotionDiv>
+      );
+    });
 
   const handleButtonClick = () => {
     toggleTeacherInTimetable(teacher.id);
@@ -75,14 +82,14 @@ export default function TeacherItem({
         className={cn(
           "p-3 rounded-md flex justify-between items-center gap-2",
           hasClash
-            ? "bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"
+            ? getColorVariant("red", ["bgLight", "border"])
             : cn(
-                "bg-slate-100 dark:bg-slate-800",
-                getColorVariant(teacher.color as ColorVariant, [
-                  "bg",
-                  "bgLight",
-                ]),
-              ),
+              "bg-slate-100 dark:bg-slate-800",
+              getColorVariant(teacher.color as ColorVariant, [
+                "bg",
+                "bgLight",
+              ]),
+            ),
         )}
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -106,12 +113,12 @@ export default function TeacherItem({
                       transition: { duration: 0.5 },
                     }}
                   >
-                    <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                    <AlertCircle className={cn(getColorVariant("red", ["text"]))} />
                   </MotionDiv>
                 </TooltipTrigger>
                 <TooltipContent
                   side="top"
-                  className="bg-red-50 border-red-200 text-red-800 dark:bg-red-900/80 dark:border-red-800 dark:text-red-100"
+                  className={cn(getColorVariant("red", ["bgLight", "border", "text"]))}
                 >
                   <div className="p-1">
                     <p className="font-bold mb-1">Slot Clash!</p>
@@ -164,8 +171,10 @@ export default function TeacherItem({
                   isSelected ? ["bg", "bgHover", "text"] : ["text"],
                 ),
                 hasClash &&
-                  isSelected &&
-                  "bg-red-200 hover:bg-red-300 text-red-800 dark:bg-red-900 dark:text-red-100",
+                isSelected && getColorVariant(
+                  "red",
+                  ["bgLight", "bgHover", "text"],
+                ),
               )}
               onClick={handleButtonClick}
             >

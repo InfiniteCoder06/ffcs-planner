@@ -17,6 +17,8 @@ import {
   MotionDiv,
   MotionUl,
 } from "../ui/motion";
+import { Input } from "../ui/input";
+import { Search } from "lucide-react";
 
 interface CourseListProps {
   editMode: boolean;
@@ -25,19 +27,28 @@ interface CourseListProps {
 export function CourseList({ editMode }: CourseListProps) {
   const { courses, teachers } = useScheduleStore();
   const [sortBy, setSortBy] = useState<"code" | "name">("code");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const getTeachersForCourse = useCallback(
     (courseId: string) => teachers.filter((t) => t.course === courseId),
     [teachers],
   );
 
-  const sortedCourses = useMemo(() => {
-    return [...courses].sort((a, b) =>
+  const filteredAndSortedCourses = useMemo(() => {
+    const filtered = courses.filter((course) => {
+      const searchLower = searchQuery.toLowerCase();
+      return (
+        course.code.toLowerCase().includes(searchLower) ||
+        course.name.toLowerCase().includes(searchLower)
+      );
+    });
+
+    return [...filtered].sort((a, b) =>
       sortBy === "code"
         ? a.code.localeCompare(b.code)
         : a.name.localeCompare(b.name),
     );
-  }, [courses, sortBy]);
+  }, [courses, sortBy, searchQuery]);
 
   const handleSortChange = useCallback(
     (value: string) => setSortBy(value as "code" | "name"),
@@ -62,6 +73,18 @@ export function CourseList({ editMode }: CourseListProps) {
         )}
       </div>
 
+      {courses.length > 0 && (
+        <div className="relative mb-4">
+          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search courses by code or name..."
+            className="pl-8"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      )}
+
       {courses.length === 0 ? (
         <MotionDiv
           key="no-courses"
@@ -70,6 +93,15 @@ export function CourseList({ editMode }: CourseListProps) {
           transition={{ duration: 0.3 }}
         >
           No courses added yet. Add your first course!
+        </MotionDiv>
+      ) : filteredAndSortedCourses.length === 0 ? (
+        <MotionDiv
+          key="no-results"
+          className="p-4 text-sm text-center text-muted-foreground"
+          {...fadeIn}
+          transition={{ duration: 0.3 }}
+        >
+          No courses match your search.
         </MotionDiv>
       ) : (
         <AnimatePresenceWrapper>
@@ -81,7 +113,7 @@ export function CourseList({ editMode }: CourseListProps) {
             className="space-y-3"
             layout
           >
-            {sortedCourses.map((course, index) => (
+            {filteredAndSortedCourses.map((course, index) => (
               <CourseItem
                 key={course.id}
                 index={index}
