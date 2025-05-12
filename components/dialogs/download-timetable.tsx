@@ -26,7 +26,7 @@ const generateDefaultFilename = () => {
   return `timetable-${datePart}-${timePart}`;
 };
 
-export function DownloadTimetableDialog() {
+export function DownloadTimetableDialog({ disabled = false }) {
   const { getExportData } = useScheduleStore();
 
   const [open, setOpen] = useState(false);
@@ -72,7 +72,7 @@ export function DownloadTimetableDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" disabled={disabled}>
           Save TT
         </Button>
       </DialogTrigger>

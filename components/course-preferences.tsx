@@ -142,15 +142,14 @@ export function CoursePreferences() {
           className="flex items-center justify-end p-4 border-t"
         >
           <div className="flex flex-wrap gap-2">
-            <DownloadTimetableDialog />
             <Button
               variant="outline"
               size="sm"
               onClick={handleUploadTimetable}
-              disabled={courseCount === 0}
             >
-              Upload Timetable
+              Upload TT
             </Button>
+            <DownloadTimetableDialog disabled={courseCount === 0} />
             <DeleteDialog
               description="Are you sure you want to clear selected teachers?"
               buttonText="Clear Selected"
