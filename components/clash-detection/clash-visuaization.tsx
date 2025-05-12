@@ -42,9 +42,10 @@ export function ClashVisualization() {
             transition={{ duration: 0.3 }}
             className={cn(
               "p-4 rounded-lg border flex items-center justify-between",
-              clashCount > 0
-                ? getColorVariant("red", ["bgLight", "border"])
-                : getColorVariant("green", ["bgLight", "border"]),
+              getColorVariant(clashCount > 0 ? "red" : "green", [
+                "bgLight",
+                "border",
+              ]),
             )}
           >
             <div className="flex items-center gap-3">
@@ -76,9 +77,7 @@ export function ClashVisualization() {
                 <h3
                   className={cn(
                     "font-medium",
-                    clashCount > 0
-                      ? getColorVariant("red", ["text"])
-                      : getColorVariant("green", ["text"]),
+                    getColorVariant(clashCount > 0 ? "red" : "green", ["text"]),
                   )}
                 >
                   {clashCount > 0 ? "Slot Clashes Detected" : "No Slot Clashes"}
@@ -86,9 +85,7 @@ export function ClashVisualization() {
                 <p
                   className={cn(
                     "text-sm",
-                    clashCount > 0
-                      ? getColorVariant("red", ["text"])
-                      : getColorVariant("green", ["text"]),
+                    getColorVariant(clashCount > 0 ? "red" : "green", ["text"]),
                   )}
                 >
                   {clashCount > 0
