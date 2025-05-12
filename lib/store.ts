@@ -27,9 +27,9 @@ export interface ExportData {
 }
 
 export interface ClashInfo {
-  slot: string
-  teacher1: Teacher
-  teacher2: Teacher
+  slot: string;
+  teacher1: Teacher;
+  teacher2: Teacher;
 }
 
 type State = {
@@ -58,8 +58,8 @@ type Actions = {
   teacherSlotClash: (teacherId: string) => Teacher[];
   getTeachersClash: (slots: string[]) => Teacher[];
 
-  getSlotClashes: (slot: string) => ClashInfo[]
-  getAllClashes: () => ClashInfo[]
+  getSlotClashes: (slot: string) => ClashInfo[];
+  getAllClashes: () => ClashInfo[];
 
   getExportData: () => {
     courses: Course[];
@@ -220,14 +220,16 @@ export const useScheduleStore = create<State & Actions>()(
       },
 
       getSlotClashes: (slot) => {
-        const { selectedTeachers } = get()
-        const clashes: ClashInfo[] = []
+        const { selectedTeachers } = get();
+        const clashes: ClashInfo[] = [];
 
         // Find all teachers that have this slot
-        const teachersWithSlot = selectedTeachers.filter((teacher) => teacher.slots.includes(slot))
+        const teachersWithSlot = selectedTeachers.filter((teacher) =>
+          teacher.slots.includes(slot),
+        );
 
         // If less than 2 teachers have this slot, there's no clash
-        if (teachersWithSlot.length < 2) return []
+        if (teachersWithSlot.length < 2) return [];
 
         // Create clash pairs
         for (let i = 0; i < teachersWithSlot.length; i++) {
@@ -236,30 +238,30 @@ export const useScheduleStore = create<State & Actions>()(
               slot,
               teacher1: teachersWithSlot[i],
               teacher2: teachersWithSlot[j],
-            })
+            });
           }
         }
 
-        return clashes
+        return clashes;
       },
 
       // Get all clashes in the timetable
       getAllClashes: () => {
-        const { selectedTeachers } = get()
-        const clashes: ClashInfo[] = []
+        const { selectedTeachers } = get();
+        const clashes: ClashInfo[] = [];
 
         // Create a map of slots to teachers
-        const slotMap: Record<string, Teacher[]> = {}
+        const slotMap: Record<string, Teacher[]> = {};
 
         // Populate the map
         selectedTeachers.forEach((teacher) => {
           teacher.slots.forEach((slot) => {
             if (!slotMap[slot]) {
-              slotMap[slot] = []
+              slotMap[slot] = [];
             }
-            slotMap[slot].push(teacher)
-          })
-        })
+            slotMap[slot].push(teacher);
+          });
+        });
 
         // Check each slot for clashes
         Object.entries(slotMap).forEach(([slot, teachers]) => {
@@ -271,13 +273,13 @@ export const useScheduleStore = create<State & Actions>()(
                   slot,
                   teacher1: teachers[i],
                   teacher2: teachers[j],
-                })
+                });
               }
             }
           }
-        })
+        });
 
-        return clashes
+        return clashes;
       },
     }),
     {
