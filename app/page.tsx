@@ -1,4 +1,4 @@
-import { ClashVisualization } from "@/components/clash-detection/clash-visuaization";
+import { ClashVisualization } from "@/components/clash-detection/clash-visualization";
 import { CoursePreferences } from "@/components/course-preferences";
 import { ExportDialog } from "@/components/export/export-dialog";
 import { ModeToggle } from "@/components/mode-toggle";
