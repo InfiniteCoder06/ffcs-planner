@@ -20,6 +20,19 @@ export interface Teacher {
   course: string;
 }
 
+export interface ExportData {
+  courses: Course[];
+  teachers: Teacher[];
+  selectedTeachers: Teacher[];
+  selectedSlots: string[];
+}
+
+export interface ClashInfo {
+  slot: string
+  teacher1: Teacher
+  teacher2: Teacher
+}
+
 type State = {
   courses: Course[];
   teachers: Teacher[];
@@ -45,6 +58,9 @@ type Actions = {
 
   teacherSlotClash: (teacherId: string) => Teacher[];
   getTeachersClash: (slots: string[]) => Teacher[];
+
+  getSlotClashes: (slot: string) => ClashInfo[]
+  getAllClashes: () => ClashInfo[]
 
   getExportData: () => {
     courses: Course[];
@@ -202,6 +218,67 @@ export const useScheduleStore = create<State & Actions>()(
           selectedTeachers,
           selectedSlots,
         });
+      },
+
+      getSlotClashes: (slot) => {
+        const { selectedTeachers } = get()
+        const clashes: ClashInfo[] = []
+
+        // Find all teachers that have this slot
+        const teachersWithSlot = selectedTeachers.filter((teacher) => teacher.slots.includes(slot))
+
+        // If less than 2 teachers have this slot, there's no clash
+        if (teachersWithSlot.length < 2) return []
+
+        // Create clash pairs
+        for (let i = 0; i < teachersWithSlot.length; i++) {
+          for (let j = i + 1; j < teachersWithSlot.length; j++) {
+            clashes.push({
+              slot,
+              teacher1: teachersWithSlot[i],
+              teacher2: teachersWithSlot[j],
+            })
+          }
+        }
+
+        return clashes
+      },
+
+      // Get all clashes in the timetable
+      getAllClashes: () => {
+        const { selectedTeachers } = get()
+        const clashes: ClashInfo[] = []
+
+        // Create a map of slots to teachers
+        const slotMap: Record<string, Teacher[]> = {}
+
+        // Populate the map
+        selectedTeachers.forEach((teacher) => {
+          teacher.slots.forEach((slot) => {
+            if (!slotMap[slot]) {
+              slotMap[slot] = []
+            }
+            slotMap[slot].push(teacher)
+          })
+        })
+
+        // Check each slot for clashes
+        Object.entries(slotMap).forEach(([slot, teachers]) => {
+          if (teachers.length >= 2) {
+            // Create clash pairs
+            for (let i = 0; i < teachers.length; i++) {
+              for (let j = i + 1; j < teachers.length; j++) {
+                clashes.push({
+                  slot,
+                  teacher1: teachers[i],
+                  teacher2: teachers[j],
+                })
+              }
+            }
+          }
+        })
+
+        return clashes
       },
     }),
     {

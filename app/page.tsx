@@ -1,3 +1,4 @@
+import { ClashVisualization } from "@/components/clash-detection/clash-visuaization";
 import { CoursePreferences } from "@/components/course-preferences";
 import { ExportDialog } from "@/components/export/export-dialog";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -28,6 +29,7 @@ export default function Home() {
           <h2 className="mb-3 text-xl font-semibold">Timetable</h2>
           <ExportDialog />
         </div>
+        <ClashVisualization />
         <Timetable />
       </ScrollAnimation>
 
