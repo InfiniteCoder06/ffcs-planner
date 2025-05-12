@@ -84,12 +84,9 @@ export default function TeacherItem({
           hasClash
             ? getColorVariant("red", ["bgLight", "border"])
             : cn(
-              "bg-slate-100 dark:bg-slate-800",
-              getColorVariant(teacher.color as TailwindColor, [
-                "bg",
-                "bgLight",
-              ]),
-            ),
+                "bg-slate-100 dark:bg-slate-800",
+                getColorVariant(teacher.color as TailwindColor, ["bgLight"]),
+              ),
         )}
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -175,8 +172,8 @@ export default function TeacherItem({
                   isSelected ? ["bg", "bgHover", "text"] : ["text"],
                 ),
                 hasClash &&
-                isSelected &&
-                getColorVariant("red", ["bgLight", "bgHover", "text"]),
+                  isSelected &&
+                  getColorVariant("red", ["bgLight", "bgHover", "text"]),
               )}
               onClick={handleButtonClick}
             >

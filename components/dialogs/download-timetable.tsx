@@ -26,7 +26,11 @@ const generateDefaultFilename = () => {
   return `timetable-${datePart}-${timePart}`;
 };
 
-export function DownloadTimetableDialog({ disabled = false }) {
+export function DownloadTimetableDialog({
+  disabled = false,
+}: {
+  disabled?: boolean;
+}) {
   const { getExportData } = useScheduleStore();
 
   const [open, setOpen] = useState(false);
