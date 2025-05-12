@@ -1,4 +1,5 @@
 import { CoursePreferences } from "@/components/course-preferences";
+import { ExportDialog } from "@/components/export/export-dialog";
 import { ModeToggle } from "@/components/mode-toggle";
 import { SelectedCoursesTable } from "@/components/selected-courses-table";
 import { Timetable } from "@/components/timetable";
@@ -23,7 +24,10 @@ export default function Home() {
       </ScrollAnimation>
 
       <ScrollAnimation animation="slideUp" duration={0.6} className="mb-6">
-        <h2 className="mb-3 text-xl font-semibold">Timetable</h2>
+        <div className="flex justify-between items-start w-full">
+          <h2 className="mb-3 text-xl font-semibold">Timetable</h2>
+          <ExportDialog />
+        </div>
         <Timetable />
       </ScrollAnimation>
 

@@ -19,7 +19,6 @@ export const timetableData = <TimetableData>{
     ["TB2", "L34"],
     ["TG2", "L35"],
     ["L36"],
-    ["V3"],
   ],
   TUE: [
     ["B1", "L7"],
@@ -35,7 +34,6 @@ export const timetableData = <TimetableData>{
     ["TC2", "L40"],
     ["TAA2", "L41"],
     ["L42"],
-    ["V4"],
   ],
   WED: [
     ["C1", "L13"],
@@ -51,7 +49,6 @@ export const timetableData = <TimetableData>{
     ["TD2", "L46"],
     ["TBB2", "L47"],
     ["L48"],
-    ["V5"],
   ],
   THU: [
     ["D1", "L19"],
@@ -67,7 +64,6 @@ export const timetableData = <TimetableData>{
     ["TE2", "L52"],
     ["TCC2", "L53"],
     ["L54"],
-    ["V6"],
   ],
   FRI: [
     ["E1", "L25"],
@@ -83,6 +79,5 @@ export const timetableData = <TimetableData>{
     ["TF2", "L58"],
     ["TDD2", "L59"],
     ["L60"],
-    ["V7"],
   ],
 };

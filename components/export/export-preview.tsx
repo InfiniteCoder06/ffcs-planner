@@ -1,12 +1,12 @@
 "use client";
-import { cn, type ColorVariant, getColorVariant } from "@/lib/utils";
-import { useScheduleStore } from "@/lib/store";
-import { useMemo } from "react";
-import { MotionDiv, MotionTd, ScrollAnimation } from "./ui/motion";
-import { days, timetableData } from "@/lib/slots";
 
-export function Timetable() {
-  const { selectedTeachers } = useScheduleStore();
+import { days, timetableData } from "@/lib/slots";
+import { useScheduleStore } from "@/lib/store";
+import { cn, getColorVariant, type ColorVariant } from "@/lib/utils";
+import { useMemo } from "react";
+
+export function ExportPreview() {
+  const { selectedTeachers, courses } = useScheduleStore();
 
   const theoryHours = [
     { start: "8:00 AM", end: "8:50 AM" },
@@ -38,15 +38,18 @@ export function Timetable() {
   const timetableCache = useMemo(() => {
     const colorCache: Record<string, string> = {};
     const teacherCache: Record<string, string> = {};
-    const teacherVenueCache: Record<string, string> = {};
+    const courseCache: Record<string, string> = {};
+    const venueCache: Record<string, string> = {};
     const slotTeacherMap = new Map();
 
     selectedTeachers.forEach((teacher) => {
+      const course = courses.find((c) => c.id === teacher.course);
       teacher.slots.forEach((slot) => {
         slotTeacherMap.set(slot, {
           name: teacher.name,
           color: teacher.color,
           venue: teacher.venue || "",
+          course: course?.code || "",
         });
       });
     });
@@ -63,15 +66,16 @@ export function Timetable() {
               "bg",
               "text",
             ])
-          : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200";
+          : "bg-gray-100 text-gray-800";
 
         teacherCache[slotKey] = matchedTeacher?.name || "";
-        teacherVenueCache[slotKey] = matchedTeacher?.venue || "";
+        courseCache[slotKey] = matchedTeacher?.course || "";
+        venueCache[slotKey] = matchedTeacher?.venue || "";
       }
     }
 
-    return { colorCache, teacherCache, teacherVenueCache };
-  }, [selectedTeachers, timetableData, days]);
+    return { colorCache, teacherCache, courseCache, venueCache };
+  }, [selectedTeachers, timetableData, days, courses]);
 
   // Use the cache when rendering
   const getColorForSlot = (slot: string[]) => {
@@ -85,19 +89,38 @@ export function Timetable() {
     return timetableCache.teacherCache[slotKey];
   };
 
+  // Get course code for a slot
+  const getCourseForSlot = (slot: string[]) => {
+    const slotKey = slot.join("/");
+    return timetableCache.courseCache[slotKey];
+  };
+
   // Get teacher venue for a slot
   const getVenueForSlot = (slot: string[]) => {
     const slotKey = slot.join("/");
-    return timetableCache.teacherVenueCache[slotKey];
+    return timetableCache.venueCache[slotKey];
   };
 
+  // Calculate total credits
+  const totalCredits = useMemo(() => {
+    return selectedTeachers.reduce((total, teacher) => {
+      const course = courses.find((c) => c.id === teacher.course);
+      return total + (course?.credits || 0);
+    }, 0);
+  }, [selectedTeachers, courses]);
+
   return (
-    <ScrollAnimation animation="fadeIn" duration={0.8}>
-      <div className="overflow-x-auto shadow-sm rounded-lg">
-        <table className="w-full overflow-hidden border border-collapse divide-gray-200 rounded-lg dark:divide-gray-700">
-          <thead className="p-2 font-bold bg-gray-100 border dark:bg-gray-800">
+    <div className="print-container">
+      <div className="mb-4 text-center">
+        <h1 className="text-xl font-bold">FFCS Timetable</h1>
+        <p className="text-sm text-gray-600">Total Credits: {totalCredits}</p>
+      </div>
+
+      <div className="overflow-auto">
+        <table className="w-full overflow-hidden border border-collapse divide-gray-200 rounded-lg">
+          <thead className="p-2 font-bold bg-gray-100 border">
             <tr>
-              <th className="p-2 font-bold bg-gray-100 border dark:bg-gray-800">
+              <th className="p-2 font-bold bg-gray-100 border">
                 THEORY
                 <br />
                 HOURS
@@ -131,7 +154,7 @@ export function Timetable() {
             <tr>
               <th
                 key={"lab-hours"}
-                className="p-2 font-bold bg-gray-100 border dark:bg-gray-800"
+                className="p-2 font-bold bg-gray-100 border"
               >
                 LAB
                 <br />
@@ -167,7 +190,7 @@ export function Timetable() {
           <tbody>
             {days.map((day, dayIndex) => (
               <tr key={dayIndex}>
-                <td className="p-2 font-bold text-center bg-gray-100 border dark:bg-gray-800 dark:border-gray-700">
+                <td className="p-2 font-bold text-center bg-gray-100 border">
                   {day}
                 </td>
                 {timetableData[day].map((slot, slotIndex) =>
@@ -175,7 +198,7 @@ export function Timetable() {
                     dayIndex == 0 ? (
                       <td
                         key={slotIndex}
-                        className="p-2 text-center bg-gray-100 border dark:bg-gray-800"
+                        className="p-2 text-center bg-gray-100 border"
                         rowSpan={5}
                       >
                         <div className="flex items-center justify-center h-16 text-center">
@@ -184,32 +207,20 @@ export function Timetable() {
                       </td>
                     ) : null
                   ) : (
-                    <MotionTd
+                    <td
                       key={slotIndex}
                       className={cn(
-                        "border p-2 text-center text-xs transition-colors duration-200 max-w-24 overflow-hidden h-24 max-h-24",
+                        "border p-2 text-center text-xs h-24 max-h-24",
                         getColorForSlot(slot),
                       )}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 500,
-                        damping: 30,
-                        delay: slotIndex * 0.01 + dayIndex * 0.03,
-                      }}
                     >
                       {slot.join(" / ")}
-                      <MotionDiv
-                        className="mt-1 font-semibold"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.2 }}
-                      >
+                      <div className="mt-1 font-semibold">
+                        <p>{getCourseForSlot(slot)}</p>
                         <p>{getTeacherForSlot(slot)}</p>
                         <p>{getVenueForSlot(slot)}</p>
-                      </MotionDiv>
-                    </MotionTd>
+                      </div>
+                    </td>
                   ),
                 )}
               </tr>
@@ -217,6 +228,52 @@ export function Timetable() {
           </tbody>
         </table>
       </div>
-    </ScrollAnimation>
+
+      <div className="mt-4">
+        <h2 className="mb-2 text-lg font-bold">Selected Courses</h2>
+        <table className="w-full overflow-hidden border border-collapse divide-gray-200 rounded-lg">
+          <thead className="p-2 font-bold text-center bg-gray-100 select-none">
+            <tr>
+              <th className="p-2 border">Course Code</th>
+              <th className="p-2 border">Course Name</th>
+              <th className="p-2 border">Credits</th>
+              <th className="p-2 border">Faculty</th>
+              <th className="p-2 border">Venue</th>
+              <th className="p-2 border">Slots</th>
+            </tr>
+          </thead>
+          <tbody className="p-2 text-center bg-gray-100 border">
+            {selectedTeachers.map((teacher) => {
+              const course = courses.find((c) => c.id === teacher.course);
+              return (
+                <tr key={teacher.id}>
+                  <td className="p-2 border">{course?.code}</td>
+                  <td className="p-2 border">{course?.name}</td>
+                  <td className="p-2 text-center border">{course?.credits}</td>
+                  <td className="p-2 border">{teacher.name}</td>
+                  <td className="p-2 border">{teacher.venue}</td>
+                  <td className="p-2 border">{teacher.slots.join(", ")}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+          <tfoot>
+            <tr className="bg-gray-100 font-bold text-center">
+              <td colSpan={2} className="p-2 text-right border">
+                <strong>Total Credits:</strong>
+              </td>
+              <td className="p-2 text-center border">
+                <strong>{totalCredits}</strong>
+              </td>
+              <td colSpan={3} className="p-2 border"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div className="mt-4 text-center text-xs text-gray-500">
+        <p>Generated with FFCS Planner • {new Date().toLocaleDateString()}</p>
+      </div>
+    </div>
   );
 }

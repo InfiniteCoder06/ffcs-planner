@@ -54,7 +54,8 @@ function Button({
 
   return (
     <MotionDiv
-      className="flex items-center justify-center"
+      className="flex items-center justify-center rounded-md"
+      tabIndex={-1}
       initial={{ scale: 0 }}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}

@@ -5,10 +5,11 @@ import {
   TrashIcon,
   CheckIcon,
   XIcon,
+  Download,
 } from "lucide-react";
 import { ButtonSize, ButtonVariant } from "@/types";
 
-type IconType = "add" | "edit" | "delete" | "check" | "close";
+type IconType = "add" | "edit" | "delete" | "check" | "close" | "download";
 
 interface IconButtonProps {
   icon: IconType;
@@ -43,6 +44,8 @@ export function IconButton({
         return <CheckIcon className="w-4 h-4" />;
       case "close":
         return <XIcon className="w-4 h-4" />;
+      case "download":
+        return <Download className="w-4 h-4" />;
     }
   };
 
