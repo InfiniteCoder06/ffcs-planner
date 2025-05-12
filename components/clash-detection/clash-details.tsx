@@ -42,7 +42,7 @@ export function ClashDetails({ clashes }: ClashDetailsProps) {
       >
         <h4
           className={cn(
-            "font-mediumflex items-center gap-2",
+            "font-medium flex items-center gap-2",
             getColorVariant("red", ["text"]),
           )}
         >

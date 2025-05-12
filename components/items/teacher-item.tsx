@@ -61,7 +61,7 @@ export default function TeacherItem({
             variant="outline"
             className={cn(
               "border-none select-none rounded-full",
-              getColorVariant(teacher.color as TailwindColor, ["border", "bg"]),
+              getColorVariant(teacher.color as TailwindColor, ["bg"]),
               isHighlighted && "ring-2 ring-offset-1 ring-primary",
               className,
             )}
@@ -82,7 +82,7 @@ export default function TeacherItem({
         className={cn(
           "p-3 rounded-md flex justify-between items-center gap-2",
           hasClash
-            ? getColorVariant("red", ["bgLight", "border"])
+            ? getColorVariant("red", ["bgLight"])
             : cn(
                 "bg-slate-100 dark:bg-slate-800",
                 getColorVariant(teacher.color as TailwindColor, ["bgLight"]),
@@ -117,9 +117,7 @@ export default function TeacherItem({
                 </TooltipTrigger>
                 <TooltipContent
                   side="top"
-                  className={cn(
-                    getColorVariant("red", ["bgLight", "border", "text"]),
-                  )}
+                  className={cn(getColorVariant("red", ["bgLight", "text"]))}
                 >
                   <div className="p-1">
                     <p className="font-bold mb-1">Slot Clash!</p>
@@ -173,7 +171,7 @@ export default function TeacherItem({
                 ),
                 hasClash &&
                   isSelected &&
-                  getColorVariant("red", ["bgLight", "bgHover", "text"]),
+                  getColorVariant("red", ["bgLight", "bgLightHover", "text"]),
               )}
               onClick={handleButtonClick}
             >

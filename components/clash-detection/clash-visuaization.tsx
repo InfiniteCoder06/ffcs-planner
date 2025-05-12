@@ -101,9 +101,7 @@ export function ClashVisualization() {
               <Button
                 variant="outline"
                 size="sm"
-                className={cn(
-                  getColorVariant("red", ["border", "bgHover", "text"]),
-                )}
+                className={cn(getColorVariant("red", ["bgHover", "text"]))}
                 onClick={() => setShowDetails(!showDetails)}
               >
                 {showDetails ? "Hide Details" : "Show Details"}
