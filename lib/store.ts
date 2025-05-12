@@ -2,7 +2,6 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { DEFAULT_COURSES, DEFAULT_TEACHERS } from "./fakeData";
 
 export interface Course {
   id: string;
@@ -79,8 +78,8 @@ type Actions = {
 export const useScheduleStore = create<State & Actions>()(
   persist(
     (set, get) => ({
-      courses: DEFAULT_COURSES,
-      teachers: DEFAULT_TEACHERS,
+      courses: [],
+      teachers: [],
       selectedTeachers: [],
       selectedSlots: [],
 
