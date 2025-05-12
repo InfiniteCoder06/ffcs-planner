@@ -8,7 +8,11 @@ export default function Home() {
   return (
     <main className="container p-4 mx-auto">
       <Parallax className="mb-6" speed={0.2}>
-        <MotionDiv initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }}>
+        <MotionDiv
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
           <h1 className="mb-6 text-2xl font-bold text-center">FFCS Planner</h1>
         </MotionDiv>
       </Parallax>
