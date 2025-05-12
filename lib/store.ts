@@ -45,6 +45,19 @@ type Actions = {
 
   teacherSlotClash: (teacherId: string) => Teacher[];
   getTeachersClash: (slots: string[]) => Teacher[];
+
+  getExportData: () => {
+    courses: Course[];
+    teachers: Teacher[];
+    selectedTeachers: Teacher[];
+    selectedSlots: string[];
+  };
+  setExportData: (data: {
+    courses: Course[];
+    teachers: Teacher[];
+    selectedTeachers: Teacher[];
+    selectedSlots: string[];
+  }) => void;
 };
 
 export const useScheduleStore = create<State & Actions>()(
@@ -68,7 +81,7 @@ export const useScheduleStore = create<State & Actions>()(
       editCourse: (id, updates) =>
         set((state) => ({
           courses: state.courses.map((c) =>
-            c.id === id ? { ...c, ...updates } : c
+            c.id === id ? { ...c, ...updates } : c,
           ),
         })),
 
@@ -77,7 +90,7 @@ export const useScheduleStore = create<State & Actions>()(
           courses: state.courses.filter((c) => c.id !== id),
           teachers: state.teachers.filter((t) => t.course !== id),
           selectedTeachers: state.selectedTeachers.filter(
-            (t) => t.course !== id
+            (t) => t.course !== id,
           ),
         })),
 
@@ -106,7 +119,8 @@ export const useScheduleStore = create<State & Actions>()(
           selectedTeachers: state.selectedTeachers.filter((t) => t.id !== id),
         })),
 
-      clearSelectedTeachers: () => set({ selectedTeachers: [], selectedSlots: [] }),
+      clearSelectedTeachers: () =>
+        set({ selectedTeachers: [], selectedSlots: [] }),
 
       clearAll: () =>
         set({
@@ -122,16 +136,16 @@ export const useScheduleStore = create<State & Actions>()(
           if (!teacher) return {};
 
           const isSelected = state.selectedTeachers.some(
-            (t) => t.id === teacherId
+            (t) => t.id === teacherId,
           );
 
           if (isSelected) {
             return {
               selectedTeachers: state.selectedTeachers.filter(
-                (t) => t.id !== teacherId
+                (t) => t.id !== teacherId,
               ),
               selectedSlots: state.selectedSlots.filter(
-                (slot) => !teacher.slots.includes(slot)
+                (slot) => !teacher.slots.includes(slot),
               ),
             };
           }
@@ -150,7 +164,9 @@ export const useScheduleStore = create<State & Actions>()(
         if (!teacher) return [];
 
         const clashes: Record<string, Teacher> = {};
-        const selected = get().selectedTeachers.filter((t) => t.id !== teacherId);
+        const selected = get().selectedTeachers.filter(
+          (t) => t.id !== teacherId,
+        );
 
         for (const slot of teacher.slots) {
           for (const t of selected) {
@@ -169,11 +185,27 @@ export const useScheduleStore = create<State & Actions>()(
 
       getTeachersClash: (slots) =>
         get().teachers.filter((t) =>
-          t.slots.some((slot) => slots.includes(slot))
+          t.slots.some((slot) => slots.includes(slot)),
         ),
+
+      getExportData: () => {
+        const { courses, teachers, selectedTeachers, selectedSlots } = get();
+        return { courses, teachers, selectedTeachers, selectedSlots };
+      },
+
+      setExportData: (data) => {
+        const { courses, teachers, selectedTeachers, selectedSlots } = data;
+
+        set({
+          courses,
+          teachers,
+          selectedTeachers,
+          selectedSlots,
+        });
+      },
     }),
     {
       name: "schedule-store",
-    }
-  )
+    },
+  ),
 );
