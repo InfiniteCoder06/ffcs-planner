@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { Teacher, useScheduleStore } from "@/lib/store";
-import { cn, colors, ColorVariant, getColorVariant } from "@/lib/utils";
+import { cn, colors, getColorVariant, TailwindColor } from "@/lib/utils";
 import { DialogButtonProps } from "@/types";
 import { MotionDiv } from "../ui/motion";
 
@@ -183,7 +183,7 @@ export function AddTeacherDialog({
                         key={color.value}
                         value={color.value}
                         className={cn(
-                          getColorVariant(color.value as ColorVariant, [
+                          getColorVariant(color.value as TailwindColor, [
                             "bg",
                             "bgHover",
                             "text",

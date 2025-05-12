@@ -9,7 +9,7 @@ import {
   slideInFromBottom,
 } from "@/components/ui/motion";
 import { useScheduleStore } from "@/lib/store";
-import { cn, type ColorVariant, getColorVariant } from "@/lib/utils";
+import { cn, getColorVariant, TailwindColor } from "@/lib/utils";
 
 import { IconButton } from "./ui/icon-button";
 
@@ -111,7 +111,7 @@ export function SelectedCoursesTable() {
                           <div
                             className={cn(
                               "w-4 h-4 rounded-full m-auto",
-                              getColorVariant(teacher.color as ColorVariant, [
+                              getColorVariant(teacher.color as TailwindColor, [
                                 "bg",
                               ]),
                             )}

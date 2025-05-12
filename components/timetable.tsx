@@ -1,5 +1,5 @@
 "use client";
-import { cn, type ColorVariant, getColorVariant } from "@/lib/utils";
+import { cn, getColorVariant, TailwindColor } from "@/lib/utils";
 import { useScheduleStore } from "@/lib/store";
 import { useMemo } from "react";
 import { MotionDiv, MotionTd, ScrollAnimation } from "./ui/motion";
@@ -106,7 +106,7 @@ export function Timetable() {
           ]);
         } else {
           colorCache[slotKey] = matchedTeacher
-            ? getColorVariant(matchedTeacher.color as ColorVariant, [
+            ? getColorVariant(matchedTeacher.color as TailwindColor, [
               "bg",
               "text",
             ])
@@ -301,13 +301,22 @@ export function Timetable() {
                                 className="absolute top-1 right-1"
                                 initial={{ opacity: 0, scale: 0 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                transition={{
+                                  type: "spring",
+                                  stiffness: 500,
+                                  damping: 30,
+                                }}
                                 whileHover={{
                                   rotate: [0, -10, 10, -10, 0],
                                   transition: { duration: 0.5 },
                                 }}
                               >
-                                <AlertCircle className={cn("h-4 w-4", getColorVariant("red", ["text"]))} />
+                                <AlertCircle
+                                  className={cn(
+                                    "h-4 w-4",
+                                    getColorVariant("red", ["text"]),
+                                  )}
+                                />
                               </MotionDiv>
                             )}
                           </MotionTd>
@@ -315,7 +324,13 @@ export function Timetable() {
                         {hasClash(slot) && (
                           <TooltipContent
                             side="top"
-                            className={cn(getColorVariant("red", ["bgLight", "border", "text"]))}
+                            className={cn(
+                              getColorVariant("red", [
+                                "bgLight",
+                                "border",
+                                "text",
+                              ]),
+                            )}
                           >
                             <div className="p-1">
                               <p className="font-bold mb-1">

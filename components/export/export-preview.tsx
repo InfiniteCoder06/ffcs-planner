@@ -2,7 +2,7 @@
 
 import { days, timetableData } from "@/lib/slots";
 import { useScheduleStore } from "@/lib/store";
-import { cn, getColorVariant, type ColorVariant } from "@/lib/utils";
+import { cn, getColorVariant, TailwindColor } from "@/lib/utils";
 import { useMemo } from "react";
 
 export function ExportPreview() {
@@ -62,10 +62,10 @@ export function ExportPreview() {
           .find(Boolean);
 
         colorCache[slotKey] = matchedTeacher
-          ? getColorVariant(matchedTeacher.color as ColorVariant, [
-              "bg",
-              "text",
-            ])
+          ? getColorVariant(matchedTeacher.color as TailwindColor, [
+            "bg",
+            "text",
+          ])
           : "bg-gray-100 text-gray-800";
 
         teacherCache[slotKey] = matchedTeacher?.name || "";

@@ -2,7 +2,7 @@
 
 import { Check, Plus, AlertCircle } from "lucide-react";
 import { Button } from "../ui/button";
-import { cn, type ColorVariant, getColorVariant } from "@/lib/utils";
+import { cn, getColorVariant, TailwindColor } from "@/lib/utils";
 import { AddTeacherDialog } from "../dialogs/add-teacher-dialog";
 import { useScheduleStore, type Teacher } from "@/lib/store";
 import { Badge } from "../ui/badge";
@@ -61,7 +61,7 @@ export default function TeacherItem({
             variant="outline"
             className={cn(
               "border-none select-none rounded-full",
-              getColorVariant(teacher.color as ColorVariant, ["border", "bg"]),
+              getColorVariant(teacher.color as TailwindColor, ["border", "bg"]),
               isHighlighted && "ring-2 ring-offset-1 ring-primary",
               className,
             )}
@@ -85,7 +85,7 @@ export default function TeacherItem({
             ? getColorVariant("red", ["bgLight", "border"])
             : cn(
               "bg-slate-100 dark:bg-slate-800",
-              getColorVariant(teacher.color as ColorVariant, [
+              getColorVariant(teacher.color as TailwindColor, [
                 "bg",
                 "bgLight",
               ]),
@@ -113,12 +113,16 @@ export default function TeacherItem({
                       transition: { duration: 0.5 },
                     }}
                   >
-                    <AlertCircle className={cn(getColorVariant("red", ["text"]))} />
+                    <AlertCircle
+                      className={cn(getColorVariant("red", ["text"]))}
+                    />
                   </MotionDiv>
                 </TooltipTrigger>
                 <TooltipContent
                   side="top"
-                  className={cn(getColorVariant("red", ["bgLight", "border", "text"]))}
+                  className={cn(
+                    getColorVariant("red", ["bgLight", "border", "text"]),
+                  )}
                 >
                   <div className="p-1">
                     <p className="font-bold mb-1">Slot Clash!</p>
@@ -167,14 +171,12 @@ export default function TeacherItem({
               className={cn(
                 "h-8 w-8",
                 getColorVariant(
-                  teacher.color as ColorVariant,
+                  teacher.color as TailwindColor,
                   isSelected ? ["bg", "bgHover", "text"] : ["text"],
                 ),
                 hasClash &&
-                isSelected && getColorVariant(
-                  "red",
-                  ["bgLight", "bgHover", "text"],
-                ),
+                isSelected &&
+                getColorVariant("red", ["bgLight", "bgHover", "text"]),
               )}
               onClick={handleButtonClick}
             >

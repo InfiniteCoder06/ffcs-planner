@@ -4,7 +4,7 @@ import { useScheduleStore, type ClashInfo } from "@/lib/store";
 import { MotionDiv, MotionLi } from "../ui/motion";
 import { useMemo } from "react";
 import { AlertCircle, Clock } from "lucide-react";
-import { cn, getColorVariant, type ColorVariant } from "@/lib/utils";
+import { cn, getColorVariant, TailwindColor } from "@/lib/utils";
 import { Badge } from "../ui/badge";
 import { ScrollArea } from "../ui/scroll-area";
 
@@ -34,8 +34,18 @@ export function ClashDetails({ clashes }: ClashDetailsProps) {
       key={"clash-details"}
       className="border rounded-lg overflow-hidden bg-white dark:bg-gray-900"
     >
-      <div className={cn("p-3 border-b", getColorVariant("red", ["bgLight", "border"]))}>
-        <h4 className={cn("font-mediumflex items-center gap-2", getColorVariant("red", ["text"]))}>
+      <div
+        className={cn(
+          "p-3 border-b",
+          getColorVariant("red", ["bgLight", "border"]),
+        )}
+      >
+        <h4
+          className={cn(
+            "font-mediumflex items-center gap-2",
+            getColorVariant("red", ["text"]),
+          )}
+        >
           <AlertCircle className="h-4 w-4" />
           Clash Details
         </h4>
@@ -52,7 +62,12 @@ export function ClashDetails({ clashes }: ClashDetailsProps) {
                 transition={{ duration: 0.3, delay: groupIndex * 0.1 }}
                 className="mb-4 last:mb-0"
               >
-                <div className={cn("flex items-center gap-2 mb-2", getColorVariant("red", ["text"]))}>
+                <div
+                  className={cn(
+                    "flex items-center gap-2 mb-2",
+                    getColorVariant("red", ["text"]),
+                  )}
+                >
                   <Clock className="h-4 w-4" />
                   <h5 className="font-medium">
                     Slot {slot} ({slotClashes.length} clash
@@ -80,13 +95,18 @@ export function ClashDetails({ clashes }: ClashDetailsProps) {
                         }}
                         className="text-sm"
                       >
-                        <div className={cn("flex flex-col sm:flex-row sm:items-center gap-2 p-2 rounded-md", getColorVariant("red", ["bgLight"]))}>
+                        <div
+                          className={cn(
+                            "flex flex-col sm:flex-row sm:items-center gap-2 p-2 rounded-md",
+                            getColorVariant("red", ["bgLight"]),
+                          )}
+                        >
                           <div className="flex items-center gap-2 flex-1">
                             <Badge
                               className={cn(
                                 "rounded-full",
                                 getColorVariant(
-                                  clash.teacher1.color as ColorVariant,
+                                  clash.teacher1.color as TailwindColor,
                                   ["bg", "text"],
                                 ),
                               )}
@@ -112,7 +132,7 @@ export function ClashDetails({ clashes }: ClashDetailsProps) {
                               className={cn(
                                 "rounded-full",
                                 getColorVariant(
-                                  clash.teacher2.color as ColorVariant,
+                                  clash.teacher2.color as TailwindColor,
                                   ["bg", "text"],
                                 ),
                               )}
