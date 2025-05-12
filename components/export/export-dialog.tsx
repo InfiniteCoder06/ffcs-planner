@@ -93,7 +93,7 @@ export function ExportDialog() {
           <Tabs
             defaultValue="pdf"
             className="mt-4 w-5/6"
-            onValueChange={(value) => setExportType(value as any)}
+            onValueChange={(value) => setExportType(value as "pdf" | "image")}
           >
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="pdf" className="flex items-center gap-2">

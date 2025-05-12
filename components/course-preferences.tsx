@@ -30,6 +30,7 @@ export function CoursePreferences() {
 
   const toggleEditMode = useCallback(() => setEditMode((prev) => !prev), []);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const validateData = (data: any) => {
     if (
       !Array.isArray(data.courses) ||
