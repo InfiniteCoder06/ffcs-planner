@@ -21,7 +21,7 @@ const buttonVariants = cva(
         warning:
           "bg-yellow-200 text-yellow-800 shadow-xs hover:bg-yellow-300 hover:text-yellow-900 dark:bg-yellow-900 dark:text-yellow-50 focus-visible:ring-yellow-500/50 dark:focus-visible:ring-yellow-500/70",
         error:
-          "bg-red-200 text-red-800 shadow-xs hover:bg-red-300 hover:text-red-900 dark:bg-red-900 dark:text-red-50 focus-visible:ring-red-500/50 dark:focus-visible:ring-red-500/70",
+          "bg-red-200 text-red-800 shadow-xs hover:bg-red-300 hover:text-red-900 dark:bg-red-800 dark:hover:bg-red-900 dark:text-red-50 focus-visible:ring-red-500/50 dark:focus-visible:ring-red-500/70",
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",

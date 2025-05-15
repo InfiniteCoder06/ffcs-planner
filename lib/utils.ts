@@ -59,7 +59,7 @@ export function getColorVariant(
   keys: ColorVariant[],
 ): string {
   const variants: Record<ColorVariant, string> = {
-    bgLight: `bg-${color}-100 dark:bg-${color}-800/40`,
+    bgLight: `bg-${color}-100 dark:bg-${color}-800`,
     bgLightHover: `hover:bg-${color}-200 dark:hover:bg-${color}-900`,
     bg: `bg-${color}-200 dark:bg-${color}-900`,
     bgHover: `hover:bg-${color}-300 dark:hover:bg-${color}-900`,
