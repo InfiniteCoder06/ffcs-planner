@@ -1,10 +1,11 @@
-import { ClashVisualization } from "@/components/clash-detection/clash-visualization";
-import { CoursePreferences } from "@/components/course-preferences";
-import { ExportDialog } from "@/components/export/export-dialog";
+import { Timetable } from "@/components//timetable/timetable";
+import { ClashVisualization } from "@/components/timetable/clash-detection/clash-visualization";
+import { CoursePreferences } from "@/components/course-preference/course-preferences";
+import { ExportDialog } from "@/components/timetable/export/export-dialog";
 import { ModeToggle } from "@/components/mode-toggle";
 import { SelectedCoursesTable } from "@/components/selected-courses-table";
-import { Timetable } from "@/components/timetable";
 import { MotionDiv, Parallax, ScrollAnimation } from "@/components/ui/motion";
+import { ExportSection } from "@/components/timetable/export/export-section";
 
 export default function Home() {
   return (
@@ -25,10 +26,7 @@ export default function Home() {
       </ScrollAnimation>
 
       <ScrollAnimation animation="slideUp" duration={0.6} className="mb-6">
-        <div className="flex justify-between items-start w-full">
-          <h2 className="mb-3 text-xl font-semibold">Timetable</h2>
-          <ExportDialog />
-        </div>
+        <h2 className="mb-3 text-xl font-semibold">Timetable</h2>
         <ClashVisualization />
         <Timetable />
       </ScrollAnimation>
@@ -36,6 +34,11 @@ export default function Home() {
       <ScrollAnimation animation="slideUp" duration={0.6} className="mb-8">
         <h2 className="mb-3 text-xl font-semibold">Selected Courses</h2>
         <SelectedCoursesTable />
+      </ScrollAnimation>
+
+      <ScrollAnimation animation="slideUp" duration={0.6} className="mb-8">
+        <h2 className="mb-3 text-xl font-semibold">Export</h2>
+        <ExportSection />
       </ScrollAnimation>
 
       <ModeToggle />

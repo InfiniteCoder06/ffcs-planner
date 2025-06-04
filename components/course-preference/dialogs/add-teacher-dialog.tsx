@@ -1,17 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { PencilIcon, PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Dialog,
   DialogClose,
@@ -22,11 +11,22 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { MotionDiv } from "@/components/ui/motion";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { PencilIcon, PlusIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { Teacher, useScheduleStore } from "@/lib/store";
-import { cn, colors, getColorVariant, TailwindColor } from "@/lib/utils";
+import { cn, colors } from "@/lib/utils";
 import { DialogButtonProps } from "@/types";
-import { MotionDiv } from "../ui/motion";
 
 interface AddTeacherDialogProps extends DialogButtonProps {
   teacherToEdit: Teacher | null;
@@ -183,12 +183,8 @@ export function AddTeacherDialog({
                         key={color.value}
                         value={color.value}
                         className={cn(
-                          getColorVariant(color.value as TailwindColor, [
-                            "bg",
-                            "bgHover",
-                            "text",
-                          ]),
                           "my-2",
+                          `bg-${color.value}-solid text-white`,
                         )}
                       >
                         {color.name}

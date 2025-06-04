@@ -1,12 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useScheduleStore, type Teacher } from "@/lib/store";
-import { AddTeacherDialog } from "../dialogs/add-teacher-dialog";
-import TeacherItem from "../items/teacher-item";
-import { AnimatePresenceWrapper, MotionDiv, MotionUl } from "../ui/motion";
-import { Input } from "../ui/input";
-import { Search, X } from "lucide-react";
+import { AddTeacherDialog } from "@/components/course-preference/dialogs/add-teacher-dialog";
+import TeacherItem from "@/components/course-preference/items/teacher-item";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  AnimatePresenceWrapper,
+  MotionDiv,
+  MotionUl,
+} from "@/components/ui/motion";
 import {
   Select,
   SelectContent,
@@ -14,8 +16,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { Button } from "../ui/button";
+} from "@/components/ui/select";
+import { useScheduleStore, type Teacher } from "@/lib/store";
+import { Search, X } from "lucide-react";
+import { useMemo, useState } from "react";
 
 interface TeacherListProps {
   courseTeachers: Teacher[];

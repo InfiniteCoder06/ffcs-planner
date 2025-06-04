@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { PencilIcon, PlusIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogClose,
@@ -16,9 +14,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { MotionDiv } from "@/components/ui/motion";
 import { Course, useScheduleStore } from "@/lib/store";
 import { DialogButtonProps } from "@/types";
-import { MotionDiv } from "../ui/motion";
 
 interface AddCourseDialogProps extends DialogButtonProps {
   courseToEdit?: Course | null;

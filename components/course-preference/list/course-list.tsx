@@ -1,23 +1,23 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
 import { useScheduleStore } from "@/lib/store";
+import { useCallback, useMemo, useState } from "react";
 
+import CourseItem from "@/components/course-preference/items/course-item";
+import { Input } from "@/components/ui/input";
+import {
+  AnimatePresenceWrapper,
+  fadeIn,
+  MotionDiv,
+  MotionUl,
+} from "@/components/ui/motion";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import CourseItem from "../items/course-item";
-import {
-  AnimatePresenceWrapper,
-  fadeIn,
-  MotionDiv,
-  MotionUl,
-} from "../ui/motion";
-import { Input } from "../ui/input";
+} from "@/components/ui/select";
 import { Search } from "lucide-react";
 
 interface CourseListProps {

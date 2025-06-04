@@ -4,7 +4,9 @@ export type ButtonVariant =
   | "secondary"
   | "success"
   | "warning"
+  | "warningSolid"
   | "error"
+  | "errorSolid"
   | "ghost"
   | "link";
 

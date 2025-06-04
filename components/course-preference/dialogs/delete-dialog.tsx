@@ -9,14 +9,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { IconButton } from "../ui/icon-button";
+import { buttonVariants } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
+import { MotionDiv } from "@/components/ui/motion";
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "../ui/button";
-import { MotionDiv } from "../ui/motion";
 
 interface DeleteDialogProps {
   title?: string;
   description?: string;
+  useSolid?: boolean;
   buttonText?: string;
   buttonDisabled?: boolean;
   onConfirm: () => void;
@@ -25,6 +26,7 @@ interface DeleteDialogProps {
 export function DeleteDialog({
   title,
   description,
+  useSolid,
   onConfirm,
   buttonText,
   buttonDisabled,
@@ -34,7 +36,7 @@ export function DeleteDialog({
       <AlertDialogTrigger asChild>
         <IconButton
           icon="delete"
-          variant="error"
+          variant={useSolid ? "errorSolid" : "error"}
           size="sm"
           label={buttonText}
           disabled={buttonDisabled}

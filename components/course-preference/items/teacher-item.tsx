@@ -1,20 +1,20 @@
 "use client";
 
-import { Check, Plus, AlertCircle } from "lucide-react";
-import { Button } from "../ui/button";
-import { cn, getColorVariant, TailwindColor } from "@/lib/utils";
-import { AddTeacherDialog } from "../dialogs/add-teacher-dialog";
-import { useScheduleStore, type Teacher } from "@/lib/store";
-import { Badge } from "../ui/badge";
-import { MotionDiv, MotionLi } from "../ui/motion";
-import { DeleteDialog } from "../dialogs/delete-dialog";
-import { useCallback } from "react";
+import { AddTeacherDialog } from "@/components/course-preference/dialogs/add-teacher-dialog";
+import { DeleteDialog } from "@/components/course-preference/dialogs/delete-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { MotionDiv, MotionLi } from "@/components/ui/motion";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "../ui/tooltip";
+} from "@/components/ui/tooltip";
+import { useScheduleStore, type Teacher } from "@/lib/store";
+import { cn } from "@/lib/utils";
+import { AlertCircle, Check, Plus } from "lucide-react";
+import { useCallback } from "react";
 
 interface TeacherItemProps {
   teacher: Teacher;
@@ -61,7 +61,8 @@ export default function TeacherItem({
             variant="outline"
             className={cn(
               "border-none select-none rounded-full",
-              getColorVariant(teacher.color as TailwindColor, ["bg"]),
+              `bg-${teacher.color}-solid text-white`,
+
               isHighlighted && "ring-2 ring-offset-1 ring-primary",
               className,
             )}
@@ -81,12 +82,7 @@ export default function TeacherItem({
       <MotionLi
         className={cn(
           "p-3 rounded-md flex justify-between items-center gap-2",
-          hasClash
-            ? getColorVariant("red", ["bgLight"])
-            : cn(
-                "bg-slate-100 dark:bg-slate-800",
-                getColorVariant(teacher.color as TailwindColor, ["bgLight"]),
-              ),
+          hasClash ? "bg-red-ui" : `bg-${teacher.color}-ui`,
         )}
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -110,14 +106,12 @@ export default function TeacherItem({
                       transition: { duration: 0.5 },
                     }}
                   >
-                    <AlertCircle
-                      className={cn(getColorVariant("red", ["text"]))}
-                    />
+                    <AlertCircle className={cn("text-red-dim")} />
                   </MotionDiv>
                 </TooltipTrigger>
                 <TooltipContent
                   side="top"
-                  className={cn(getColorVariant("red", ["bgLight", "text"]))}
+                  className={`border-2 bg-red-ui text-red-normal border-red-normal`}
                 >
                   <div className="p-1">
                     <p className="font-bold mb-1">Slot Clash!</p>
@@ -148,7 +142,7 @@ export default function TeacherItem({
             <>
               <AddTeacherDialog
                 teacherToEdit={teacher}
-                buttonVariant="warning"
+                buttonVariant="warningSolid"
                 buttonSize="sm"
                 buttonIcon="edit"
                 buttonText=""
@@ -156,22 +150,19 @@ export default function TeacherItem({
               <DeleteDialog
                 description="Are you sure you want to remove this teacher?"
                 onConfirm={handleRemove}
+                useSolid
               />
             </>
           ) : (
             <Button
               key={`${teacher.id}-${isSelected}`}
               variant={isSelected ? "default" : "outline"}
-              size="sm"
               className={cn(
                 "h-8 w-8",
-                getColorVariant(
-                  teacher.color as TailwindColor,
-                  isSelected ? ["bg", "bgHover", "text"] : ["text"],
-                ),
-                hasClash &&
-                  isSelected &&
-                  getColorVariant("red", ["bgLight", "bgLightHover", "text"]),
+                isSelected
+                  ? `bg-${teacher.color}-solid text-white`
+                  : `text-${teacher.color}-dim`,
+                hasClash && isSelected && `bg-red-solid text-white`,
               )}
               onClick={handleButtonClick}
             >

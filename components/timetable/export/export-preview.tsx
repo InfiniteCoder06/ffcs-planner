@@ -2,7 +2,7 @@
 
 import { days, timetableData } from "@/lib/slots";
 import { useScheduleStore } from "@/lib/store";
-import { cn, getColorVariant, TailwindColor } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 
 export function ExportPreview() {
@@ -62,11 +62,8 @@ export function ExportPreview() {
           .find(Boolean);
 
         colorCache[slotKey] = matchedTeacher
-          ? getColorVariant(matchedTeacher.color as TailwindColor, [
-              "bg",
-              "text",
-            ])
-          : "bg-gray-100 text-gray-800";
+          ? `bg-${matchedTeacher.color}-ui text-${matchedTeacher.color}-dim`
+          : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
 
         teacherCache[slotKey] = matchedTeacher?.name || "";
         courseCache[slotKey] = matchedTeacher?.course || "";
@@ -117,10 +114,10 @@ export function ExportPreview() {
       </div>
 
       <div className="overflow-auto">
-        <table className="w-full overflow-hidden border border-collapse divide-gray-200 rounded-lg">
-          <thead className="p-2 font-bold bg-gray-100 border">
+        <table className="w-full border-collapse rounded-lg shadow-sm border divide-gray-200 dark:divide-gray-700 overflow-hidden">
+          <thead className="bg-gray-100 dark:bg-gray-900 font-bold">
             <tr>
-              <th className="p-2 font-bold bg-gray-100 border">
+              <th className="p-2 font-bold border">
                 THEORY
                 <br />
                 HOURS
@@ -130,7 +127,7 @@ export function ExportPreview() {
                   key={index}
                   className={cn(
                     "p-2 text-xs font-bold text-center border w-24 max-w-24",
-                    getColorVariant("blue", ["bg", "text"]),
+                    "bg-blue-ui text-blue-dim",
                   )}
                 >
                   {hour.start.length > 1 && (
@@ -152,10 +149,7 @@ export function ExportPreview() {
               ))}
             </tr>
             <tr>
-              <th
-                key={"lab-hours"}
-                className="p-2 font-bold bg-gray-100 border"
-              >
+              <th key={"lab-hours"} className="p-2 font-bold border">
                 LAB
                 <br />
                 HOURS
@@ -165,7 +159,7 @@ export function ExportPreview() {
                   key={index}
                   className={cn(
                     "p-2 text-xs font-bold text-center border w-24 max-w-24",
-                    getColorVariant("blue", ["bg", "text"]),
+                    "bg-blue-ui text-blue-dim",
                   )}
                   colSpan={hour.start.length == 0 ? 1 : 2}
                 >
@@ -190,7 +184,7 @@ export function ExportPreview() {
           <tbody>
             {days.map((day, dayIndex) => (
               <tr key={dayIndex}>
-                <td className="p-2 font-bold text-center bg-gray-100 border">
+                <td className="p-2 text-center font-bold border bg-gray-100 dark:bg-gray-900 dark:border-gray-700">
                   {day}
                 </td>
                 {timetableData[day].map((slot, slotIndex) =>
@@ -198,7 +192,7 @@ export function ExportPreview() {
                     dayIndex == 0 ? (
                       <td
                         key={slotIndex}
-                        className="p-2 text-center bg-gray-100 border"
+                        className="p-2 text-center border bg-gray-100 dark:bg-gray-900 dark:border-gray-700"
                         rowSpan={5}
                       >
                         <div className="flex items-center justify-center h-16 text-center">
@@ -231,8 +225,8 @@ export function ExportPreview() {
 
       <div className="mt-4">
         <h2 className="mb-2 text-lg font-bold">Selected Courses</h2>
-        <table className="w-full overflow-hidden border border-collapse divide-gray-200 rounded-lg">
-          <thead className="p-2 font-bold text-center bg-gray-100 select-none">
+        <table className="w-full overflow-hidden border border-collapse divide-gray-200 rounded-lg dark:divide-gray-700">
+          <thead className="p-2 font-bold text-center bg-gray-100 select-none dark:bg-gray-900">
             <tr>
               <th className="p-2 border">Course Code</th>
               <th className="p-2 border">Course Name</th>
@@ -242,7 +236,7 @@ export function ExportPreview() {
               <th className="p-2 border">Slots</th>
             </tr>
           </thead>
-          <tbody className="p-2 text-center bg-gray-100 border">
+          <tbody className="p-2 font-bold text-center bg-gray-100 border dark:bg-gray-900">
             {selectedTeachers.map((teacher) => {
               const course = courses.find((c) => c.id === teacher.course);
               return (
@@ -258,7 +252,7 @@ export function ExportPreview() {
             })}
           </tbody>
           <tfoot>
-            <tr className="bg-gray-100 font-bold text-center">
+            <tr className="bg-gray-100 dark:bg-gray-900 font-bold text-center">
               <td colSpan={2} className="p-2 text-right border">
                 <strong>Total Credits:</strong>
               </td>
@@ -272,7 +266,7 @@ export function ExportPreview() {
       </div>
 
       <div className="mt-4 text-center text-xs text-gray-500">
-        <p>Generated with FFCS Planner • {new Date().toLocaleDateString()}</p>
+        <p>Generated with FFCS Planner</p>
       </div>
     </div>
   );

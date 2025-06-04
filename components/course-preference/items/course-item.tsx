@@ -1,14 +1,18 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
-import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { useScheduleStore, type Course, type Teacher } from "@/lib/store";
+import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import React, { useCallback, useState } from "react";
 
-import { AddCourseDialog } from "../dialogs/add-course-dialog";
-import TeacherList from "../list/teacher-list";
-import { Button } from "../ui/button";
-import { AnimatePresenceWrapper, MotionDiv, MotionLi } from "../ui/motion";
-import { DeleteDialog } from "../dialogs/delete-dialog";
+import { AddCourseDialog } from "@/components/course-preference/dialogs/add-course-dialog";
+import { DeleteDialog } from "@/components/course-preference/dialogs/delete-dialog";
+import TeacherList from "@/components/course-preference/list/teacher-list";
+import { Button } from "@/components/ui/button";
+import {
+  AnimatePresenceWrapper,
+  MotionDiv,
+  MotionLi,
+} from "@/components/ui/motion";
 
 interface CourseItemProps {
   index: number;

@@ -1,12 +1,12 @@
 "use client";
 
+import { ClashDetails } from "@/components/timetable/clash-detection/clash-details";
+import { Button } from "@/components/ui/button";
+import { AnimatePresenceWrapper, MotionDiv } from "@/components/ui/motion";
 import { useScheduleStore } from "@/lib/store";
-import { AnimatePresenceWrapper, MotionDiv } from "../ui/motion";
-import { useEffect, useMemo, useState } from "react";
+import { cn } from "@/lib/utils";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
-import { cn, getColorVariant } from "@/lib/utils";
-import { Button } from "../ui/button";
-import { ClashDetails } from "./clash-details";
+import { useEffect, useMemo, useState } from "react";
 
 export function ClashVisualization() {
   const { selectedTeachers, getAllClashes } = useScheduleStore();
@@ -42,10 +42,9 @@ export function ClashVisualization() {
             transition={{ duration: 0.3 }}
             className={cn(
               "p-4 rounded-lg border flex items-center justify-between",
-              getColorVariant(clashCount > 0 ? "red" : "green", [
-                "bgLight",
-                "border",
-              ]),
+              clashCount > 0
+                ? "bg-reda-ui border-reda-dim text-reda-dim"
+                : "bg-greena-ui border-greena-dim text-greena-dim",
             )}
           >
             <div className="flex items-center gap-3">
@@ -61,33 +60,16 @@ export function ClashVisualization() {
                 }
               >
                 {clashCount > 0 ? (
-                  <AlertTriangle
-                    className={cn("h-6 w-6", getColorVariant("red", ["text"]))}
-                  />
+                  <AlertTriangle className={cn("h-6 w-6")} />
                 ) : (
-                  <CheckCircle2
-                    className={cn(
-                      "h-6 w-6",
-                      getColorVariant("green", ["text"]),
-                    )}
-                  />
+                  <CheckCircle2 className={cn("h-6 w-6")} />
                 )}
               </MotionDiv>
               <div>
-                <h3
-                  className={cn(
-                    "font-medium",
-                    getColorVariant(clashCount > 0 ? "red" : "green", ["text"]),
-                  )}
-                >
+                <h3 className={cn("font-medium")}>
                   {clashCount > 0 ? "Slot Clashes Detected" : "No Slot Clashes"}
                 </h3>
-                <p
-                  className={cn(
-                    "text-sm",
-                    getColorVariant(clashCount > 0 ? "red" : "green", ["text"]),
-                  )}
-                >
+                <p className={cn("text-sm")}>
                   {clashCount > 0
                     ? `Found ${clashCount} clash${clashCount > 1 ? "es" : ""} in your timetable`
                     : "Your timetable is clash-free"}
@@ -96,9 +78,7 @@ export function ClashVisualization() {
             </div>
             {clashCount > 0 && (
               <Button
-                variant="outline"
-                size="sm"
-                className={cn(getColorVariant("red", ["bgHover", "text"]))}
+                variant="errorSolid"
                 onClick={() => setShowDetails(!showDetails)}
               >
                 {showDetails ? "Hide Details" : "Show Details"}

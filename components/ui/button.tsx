@@ -6,22 +6,26 @@ import { cn } from "@/lib/utils";
 import { MotionDiv } from "./motion";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive disabled:text-graya-3 disabled:dark:text-graydarka-3",
   {
     variants: {
       variant: {
         default:
-          "bg-blue-200 text-blue-800 shadow-xs hover:bg-blue-300 hover:text-blue-900 dark:bg-blue-900 dark:text-blue-50 focus-visible:ring-blue-500/50 dark:focus-visible:ring-blue-500/70",
+          "bg-bluea-ui text-bluea-dim focus-visible:ring-bluea-8 dark:focus-visible:ring-bluedarka-8",
+        success:
+          "bg-green-ui text-green-dim focus-visible:ring-greena-ui dark:focus-visible:ring-greendarka-ui",
+        error:
+          "bg-reda-ui text-reda-dim focus-visible:ring-reda-ui dark:focus-visible:ring-reda-ui",
+        errorSolid:
+          "bg-red-7 dark:bg-reddark-7 text-red-normal focus-visible:ring-red-ui dark:focus-visible:ring-red-ui",
+        warning:
+          "bg-yellowa-ui text-yellowa-dim focus-visible:ring-yellowa-8 dark:focus-visible:ring-yellowdarka-8",
+        warningSolid:
+          "bg-yellow-7 dark:bg-yellowdark-7 text-yellow-normal focus-visible:ring-yellow-ui dark:focus-visible:ring-yellow-ui",
         outline:
           "border border-input bg-background text-foreground shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input/70 dark:bg-background/50 dark:text-foreground/80 ",
         secondary:
           "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
-        success:
-          "bg-green-200 text-green-800 shadow-xs hover:bg-green-300 hover:text-green-900 dark:bg-green-900 dark:text-green-50 focus-visible:ring-green-500/50 dark:focus-visible:ring-green-500/70",
-        warning:
-          "bg-yellow-200 text-yellow-800 shadow-xs hover:bg-yellow-300 hover:text-yellow-900 dark:bg-yellow-900 dark:text-yellow-50 focus-visible:ring-yellow-500/50 dark:focus-visible:ring-yellow-500/70",
-        error:
-          "bg-red-200 text-red-800 shadow-xs hover:bg-red-300 hover:text-red-900 dark:bg-red-800 dark:hover:bg-red-900 dark:text-red-50 focus-visible:ring-red-500/50 dark:focus-visible:ring-red-500/70",
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",

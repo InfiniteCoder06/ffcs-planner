@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
 import { DownloadIcon, Loader, TriangleAlert } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogClose,
@@ -16,8 +14,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { MotionDiv } from "@/components/ui/motion";
 import { useScheduleStore } from "@/lib/store";
-import { MotionDiv } from "../ui/motion";
 
 const generateDefaultFilename = () => {
   const now = new Date();
@@ -76,8 +76,8 @@ export function DownloadTimetableDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" disabled={disabled}>
-          Save TT
+        <Button size="sm" disabled={disabled}>
+          <DownloadIcon /> Save TT
         </Button>
       </DialogTrigger>
 

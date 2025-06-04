@@ -9,7 +9,7 @@ import {
   slideInFromBottom,
 } from "@/components/ui/motion";
 import { useScheduleStore } from "@/lib/store";
-import { cn, getColorVariant, TailwindColor } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 import { IconButton } from "./ui/icon-button";
 
@@ -49,7 +49,7 @@ export function SelectedCoursesTable() {
             transition={{ duration: 0.4 }}
           >
             <table className="w-full overflow-hidden border border-collapse divide-gray-200 rounded-lg dark:divide-gray-700">
-              <thead className="p-2 font-bold text-center bg-gray-100 select-none dark:bg-gray-800">
+              <thead className="p-2 font-bold text-center bg-gray-100 select-none dark:bg-gray-900">
                 <tr>
                   <th className="px-6 py-3 text-xs font-medium tracking-wider uppercase text-start">
                     Course
@@ -74,7 +74,7 @@ export function SelectedCoursesTable() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="p-2 font-bold text-center bg-gray-100 border dark:bg-gray-800">
+              <tbody className="p-2 font-bold text-center bg-gray-100 border dark:bg-gray-900">
                 <AnimatePresenceWrapper>
                   {sortedTeachers.map((teacher, index) => {
                     const course = courses.find((c) => c.id === teacher.course);
@@ -111,9 +111,7 @@ export function SelectedCoursesTable() {
                           <div
                             className={cn(
                               "w-4 h-4 rounded-full m-auto",
-                              getColorVariant(teacher.color as TailwindColor, [
-                                "bg",
-                              ]),
+                              `bg-${teacher.color}-solid`,
                             )}
                           ></div>
                         </td>
@@ -134,7 +132,7 @@ export function SelectedCoursesTable() {
                   })}
                 </AnimatePresenceWrapper>
               </tbody>
-              <tfoot className="p-2 font-bold text-center bg-gray-100 border dark:bg-gray-800">
+              <tfoot className="p-2 font-bold text-center bg-gray-100 border dark:bg-gray-900">
                 <tr>
                   <td
                     colSpan={2}

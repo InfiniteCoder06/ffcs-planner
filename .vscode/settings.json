@@ -1,4 +1,8 @@
 {
     "editor.tabSize": 2,
-    "editor.useTabStops": true
+    "editor.useTabStops": true,
+    "tailwindCSS.classFunctions": [
+        "cva",
+        "cx"
+    ],
 }

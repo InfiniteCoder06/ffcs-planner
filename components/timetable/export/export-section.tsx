@@ -1,18 +1,11 @@
 "use client";
 
-import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { MotionDiv, ScrollAnimation } from "../ui/motion";
-import { IconButton } from "../ui/icon-button";
+import { MotionDiv, ScrollAnimation } from "@/components/ui/motion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { exportToImage, exportToPdf } from "@/lib/export-utils";
+import { useScheduleStore } from "@/lib/store";
+import { cn } from "@/lib/utils";
 import {
   Download,
   FileIcon as FilePdf,
@@ -20,39 +13,58 @@ import {
   Printer,
   Share2,
 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { useScheduleStore } from "@/lib/store";
-import { exportToPdf, exportToImage } from "@/lib/export-utils";
-import { ExportPreview } from "./export-preview";
-import { cn } from "@/lib/utils";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
+import { ExportPreview } from "./export-preview";
+import { useTheme } from "next-themes";
 
-export function ExportDialog() {
-  const [open, setOpen] = useState(false);
-  const [exportType, setExportType] = useState<"pdf" | "image">("pdf");
+export function ExportSection() {
+  const [exportType, setExportType] = useState<"pdf" | "image" | "print">(
+    "pdf",
+  );
   const [isExporting, setIsExporting] = useState(false);
   const { selectedTeachers } = useScheduleStore();
   const previewRef = useRef<HTMLDivElement>(null);
+  const { theme } = useTheme();
+  const isDarkMode = theme === "dark";
 
   const handleExport = async () => {
     if (!previewRef.current) return;
 
     setIsExporting(true);
     try {
+      // Use a temporary div with full scale for export
+      const tempDiv = document.createElement("div");
+      tempDiv.style.position = "absolute";
+      tempDiv.style.left = "-9999px";
+      tempDiv.style.transform = "scale(1)";
+      tempDiv.innerHTML = previewRef.current.innerHTML;
+      document.body.appendChild(tempDiv);
+
       switch (exportType) {
         case "pdf":
-          await exportToPdf(previewRef.current, "ffcs-timetable.pdf");
+          await exportToPdf(tempDiv, "ffcs-timetable.pdf");
           toast("PDF exported successfully", {
             description: "Your timetable has been exported as a PDF file",
           });
           break;
         case "image":
-          await exportToImage(previewRef.current, "ffcs-timetable.png");
+          await exportToImage(tempDiv, "ffcs-timetable.png", isDarkMode);
           toast("Image exported successfully", {
             description: "Your timetable has been exported as an image",
           });
           break;
+        case "print":
+          window.print();
+          toast("Print dialog opened", {
+            description:
+              "Use your browser's print dialog to print your timetable",
+          });
+          break;
       }
+
+      // Clean up
+      document.body.removeChild(tempDiv);
     } catch (error) {
       toast.error("Export failed", {
         description: "There was an error exporting your timetable",
@@ -66,36 +78,21 @@ export function ExportDialog() {
   const hasSelectedCourses = selectedTeachers.length > 0;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <IconButton
-          icon="download"
-          variant="default"
-          size="sm"
-          label="Export"
-          disabled={!hasSelectedCourses}
-        />
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-5/6 max-h-[90vh] overflow-y-auto">
-        <MotionDiv
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          transition={{ duration: 0.3 }}
-        >
-          <DialogHeader className="w-5/6">
-            <DialogTitle>Export Timetable</DialogTitle>
-            <DialogDescription>
-              Choose how you want to export your timetable
-            </DialogDescription>
-          </DialogHeader>
+    <ScrollAnimation animation="fadeIn" duration={0.6} className="mb-6">
+      <div className="border rounded-lg shadow-sm">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className="font-bold">Export Timetable</h2>
+        </div>
 
+        <div className="p-4">
           <Tabs
             defaultValue="pdf"
-            className="mt-4 w-5/6"
-            onValueChange={(value) => setExportType(value as "pdf" | "image")}
+            className="mb-4"
+            onValueChange={(value) =>
+              setExportType(value as "pdf" | "image" | "print")
+            }
           >
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-3 mb-4">
               <TabsTrigger value="pdf" className="flex items-center gap-2">
                 <FilePdf className="w-4 h-4" />
                 PDF
@@ -109,7 +106,7 @@ export function ExportDialog() {
                 Print
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="pdf" className="mt-4">
+            <TabsContent value="pdf" className="mt-2">
               <div className="p-4 border rounded-md">
                 <h3 className="mb-2 text-lg font-medium">PDF Export</h3>
                 <p className="text-sm text-muted-foreground">
@@ -118,7 +115,7 @@ export function ExportDialog() {
                 </p>
               </div>
             </TabsContent>
-            <TabsContent value="image" className="mt-4">
+            <TabsContent value="image" className="mt-2">
               <div className="p-4 border rounded-md">
                 <h3 className="mb-2 text-lg font-medium">Image Export</h3>
                 <p className="text-sm text-muted-foreground">
@@ -127,7 +124,7 @@ export function ExportDialog() {
                 </p>
               </div>
             </TabsContent>
-            <TabsContent value="print" className="mt-4">
+            <TabsContent value="print" className="mt-2">
               <div className="p-4 border rounded-md">
                 <h3 className="mb-2 text-lg font-medium">Print</h3>
                 <p className="text-sm text-muted-foreground">
@@ -139,24 +136,30 @@ export function ExportDialog() {
           </Tabs>
 
           <div className="mt-6">
-            <h3 className="mb-2 text-lg font-medium">Preview</h3>
+            <h3 className="text-lg font-medium">Preview</h3>
             <div
+              // ref={containerRef}
               className={cn(
-                "border rounded-md p-4 max-h-[400px] overflow-auto dark:bg-white",
+                "border rounded-md p-4 max-h-[60vh] overflow-auto",
+                "flex justify-center items-start",
               )}
             >
               <ScrollAnimation animation="fadeIn" duration={0.5}>
-                <div ref={previewRef} className="bg-white">
-                  {<ExportPreview />}
+                <div
+                  ref={previewRef}
+                  className="origin-top"
+                  style={{
+                    marginLeft: "auto",
+                    marginRight: "auto",
+                  }}
+                >
+                  <ExportPreview />
                 </div>
               </ScrollAnimation>
             </div>
           </div>
 
-          <DialogFooter className="mt-6 w-5/6">
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
+          <div className="flex justify-end mt-4">
             <Button
               onClick={handleExport}
               disabled={isExporting || !hasSelectedCourses}
@@ -178,11 +181,13 @@ export function ExportDialog() {
               )}
               {isExporting
                 ? "Exporting..."
-                : `Export as ${exportType.toUpperCase()}`}
+                : exportType === "print"
+                  ? "Print"
+                  : `Export as ${exportType.toUpperCase()}`}
             </Button>
-          </DialogFooter>
-        </MotionDiv>
-      </DialogContent>
-    </Dialog>
+          </div>
+        </div>
+      </div>
+    </ScrollAnimation>
   );
 }

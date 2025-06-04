@@ -1,20 +1,21 @@
 "use client";
 
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { AddCourseDialog } from "@/components/course-preference/dialogs/add-course-dialog";
+import { DeleteDialog } from "@/components/course-preference/dialogs/delete-dialog";
+import { DownloadTimetableDialog } from "@/components/course-preference/dialogs/download-timetable";
+import { CourseList } from "@/components/course-preference/list/course-list";
 import { Button } from "@/components/ui/button";
-import { CourseList } from "./list/course-list";
-import { AddCourseDialog } from "./dialogs/add-course-dialog";
-import { IconButton } from "./ui/icon-button";
+import { IconButton } from "@/components/ui/icon-button";
 import {
   AnimatePresenceWrapper,
   MotionDiv,
   ScrollAnimation,
   slideInFromBottom,
-} from "./ui/motion";
+} from "@/components/ui/motion";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Course, Teacher, useScheduleStore } from "@/lib/store";
-import { DeleteDialog } from "./dialogs/delete-dialog";
-import { ScrollArea } from "./ui/scroll-area";
-import { DownloadTimetableDialog } from "./dialogs/download-timetable";
+import { UploadIcon } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 export function CoursePreferences() {
@@ -103,7 +104,7 @@ export function CoursePreferences() {
 
   return (
     <ScrollAnimation animation="fadeIn" duration={0.6}>
-      <div className="border rounded-lg shadow-sm">
+      <div className="border rounded-lg shadow-sm bg-gray-50 dark:bg-gray-900">
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="font-bold">Course Preferences</h2>
           <AnimatePresenceWrapper>
@@ -143,8 +144,8 @@ export function CoursePreferences() {
           className="flex items-center justify-end p-4 border-t"
         >
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" size="sm" onClick={handleUploadTimetable}>
-              Upload TT
+            <Button variant="warning" size="sm" onClick={handleUploadTimetable}>
+              <UploadIcon /> Upload TT
             </Button>
             <DownloadTimetableDialog disabled={courseCount === 0} />
             <DeleteDialog

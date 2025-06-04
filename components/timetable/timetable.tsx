@@ -1,16 +1,16 @@
 "use client";
-import { cn, getColorVariant, TailwindColor } from "@/lib/utils";
-import { useScheduleStore } from "@/lib/store";
-import { useMemo } from "react";
-import { MotionDiv, MotionTd, ScrollAnimation } from "./ui/motion";
-import { AlertCircle } from "lucide-react";
+import { MotionDiv, MotionTd, ScrollAnimation } from "@/components/ui/motion";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "./ui/tooltip";
+} from "@/components/ui/tooltip";
 import { days, timetableData } from "@/lib/slots";
+import { useScheduleStore } from "@/lib/store";
+import { cn } from "@/lib/utils";
+import { AlertCircle } from "lucide-react";
+import { useMemo } from "react";
 
 export function Timetable() {
   const { selectedTeachers, courses } = useScheduleStore();
@@ -41,7 +41,6 @@ export function Timetable() {
     { start: "5:40 PM", end: "7:20 PM" },
   ];
 
-  // Optimize by creating a single pass calculation
   const timetableCache = useMemo(() => {
     const colorCache: Record<string, string> = {};
     const teacherCache: Record<string, string> = {};
@@ -55,11 +54,8 @@ export function Timetable() {
 
     selectedTeachers.forEach((teacher) => {
       teacher.slots.forEach((slot) => {
-        // If this slot already has a teacher, we have a clash
         if (slotTeacherMap.has(slot)) {
           clashCache[slot] = true;
-
-          // Store clash details for tooltip
           if (!clashDetailsCache[slot]) {
             clashDetailsCache[slot] = { teachers: [], courses: [] };
           }
@@ -75,8 +71,8 @@ export function Timetable() {
             teacher.name,
           );
           clashDetailsCache[slot].courses.push(
-            existingCourse ? `${existingCourse.code}` : "Unknown",
-            currentCourse ? `${currentCourse.code}` : "Unknown",
+            existingCourse?.code || "Unknown",
+            currentCourse?.code || "Unknown",
           );
         }
 
@@ -97,21 +93,11 @@ export function Timetable() {
           .map((s) => slotTeacherMap.get(s))
           .find(Boolean);
 
-        if (hasClash) {
-          // Special styling for clashes
-          colorCache[slotKey] = getColorVariant("red", [
-            "bgLight",
-            "border",
-            "text",
-          ]);
-        } else {
-          colorCache[slotKey] = matchedTeacher
-            ? getColorVariant(matchedTeacher.color as TailwindColor, [
-                "bg",
-                "text",
-              ])
-            : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200";
-        }
+        colorCache[slotKey] = hasClash
+          ? "bg-red-ui text-red-dim"
+          : matchedTeacher
+            ? `bg-${matchedTeacher.color}-ui text-${matchedTeacher.color}-dim`
+            : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
 
         teacherCache[slotKey] = matchedTeacher?.name || "";
         teacherVenueCache[slotKey] = matchedTeacher?.venue || "";
@@ -125,40 +111,24 @@ export function Timetable() {
       clashCache,
       clashDetailsCache,
     };
-  }, [selectedTeachers, timetableData, days, courses]);
+  }, [selectedTeachers, courses]);
 
-  // Use the cache when rendering
-  const getColorForSlot = (slot: string[]) => {
-    const slotKey = slot.join("/");
-    return timetableCache.colorCache[slotKey];
-  };
+  const getSlotKey = (slot: string[]) => slot.join("/");
+  const getColorForSlot = (slot: string[]) =>
+    timetableCache.colorCache[getSlotKey(slot)];
+  const getTeacherForSlot = (slot: string[]) =>
+    timetableCache.teacherCache[getSlotKey(slot)];
+  const getVenueForSlot = (slot: string[]) =>
+    timetableCache.teacherVenueCache[getSlotKey(slot)];
+  const hasClash = (slot: string[]) =>
+    slot.some((s) => timetableCache.clashCache[s]);
 
-  // Get teacher name for a slot
-  const getTeacherForSlot = (slot: string[]) => {
-    const slotKey = slot.join("/");
-    return timetableCache.teacherCache[slotKey];
-  };
-
-  // Get teacher venue for a slot
-  const getVenueForSlot = (slot: string[]) => {
-    const slotKey = slot.join("/");
-    return timetableCache.teacherVenueCache[slotKey];
-  };
-
-  // Check if a slot has a clash
-  const hasClash = (slot: string[]) => {
-    return slot.some((s) => timetableCache.clashCache[s]);
-  };
-
-  // Get clash details for tooltip
   const getClashDetails = (slot: string[]) => {
     const clashingSlots = slot.filter((s) => timetableCache.clashCache[s]);
-    if (clashingSlots.length === 0) return null;
+    if (!clashingSlots.length) return null;
 
-    // Get unique teachers and courses from all clashing slots
     const teachers = new Set<string>();
     const courses = new Set<string>();
-
     clashingSlots.forEach((s) => {
       const details = timetableCache.clashDetailsCache[s];
       if (details) {
@@ -178,23 +148,23 @@ export function Timetable() {
     <TooltipProvider>
       <ScrollAnimation animation="fadeIn" duration={0.8}>
         <div className="overflow-x-auto">
-          <table className="w-full overflow-hidden border border-collapse divide-gray-200 rounded-lg shadow-sm dark:divide-gray-700">
-            <thead className="p-2 font-bold bg-gray-100 border dark:bg-gray-800">
+          <table className="w-full border-collapse rounded-lg shadow-sm border divide-gray-200 dark:divide-gray-700 overflow-hidden">
+            <thead className="bg-gray-100 dark:bg-gray-900 font-bold">
               <tr>
-                <th className="p-2 font-bold bg-gray-100 border dark:bg-gray-800">
+                <th className="p-2 border">
                   THEORY
                   <br />
                   HOURS
                 </th>
-                {theoryHours.map((hour, index) => (
+                {theoryHours.map((hour, i) => (
                   <th
-                    key={index}
+                    key={i}
                     className={cn(
                       "p-2 text-xs font-bold text-center border w-24 max-w-24",
-                      getColorVariant("blue", ["bg", "text"]),
+                      "bg-blue-ui text-blue-dim",
                     )}
                   >
-                    {hour.start.length > 1 && (
+                    {hour.start.length > 1 ? (
                       <>
                         {hour.start}
                         <br />
@@ -202,9 +172,9 @@ export function Timetable() {
                         <br />
                         {hour.end}
                       </>
-                    )}
-                    {hour.start.length == 1 && <>-</>}
-                    {!hour.start && (
+                    ) : hour.start.length === 1 ? (
+                      <>-</>
+                    ) : (
                       <div className="flex items-center justify-center h-16">
                         LUNCH
                       </div>
@@ -213,24 +183,21 @@ export function Timetable() {
                 ))}
               </tr>
               <tr>
-                <th
-                  key={"lab-hours"}
-                  className="p-2 font-bold bg-gray-100 border dark:bg-gray-800"
-                >
+                <th key={"lab-hours"} className="p-2 font-boldborder">
                   LAB
                   <br />
                   HOURS
                 </th>
-                {labHours.map((hour, index) => (
+                {labHours.map((hour, i) => (
                   <th
-                    key={index}
+                    key={i}
                     className={cn(
                       "p-2 text-xs font-bold text-center border w-24 max-w-24",
-                      getColorVariant("blue", ["bg", "text"]),
+                      "bg-blue-ui text-blue-dim",
                     )}
-                    colSpan={hour.start.length == 0 ? 1 : 2}
+                    colSpan={hour.start ? 2 : 1}
                   >
-                    {hour.start && (
+                    {hour.start ? (
                       <>
                         {hour.start}
                         <br />
@@ -238,8 +205,7 @@ export function Timetable() {
                         <br />
                         {hour.end}
                       </>
-                    )}
-                    {!hour.start && (
+                    ) : (
                       <div className="flex items-center justify-center h-16 text-center">
                         LUNCH
                       </div>
@@ -251,18 +217,18 @@ export function Timetable() {
             <tbody>
               {days.map((day, dayIndex) => (
                 <tr key={dayIndex}>
-                  <td className="p-2 font-bold text-center bg-gray-100 border dark:bg-gray-800 dark:border-gray-700">
+                  <td className="p-2 text-center font-bold border bg-gray-100 dark:bg-gray-900 dark:border-gray-700">
                     {day}
                   </td>
                   {timetableData[day].map((slot, slotIndex) =>
-                    slotIndex == 6 ? (
-                      dayIndex == 0 ? (
+                    slotIndex === 6 ? (
+                      dayIndex === 0 ? (
                         <td
                           key={slotIndex}
-                          className="p-2 text-center bg-gray-100 border dark:bg-gray-800"
+                          className="p-2 text-center border bg-gray-100 dark:bg-gray-900 dark:border-gray-700"
                           rowSpan={5}
                         >
-                          <div className="flex items-center justify-center h-16 text-center">
+                          <div className="flex items-center justify-center h-16">
                             LUNCH
                           </div>
                         </td>
@@ -272,7 +238,7 @@ export function Timetable() {
                         <TooltipTrigger asChild>
                           <MotionTd
                             className={cn(
-                              "border p-2 text-center text-xs transition-colors duration-200 max-w-24 overflow-hidden h-24 max-h-24",
+                              "p-2 text-xs text-center border h-24 max-h-24 overflow-hidden transition-colors duration-200 dark:border-gray-700",
                               getColorForSlot(slot),
                               hasClash(slot) && "relative",
                             )}
@@ -311,12 +277,7 @@ export function Timetable() {
                                   transition: { duration: 0.5 },
                                 }}
                               >
-                                <AlertCircle
-                                  className={cn(
-                                    "h-4 w-4",
-                                    getColorVariant("red", ["text"]),
-                                  )}
-                                />
+                                <AlertCircle className="h-4 w-4 text-red-normal" />
                               </MotionDiv>
                             )}
                           </MotionTd>
@@ -324,16 +285,10 @@ export function Timetable() {
                         {hasClash(slot) && (
                           <TooltipContent
                             side="top"
-                            className={cn(
-                              getColorVariant("red", [
-                                "bgLight",
-                                "border",
-                                "text",
-                              ]),
-                            )}
+                            className="border-2 border-red-normal bg-red-ui text-red-normal"
                           >
                             <div className="p-1">
-                              <p className="font-bold mb-1">
+                              <p className="mb-1 font-bold">
                                 Slot Clash Detected!
                               </p>
                               <div className="text-xs">
