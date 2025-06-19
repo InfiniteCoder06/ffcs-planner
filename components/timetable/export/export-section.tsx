@@ -2,7 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { MotionDiv, ScrollAnimation } from "@/components/ui/motion";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/animate-ui/radix/tabs";
 import { exportToImage, exportToPdf } from "@/lib/export-utils";
 import { useScheduleStore } from "@/lib/store";
 import { cn } from "@/lib/utils";

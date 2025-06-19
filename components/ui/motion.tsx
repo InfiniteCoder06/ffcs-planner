@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+
 import {
   motion,
   AnimatePresence,
@@ -9,23 +11,35 @@ import {
 } from "motion/react";
 import { cn } from "@/lib/utils";
 import { useRef } from "react";
+import React from "react";
 
-import type React from "react";
-
-interface MotionProps extends React.ComponentProps<typeof motion.div> {
+interface MotionDivProps {
   children: React.ReactNode;
   className?: string;
+  initial?: any;
+  animate?: any;
+  exit?: any;
+  transition?: any;
+  whileHover?: any;
+  whileTap?: any;
+  layout?: boolean;
+  layoutId?: string;
+  [key: string]: any;
 }
 
-export function MotionDiv({
+function MotionDiv({
   children,
   className,
   initial = { opacity: 0 },
   animate = { opacity: 1 },
   exit = { opacity: 0 },
   transition = { duration: 0.2 },
+  whileHover,
+  whileTap,
+  layout,
+  layoutId,
   ...props
-}: MotionProps) {
+}: MotionDivProps) {
   return (
     <motion.div
       className={cn(className)}
@@ -33,6 +47,10 @@ export function MotionDiv({
       animate={animate}
       exit={exit}
       transition={transition}
+      whileHover={whileHover}
+      whileTap={whileTap}
+      layout={layout}
+      layoutId={layoutId}
       {...props}
     >
       {children}
@@ -40,63 +58,119 @@ export function MotionDiv({
   );
 }
 
-interface AnimatePresenceWrapperProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+interface AnimatePresenceWrapperProps {
   children: React.ReactNode;
-  className?: string;
   mode?: "sync" | "wait" | "popLayout";
 }
 
-export function AnimatePresenceWrapper({
+function AnimatePresenceWrapper({
   children,
   mode = "sync",
 }: AnimatePresenceWrapperProps) {
   return <AnimatePresence mode={mode}>{children}</AnimatePresence>;
 }
 
-// Animation presets
-export const fadeIn = {
+// Enhanced animation presets
+const fadeIn = {
   initial: { opacity: 0 },
   animate: { opacity: 1 },
+  exit: { opacity: 0 },
+  transition: { duration: 0.3, ease: "easeOut" },
 };
 
-export const slideInFromTop = {
-  initial: { y: -20, opacity: 0 },
+const slideInFromTop = {
+  initial: { y: -30, opacity: 0 },
   animate: { y: 0, opacity: 1 },
+  exit: { y: -30, opacity: 0 },
+  transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] },
 };
 
-export const slideInFromLeft = {
-  initial: { x: -20, opacity: 0 },
+const slideInFromLeft = {
+  initial: { x: -30, opacity: 0 },
   animate: { x: 0, opacity: 1 },
+  exit: { x: -30, opacity: 0 },
+  transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] },
 };
 
-export const slideInFromRight = {
-  initial: { x: 20, opacity: 0 },
+const slideInFromRight = {
+  initial: { x: 30, opacity: 0 },
   animate: { x: 0, opacity: 1 },
+  exit: { x: 30, opacity: 0 },
+  transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] },
 };
 
-export const slideInFromBottom = {
-  initial: { y: 20, opacity: 0 },
+const slideInFromBottom = {
+  initial: { y: 30, opacity: 0 },
   animate: { y: 0, opacity: 1 },
+  exit: { y: 30, opacity: 0 },
+  transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] },
 };
 
-export const scaleUp = {
-  initial: { scale: 0.9, opacity: 0 },
+const scaleUp = {
+  initial: { scale: 0.85, opacity: 0 },
   animate: { scale: 1, opacity: 1 },
+  exit: { scale: 0.85, opacity: 0 },
+  transition: { duration: 0.3, ease: [0.34, 1.56, 0.64, 1] },
 };
 
-// Scroll animation components
+const slideUp = {
+  initial: { y: 50, opacity: 0 },
+  animate: { y: 0, opacity: 1 },
+  exit: { y: 50, opacity: 0 },
+  transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] },
+};
+
+const zoomIn = {
+  initial: { scale: 0, opacity: 0 },
+  animate: { scale: 1, opacity: 1 },
+  exit: { scale: 0, opacity: 0 },
+  transition: { duration: 0.4, ease: [0.34, 1.56, 0.64, 1] },
+};
+
+const rotateIn = {
+  initial: { rotate: -10, scale: 0.8, opacity: 0 },
+  animate: { rotate: 0, scale: 1, opacity: 1 },
+  exit: { rotate: 10, scale: 0.8, opacity: 0 },
+  transition: { duration: 0.5, ease: [0.34, 1.56, 0.64, 1] },
+};
+
+const bounceIn = {
+  initial: { scale: 0.3, opacity: 0 },
+  animate: { scale: 1, opacity: 1 },
+  exit: { scale: 0.3, opacity: 0 },
+  transition: {
+    duration: 0.6,
+    ease: [0.68, -0.55, 0.265, 1.55],
+    scale: {
+      type: "spring",
+      damping: 10,
+      stiffness: 100,
+      restDelta: 0.001,
+    },
+  },
+};
+
 interface ScrollAnimationProps {
   children: React.ReactNode;
   className?: string;
-  animation?: "fadeIn" | "slideUp" | "slideLeft" | "slideRight" | "scale";
+  animation?:
+    | "fadeIn"
+    | "slideUp"
+    | "slideLeft"
+    | "slideRight"
+    | "slideDown"
+    | "scaleUp"
+    | "zoomIn"
+    | "rotateIn"
+    | "bounceIn";
   threshold?: number;
   delay?: number;
   duration?: number;
   once?: boolean;
+  stagger?: number;
 }
 
-export function ScrollAnimation({
+function ScrollAnimation({
   children,
   className,
   animation = "fadeIn",
@@ -104,60 +178,100 @@ export function ScrollAnimation({
   delay = 0,
   duration = 0.5,
   once = true,
+  stagger = 0,
 }: ScrollAnimationProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once, amount: threshold });
 
   const getAnimationProps = () => {
+    const baseTransition = {
+      duration,
+      delay: delay + stagger,
+      ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number],
+    };
+
     switch (animation) {
-      case "fadeIn":
-        return {
-          initial: { opacity: 0 },
-          animate: isInView ? { opacity: 1 } : { opacity: 0 },
-        };
       case "slideUp":
         return {
-          initial: { opacity: 0, y: 50 },
-          animate: isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 },
+          initial: { y: 50, opacity: 0 },
+          animate: isInView ? { y: 0, opacity: 1 } : { y: 50, opacity: 0 },
+          transition: baseTransition,
         };
       case "slideLeft":
         return {
-          initial: { opacity: 0, x: 50 },
-          animate: isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 },
+          initial: { x: 50, opacity: 0 },
+          animate: isInView ? { x: 0, opacity: 1 } : { x: 50, opacity: 0 },
+          transition: baseTransition,
         };
       case "slideRight":
         return {
-          initial: { opacity: 0, x: -50 },
-          animate: isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 },
+          initial: { x: -50, opacity: 0 },
+          animate: isInView ? { x: 0, opacity: 1 } : { x: -50, opacity: 0 },
+          transition: baseTransition,
         };
-      case "scale":
+      case "slideDown":
         return {
-          initial: { opacity: 0, scale: 0.8 },
+          initial: { y: -50, opacity: 0 },
+          animate: isInView ? { y: 0, opacity: 1 } : { y: -50, opacity: 0 },
+          transition: baseTransition,
+        };
+      case "scaleUp":
+        return {
+          initial: { scale: 0.8, opacity: 0 },
           animate: isInView
-            ? { opacity: 1, scale: 1 }
-            : { opacity: 0, scale: 0.8 },
+            ? { scale: 1, opacity: 1 }
+            : { scale: 0.8, opacity: 0 },
+          transition: { ...baseTransition, ease: [0.34, 1.56, 0.64, 1] },
+        };
+      case "zoomIn":
+        return {
+          initial: { scale: 0, opacity: 0 },
+          animate: isInView
+            ? { scale: 1, opacity: 1 }
+            : { scale: 0, opacity: 0 },
+          transition: { ...baseTransition, ease: [0.34, 1.56, 0.64, 1] },
+        };
+      case "rotateIn":
+        return {
+          initial: { rotate: -15, scale: 0.8, opacity: 0 },
+          animate: isInView
+            ? { rotate: 0, scale: 1, opacity: 1 }
+            : { rotate: -15, scale: 0.8, opacity: 0 },
+          transition: { ...baseTransition, ease: [0.34, 1.56, 0.64, 1] },
+        };
+      case "bounceIn":
+        return {
+          initial: { scale: 0.3, opacity: 0 },
+          animate: isInView
+            ? { scale: 1, opacity: 1 }
+            : { scale: 0.3, opacity: 0 },
+          transition: {
+            ...baseTransition,
+            ease: [0.68, -0.55, 0.265, 1.55],
+            scale: {
+              type: "spring",
+              damping: 10,
+              stiffness: 100,
+              restDelta: 0.001,
+            },
+          },
         };
       default:
         return {
           initial: { opacity: 0 },
           animate: isInView ? { opacity: 1 } : { opacity: 0 },
+          transition: baseTransition,
         };
     }
   };
 
   return (
-    <motion.div
-      ref={ref}
-      className={className}
-      {...getAnimationProps()}
-      transition={{ duration, delay }}
-    >
+    <motion.div ref={ref} className={className} {...getAnimationProps()}>
       {children}
     </motion.div>
   );
 }
 
-// Parallax effect component
 interface ParallaxProps {
   children: React.ReactNode;
   className?: string;
@@ -165,7 +279,7 @@ interface ParallaxProps {
   direction?: "up" | "down" | "left" | "right";
 }
 
-export function Parallax({
+function Parallax({
   children,
   className,
   speed = 0.5,
@@ -177,7 +291,6 @@ export function Parallax({
     offset: ["start end", "end start"],
   });
 
-  // Calculate transform based on direction
   let transformX = useTransform(scrollYProgress, [0, 1], ["0%", "0%"]);
   let transformY = useTransform(scrollYProgress, [0, 1], ["0%", "0%"]);
 
@@ -185,16 +298,32 @@ export function Parallax({
 
   switch (direction) {
     case "up":
-      transformY = useTransform(scrollYProgress, [0, 1], [`0%`, `-${amount}%`]);
+      transformY = useTransform(
+        scrollYProgress,
+        [0, 1],
+        [`${amount}%`, `-${amount}%`],
+      );
       break;
     case "down":
-      transformY = useTransform(scrollYProgress, [0, 1], [`0%`, `${amount}%`]);
+      transformY = useTransform(
+        scrollYProgress,
+        [0, 1],
+        [`-${amount}%`, `${amount}%`],
+      );
       break;
     case "left":
-      transformX = useTransform(scrollYProgress, [0, 1], [`0%`, `-${amount}%`]);
+      transformX = useTransform(
+        scrollYProgress,
+        [0, 1],
+        [`${amount}%`, `-${amount}%`],
+      );
       break;
     case "right":
-      transformX = useTransform(scrollYProgress, [0, 1], [`0%`, `${amount}%`]);
+      transformX = useTransform(
+        scrollYProgress,
+        [0, 1],
+        [`-${amount}%`, `${amount}%`],
+      );
       break;
   }
 
@@ -219,8 +348,85 @@ export function Parallax({
   );
 }
 
-export const MotionDivClient = MotionDiv;
-export const MotionTr = motion.tr;
-export const MotionTd = motion.td;
-export const MotionLi = motion.li;
-export const MotionUl = motion.ul;
+// Enhanced Stagger Animation Component
+interface StaggerProps {
+  children: React.ReactNode;
+  className?: string;
+  staggerDelay?: number;
+  animation?: "fadeIn" | "slideUp" | "slideLeft" | "slideRight" | "scaleUp";
+}
+
+function Stagger({
+  children,
+  className,
+  staggerDelay = 0.1,
+  animation = "fadeIn",
+}: StaggerProps) {
+  const ref = useRef(null);
+
+  return (
+    <div ref={ref} className={className}>
+      {React.Children.map(children, (child, index) => (
+        <ScrollAnimation
+          animation={animation}
+          delay={index * staggerDelay}
+          key={index}
+        >
+          {child}
+        </ScrollAnimation>
+      ))}
+    </div>
+  );
+}
+
+// Interactive hover animations
+const hoverScale = {
+  whileHover: { scale: 1.05 },
+  whileTap: { scale: 0.95 },
+  transition: { type: "spring", stiffness: 300, damping: 20 },
+};
+
+const hoverGlow = {
+  whileHover: {
+    boxShadow: "0 0 20px rgba(59, 130, 246, 0.3)",
+    scale: 1.02,
+  },
+  transition: { duration: 0.2 },
+};
+
+const hoverFloat = {
+  whileHover: { y: -5 },
+  transition: { type: "spring", stiffness: 300, damping: 20 },
+};
+
+const MotionDivClient = MotionDiv;
+const MotionTr = motion.tr;
+const MotionTd = motion.td;
+const MotionLi = motion.li;
+const MotionUl = motion.ul;
+
+export {
+  MotionDiv,
+  MotionDivClient,
+  MotionTr,
+  MotionTd,
+  MotionLi,
+  MotionUl,
+  AnimatePresenceWrapper,
+  ScrollAnimation,
+  Parallax,
+  Stagger,
+  fadeIn,
+  slideInFromTop,
+  slideInFromLeft,
+  slideInFromRight,
+  slideInFromBottom,
+  scaleUp,
+  slideUp,
+  zoomIn,
+  rotateIn,
+  bounceIn,
+  hoverScale,
+  hoverGlow,
+  hoverFloat,
+};

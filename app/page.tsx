@@ -1,10 +1,14 @@
-import { Timetable } from "@/components//timetable/timetable";
+import { Timetable } from "@/components/timetable/timetable";
 import { ClashVisualization } from "@/components/timetable/clash-detection/clash-visualization";
 import { CoursePreferences } from "@/components/course-preference/course-preferences";
-import { ExportDialog } from "@/components/timetable/export/export-dialog";
 import { ModeToggle } from "@/components/mode-toggle";
 import { SelectedCoursesTable } from "@/components/selected-courses-table";
-import { MotionDiv, Parallax, ScrollAnimation } from "@/components/ui/motion";
+import {
+  MotionDiv,
+  ScrollAnimation,
+  Parallax,
+  Stagger,
+} from "@/components/ui/motion";
 import { ExportSection } from "@/components/timetable/export/export-section";
 
 export default function Home() {
@@ -12,35 +16,135 @@ export default function Home() {
     <main className="container p-4 mx-auto">
       <Parallax className="mb-6" speed={0.2}>
         <MotionDiv
-          initial={{ y: -20, opacity: 0 }}
+          initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5 }}
+          transition={{
+            duration: 0.8,
+            ease: [0.25, 0.46, 0.45, 0.94],
+            delay: 0.2,
+          }}
         >
-          <h1 className="mb-6 text-2xl font-bold text-center">FFCS Planner</h1>
+          <h1 className="mb-6 text-4xl font-bold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            FFCS Planner
+          </h1>
         </MotionDiv>
       </Parallax>
 
-      <ScrollAnimation animation="fadeIn" duration={0.6} className="mb-6">
-        <h2 className="mb-3 text-xl font-semibold">Course Management</h2>
-        <CoursePreferences />
-      </ScrollAnimation>
+      <Stagger staggerDelay={0.15} animation="slideUp">
+        <ScrollAnimation
+          animation="fadeIn"
+          duration={0.8}
+          className="mb-8"
+          delay={0.3}
+        >
+          <MotionDiv
+            className="rounded-lg border bg-card p-6 shadow-sm"
+            whileHover={{
+              scale: 1.01,
+              boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+            }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          >
+            <h2 className="mb-4 text-2xl font-semibold text-primary">
+              Course Management
+            </h2>
+            <CoursePreferences />
+          </MotionDiv>
+        </ScrollAnimation>
 
-      <ScrollAnimation animation="slideUp" duration={0.6} className="mb-6">
-        <h2 className="mb-3 text-xl font-semibold">Timetable</h2>
-        <ClashVisualization />
-        <Timetable />
-      </ScrollAnimation>
+        <ScrollAnimation
+          animation="slideUp"
+          duration={0.8}
+          className="mb-8"
+          delay={0.1}
+        >
+          <MotionDiv
+            className="rounded-lg border bg-card p-6 shadow-sm"
+            whileHover={{
+              scale: 1.01,
+              boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+            }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          >
+            <h2 className="mb-4 text-2xl font-semibold text-primary">
+              Timetable
+            </h2>
+            <div className="space-y-4">
+              <ScrollAnimation animation="scaleUp" delay={0.2}>
+                <ClashVisualization />
+              </ScrollAnimation>
+              <ScrollAnimation animation="fadeIn" delay={0.3}>
+                <Timetable />
+              </ScrollAnimation>
+            </div>
+          </MotionDiv>
+        </ScrollAnimation>
 
-      <ScrollAnimation animation="slideUp" duration={0.6} className="mb-8">
-        <h2 className="mb-3 text-xl font-semibold">Selected Courses</h2>
-        <SelectedCoursesTable />
-      </ScrollAnimation>
+        <ScrollAnimation
+          animation="slideUp"
+          duration={0.8}
+          className="mb-8"
+          delay={0.2}
+        >
+          <MotionDiv
+            className="rounded-lg border bg-card p-6 shadow-sm"
+            whileHover={{
+              scale: 1.01,
+              boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+            }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          >
+            <h2 className="mb-4 text-2xl font-semibold text-primary">
+              Selected Courses
+            </h2>
+            <ScrollAnimation animation="bounceIn" delay={0.1}>
+              <SelectedCoursesTable />
+            </ScrollAnimation>
+          </MotionDiv>
+        </ScrollAnimation>
 
-      <ScrollAnimation animation="slideUp" duration={0.6} className="mb-8">
-        <h2 className="mb-3 text-xl font-semibold">Export</h2>
-        <ExportSection />
-      </ScrollAnimation>
+        <ScrollAnimation
+          animation="slideUp"
+          duration={0.8}
+          className="mb-8"
+          delay={0.3}
+        >
+          <MotionDiv
+            className="rounded-lg border bg-card p-6 shadow-sm"
+            whileHover={{
+              scale: 1.01,
+              boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+            }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          >
+            <h2 className="mb-4 text-2xl font-semibold text-primary">
+              Export & Share
+            </h2>
+            <ScrollAnimation animation="rotateIn" delay={0.1}>
+              <ExportSection />
+            </ScrollAnimation>
+          </MotionDiv>
+        </ScrollAnimation>
+      </Stagger>
 
+      {/* <MotionDiv
+        className="absolute bottom-4 right-4"
+        initial={{ scale: 0, rotate: -180 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{
+          delay: 1,
+          type: "spring",
+          stiffness: 200,
+          damping: 20
+        }}
+        whileHover={{
+          scale: 1.1,
+          rotate: 5,
+          boxShadow: "0 10px 20px rgba(0,0,0,0.2)"
+        }}
+        whileTap={{ scale: 0.9 }}
+      >
+      </MotionDiv> */}
       <ModeToggle />
     </main>
   );

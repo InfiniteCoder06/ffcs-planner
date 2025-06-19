@@ -1,8 +1,9 @@
-import "./globals.css";
-
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { ThemeProvider } from "next-themes";
+import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { MotionDiv } from "@/components/ui/motion";
 import { ToastWrapper } from "./toast";
 
 const geistSans = Geist({
@@ -17,7 +18,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "FFCS Planner",
-  description: "A simple FFCS planner for VITV",
+  description: "Plan your FFCS schedule with ease",
 };
 
 export default function RootLayout({
@@ -30,9 +31,22 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
-          <ToastWrapper />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+        >
+          <TooltipProvider>
+            <MotionDiv
+              className="min-h-screen bg-background"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              {children}
+              <ToastWrapper />
+            </MotionDiv>
+          </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>

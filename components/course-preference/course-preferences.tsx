@@ -10,7 +10,6 @@ import {
   AnimatePresenceWrapper,
   MotionDiv,
   ScrollAnimation,
-  slideInFromBottom,
 } from "@/components/ui/motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Course, Teacher, useScheduleStore } from "@/lib/store";
@@ -103,66 +102,174 @@ export function CoursePreferences() {
   }, [setExportData]);
 
   return (
-    <ScrollAnimation animation="fadeIn" duration={0.6}>
-      <div className="border rounded-lg shadow-sm bg-gray-50 dark:bg-gray-900">
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="font-bold">Course Preferences</h2>
+    <ScrollAnimation animation="fadeIn" duration={0.8}>
+      <MotionDiv
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="border rounded-lg shadow-sm bg-gray-50 dark:bg-gray-900 overflow-hidden"
+      >
+        {/* Header with staggered animations */}
+        <MotionDiv
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="flex items-center justify-between p-4 border-b bg-white dark:bg-gray-800"
+        >
+          <MotionDiv
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <h2 className="font-bold text-lg">Course Preferences</h2>
+          </MotionDiv>
+
           <AnimatePresenceWrapper>
             <MotionDiv
-              {...slideInFromBottom}
-              transition={{ duration: 0.5 }}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
               className="flex gap-2"
             >
-              {courseCount > 0 && (
-                <IconButton
-                  icon={editMode ? "check" : "edit"}
-                  variant={editMode ? "success" : "warning"}
-                  size="sm"
-                  label={editMode ? "Done" : "Edit"}
-                  onClick={toggleEditMode}
+              <AnimatePresenceWrapper>
+                {courseCount > 0 && (
+                  <MotionDiv
+                    initial={{ opacity: 0, scale: 0.8, x: 20 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, x: 20 }}
+                    transition={{
+                      duration: 0.3,
+                      type: "spring",
+                      stiffness: 300,
+                    }}
+                  >
+                    <IconButton
+                      icon={editMode ? "check" : "edit"}
+                      variant={editMode ? "success" : "warning"}
+                      size="sm"
+                      label={editMode ? "Done" : "Edit"}
+                      onClick={toggleEditMode}
+                    />
+                  </MotionDiv>
+                )}
+              </AnimatePresenceWrapper>
+
+              <MotionDiv
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{
+                  duration: 0.3,
+                  delay: 0.4,
+                  type: "spring",
+                  stiffness: 300,
+                }}
+              >
+                <AddCourseDialog
+                  courseToEdit={null}
+                  buttonVariant="default"
+                  buttonSize="sm"
+                  disabled={editMode}
                 />
-              )}
-              <AddCourseDialog
-                courseToEdit={null}
-                buttonVariant="default"
-                buttonSize="sm"
-                disabled={editMode}
-              />
+              </MotionDiv>
             </MotionDiv>
           </AnimatePresenceWrapper>
-        </div>
+        </MotionDiv>
 
-        <ScrollArea className="h-96">
-          <div className="p-4">
-            <CourseList editMode={editMode} />
-          </div>
-        </ScrollArea>
-
+        {/* Content area with scroll animation */}
         <MotionDiv
-          {...slideInFromBottom}
-          transition={{ duration: 0.5 }}
-          className="flex items-center justify-end p-4 border-t"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <ScrollArea className="h-96">
+            <MotionDiv
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="p-4"
+            >
+              <CourseList editMode={editMode} />
+            </MotionDiv>
+          </ScrollArea>
+        </MotionDiv>
+
+        {/* Footer with button animations */}
+        <MotionDiv
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="flex items-center justify-end p-4 border-t bg-white dark:bg-gray-800"
         >
           <div className="flex flex-wrap gap-2">
-            <Button variant="warning" size="sm" onClick={handleUploadTimetable}>
-              <UploadIcon /> Upload TT
-            </Button>
-            <DownloadTimetableDialog disabled={courseCount === 0} />
-            <DeleteDialog
-              description="Are you sure you want to clear selected teachers?"
-              buttonText="Clear Selected"
-              buttonDisabled={courseCount === 0}
-              onConfirm={clearSelectedTeachers}
-            />
-            <DeleteDialog
-              description="Are you sure you want to clear all courses and teachers?"
-              buttonText="Clear All"
-              buttonDisabled={courseCount === 0}
-              onConfirm={clearAll}
-            />
+            {[
+              {
+                component: (
+                  <Button
+                    variant="warning"
+                    size="sm"
+                    onClick={handleUploadTimetable}
+                  >
+                    <UploadIcon /> Upload TT
+                  </Button>
+                ),
+                delay: 0.1,
+              },
+              {
+                component: (
+                  <DownloadTimetableDialog disabled={courseCount === 0} />
+                ),
+                delay: 0.2,
+              },
+              {
+                component: (
+                  <DeleteDialog
+                    description="Are you sure you want to clear selected teachers?"
+                    buttonText="Clear Selected"
+                    buttonDisabled={courseCount === 0}
+                    onConfirm={clearSelectedTeachers}
+                  />
+                ),
+                delay: 0.3,
+              },
+              {
+                component: (
+                  <DeleteDialog
+                    description="Are you sure you want to clear all courses and teachers?"
+                    buttonText="Clear All"
+                    buttonDisabled={courseCount === 0}
+                    onConfirm={clearAll}
+                  />
+                ),
+                delay: 0.4,
+              },
+            ].map((item, index) => (
+              <MotionDiv
+                key={index}
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  duration: 0.4,
+                  delay: 0.7 + item.delay,
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 15,
+                }}
+                whileHover={{
+                  scale: 1.05,
+                  transition: { duration: 0.2 },
+                }}
+                whileTap={{
+                  scale: 0.95,
+                  transition: { duration: 0.1 },
+                }}
+              >
+                {item.component}
+              </MotionDiv>
+            ))}
           </div>
         </MotionDiv>
-      </div>
+      </MotionDiv>
     </ScrollAnimation>
   );
 }
