@@ -1,7 +1,7 @@
-import { useScheduleStore } from "@/lib/store";
+import { Teacher, useScheduleStore } from "@/lib/store";
 
 interface CourseRowProps {
-  teacher: any; // Replace with proper type from your store
+  teacher: Teacher;
 }
 
 export function CourseRow({ teacher }: CourseRowProps) {
