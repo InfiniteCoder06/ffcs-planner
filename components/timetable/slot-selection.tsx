@@ -20,7 +20,7 @@ import { useState } from "react";
 export function SlotSelector() {
   const { selectedSlots, toggleSlot, clearSelectedSlots } =
     manualSlotSelectionStore();
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <ScrollAnimation animation="fadeIn" duration={0.6} className="mb-6">
@@ -30,7 +30,7 @@ export function SlotSelector() {
           onClick={() => setIsExpanded(!isExpanded)}
         >
           <div className="flex items-center gap-2">
-            <h2 className="font-bold">Slot Selection</h2>
+            <h2 className="font-bold">Manual Slot Selection</h2>
           </div>
           <div className="flex gap-2">
             <AnimatePresenceWrapper>
@@ -116,9 +116,7 @@ export function SlotSelector() {
                 variant={isSelected ? "default" : "outline"}
                 className={cn(
                   "flex items-center gap-1 px-3 py-1.5 rounded-md text-sm transition-all duration-500 basis-1/6",
-                  isSelected
-                    ? "bg-black text-white hover:bg-gray-800"
-                    : "bg-white text-black border-gray-200 hover:bg-gray-50",
+                  isSelected && "bg-yellow-ui text-yellow-normal",
                 )}
                 onClick={() => toggleSlot(slot)}
               >
