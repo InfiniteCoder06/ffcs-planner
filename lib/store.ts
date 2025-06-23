@@ -87,10 +87,7 @@ export const useScheduleStore = create<State & Actions>()(
 
       addCourse: (course) =>
         set((state) => ({
-          courses: [
-            ...state.courses,
-            { ...course, id: Math.random().toString(36).slice(2, 9) },
-          ],
+          courses: [...state.courses, { ...course, id: crypto.randomUUID() }],
         })),
 
       editCourse: (id, updates) =>
@@ -148,26 +145,31 @@ export const useScheduleStore = create<State & Actions>()(
       toggleTeacherInTimetable: (teacherId) =>
         set((state) => {
           const teacher = state.teachers.find((t) => t.id === teacherId);
-          if (!teacher) return {};
+          if (!teacher) return state;
 
           const isSelected = state.selectedTeachers.some(
             (t) => t.id === teacherId,
           );
 
           if (isSelected) {
+            const newSelectedTeachers = state.selectedTeachers.filter(
+              (t) => t.id !== teacherId,
+            );
+            const newSelectedSlots = state.selectedSlots.filter(
+              (slot) => !teacher.slots.includes(slot),
+            );
+
             return {
-              selectedTeachers: state.selectedTeachers.filter(
-                (t) => t.id !== teacherId,
-              ),
-              selectedSlots: state.selectedSlots.filter(
-                (slot) => !teacher.slots.includes(slot),
-              ),
+              selectedTeachers: newSelectedTeachers,
+              selectedSlots: newSelectedSlots,
             };
           }
 
           return {
             selectedTeachers: [...state.selectedTeachers, teacher],
-            selectedSlots: [...state.selectedSlots, ...teacher.slots],
+            selectedSlots: Array.from(
+              new Set([...state.selectedSlots, ...teacher.slots]),
+            ),
           };
         }),
 
@@ -249,24 +251,21 @@ export const useScheduleStore = create<State & Actions>()(
       getAllClashes: () => {
         const { selectedTeachers } = get();
         const clashes: ClashInfo[] = [];
+        const slotMap = new Map<string, Teacher[]>();
 
-        // Create a map of slots to teachers
-        const slotMap: Record<string, Teacher[]> = {};
-
-        // Populate the map
+        // Populate the map more efficiently
         selectedTeachers.forEach((teacher) => {
           teacher.slots.forEach((slot) => {
-            if (!slotMap[slot]) {
-              slotMap[slot] = [];
+            if (!slotMap.has(slot)) {
+              slotMap.set(slot, []);
             }
-            slotMap[slot].push(teacher);
+            slotMap.get(slot)!.push(teacher);
           });
         });
 
         // Check each slot for clashes
-        Object.entries(slotMap).forEach(([slot, teachers]) => {
+        slotMap.forEach((teachers, slot) => {
           if (teachers.length >= 2) {
-            // Create clash pairs
             for (let i = 0; i < teachers.length; i++) {
               for (let j = i + 1; j < teachers.length; j++) {
                 clashes.push({
@@ -284,6 +283,12 @@ export const useScheduleStore = create<State & Actions>()(
     }),
     {
       name: "schedule-store",
+      partialize: (state) => ({
+        courses: state.courses,
+        teachers: state.teachers,
+        selectedTeachers: state.selectedTeachers,
+        selectedSlots: state.selectedSlots,
+      }),
     },
   ),
 );

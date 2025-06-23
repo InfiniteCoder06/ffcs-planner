@@ -12,7 +12,7 @@ import {
   AnimationGeneratorType,
 } from "motion/react";
 import { cn } from "@/lib/utils";
-import { useRef } from "react";
+import { useRef, memo, useMemo } from "react";
 import React from "react";
 
 interface MotionDivProps {
@@ -29,7 +29,7 @@ interface MotionDivProps {
   [key: string]: any;
 }
 
-function MotionDiv({
+const MotionDiv = memo(function MotionDiv({
   children,
   className,
   initial = { opacity: 0 },
@@ -42,23 +42,37 @@ function MotionDiv({
   layoutId,
   ...props
 }: MotionDivProps) {
+  const motionProps = useMemo(
+    () => ({
+      initial,
+      animate,
+      exit,
+      transition,
+      whileHover,
+      whileTap,
+      layout,
+      layoutId,
+      ...props,
+    }),
+    [
+      initial,
+      animate,
+      exit,
+      transition,
+      whileHover,
+      whileTap,
+      layout,
+      layoutId,
+      props,
+    ],
+  );
+
   return (
-    <motion.div
-      className={cn(className)}
-      initial={initial}
-      animate={animate}
-      exit={exit}
-      transition={transition}
-      whileHover={whileHover}
-      whileTap={whileTap}
-      layout={layout}
-      layoutId={layoutId}
-      {...props}
-    >
+    <motion.div className={cn(className)} {...motionProps}>
       {children}
     </motion.div>
   );
-}
+});
 
 interface AnimatePresenceWrapperProps {
   children: React.ReactNode;
@@ -172,7 +186,7 @@ interface ScrollAnimationProps {
   stagger?: number;
 }
 
-function ScrollAnimation({
+const ScrollAnimation = memo(function ScrollAnimation({
   children,
   className,
   animation = "fadeIn",
@@ -185,7 +199,7 @@ function ScrollAnimation({
   const ref = useRef(null);
   const isInView = useInView(ref, { once, amount: threshold });
 
-  const getAnimationProps = () => {
+  const animationProps = useMemo(() => {
     const baseTransition = {
       duration,
       delay: delay + stagger,
@@ -272,14 +286,14 @@ function ScrollAnimation({
           transition: baseTransition,
         };
     }
-  };
+  }, [animation, isInView, delay, duration, stagger]);
 
   return (
-    <motion.div ref={ref} className={className} {...getAnimationProps()}>
+    <motion.div ref={ref} className={className} {...animationProps}>
       {children}
     </motion.div>
   );
-}
+});
 
 interface ParallaxProps {
   children: React.ReactNode;

@@ -1,5 +1,5 @@
 "use client";
-import { useMemo } from "react";
+import { useMemo, useCallback, memo } from "react";
 import { MotionDiv, MotionTd, ScrollAnimation } from "@/components/ui/motion";
 import {
   Tooltip,
@@ -30,6 +30,7 @@ interface ClashDetails {
   courses: string[];
 }
 
+// Memoize static time data
 const THEORY_HOURS: TimeRange[] = [
   { start: "8:00 AM", end: "8:50 AM" },
   { start: "9:00 AM", end: "9:50 AM" },
@@ -56,47 +57,87 @@ const LAB_HOURS: TimeRange[] = [
   { start: "5:40 PM", end: "7:20 PM" },
 ];
 
+// Memoize the cell renderer component
+const MemoizedCell = memo(function MemoizedCell({
+  slotIndex,
+  dayIndex,
+  onClick,
+  className,
+  children,
+}: {
+  slot: string[];
+  slotIndex: number;
+  dayIndex: number;
+  onClick: () => void;
+  className: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <MotionTd
+      className={className}
+      onClick={onClick}
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{
+        type: "spring",
+        stiffness: 500,
+        damping: 30,
+        delay: slotIndex * 0.01 + dayIndex * 0.03,
+      }}
+    >
+      {children}
+    </MotionTd>
+  );
+});
+
 export function Timetable() {
   const { selectedTeachers, courses } = useScheduleStore();
   const { selectedSlots, toggleSlot } = manualSlotSelectionStore();
 
-  const {
-    colorCache,
-    teacherCache,
-    teacherVenueCache,
-    clashCache,
-    clashDetailsCache,
-  } = useMemo(() => {
+  // Memoize course lookup for performance
+  const courseMap = useMemo(() => {
+    const map = new Map<string, string>();
+    courses.forEach((course) => map.set(course.id, course.code));
+    return map;
+  }, [courses]);
+
+  // Memoize slot mapping and clash detection
+  const slotData = useMemo(() => {
+    const slotMap = new Map<string, TeacherData>();
+    const clashCache: Record<string, boolean> = {};
+    const clashDetailsCache: Record<string, ClashDetails> = {};
+
+    selectedTeachers.forEach(({ slots, name, color, venue = "", course }) => {
+      slots.forEach((slot) => {
+        if (slotMap.has(slot)) {
+          clashCache[slot] = true;
+          clashDetailsCache[slot] ??= { teachers: [], courses: [] };
+          const existing = slotMap.get(slot)!;
+          const prevCourse = courseMap.get(existing.courseId) ?? "Unknown";
+          const currCourse = courseMap.get(course) ?? "Unknown";
+          clashDetailsCache[slot].teachers.push(existing.name, name);
+          clashDetailsCache[slot].courses.push(prevCourse, currCourse);
+        }
+        slotMap.set(slot, { name, color, venue, courseId: course });
+      });
+    });
+
+    return { slotMap, clashCache, clashDetailsCache };
+  }, [selectedTeachers, courseMap]);
+
+  // Memoize cell data for rendering
+  const cellData = useMemo(() => {
+    const { slotMap, clashCache } = slotData;
     const colorCache: Record<string, string> = {};
     const teacherCache: Record<string, string> = {};
     const venueCache: Record<string, string> = {};
-    const clashCache: Record<string, boolean> = {};
-    const clashDetailsCache: Record<string, ClashDetails> = {};
-    const slotMap = new Map<string, TeacherData>();
-
-    selectedTeachers.forEach(({ slots, name, color, venue = "", course }) => {
-      slots.forEach((s) => {
-        if (slotMap.has(s)) {
-          clashCache[s] = true;
-          clashDetailsCache[s] ??= { teachers: [], courses: [] };
-          const existing = slotMap.get(s)!;
-          const prevCourse = courses.find((c) => c.id === existing.courseId);
-          const currCourse = courses.find((c) => c.id === course);
-          clashDetailsCache[s].teachers.push(existing.name, name);
-          clashDetailsCache[s].courses.push(
-            prevCourse?.code ?? "Unknown",
-            currCourse?.code ?? "Unknown",
-          );
-        }
-        slotMap.set(s, { name, color, venue, courseId: course });
-      });
-    });
 
     for (const day of days) {
       for (const slot of timetableData[day]) {
         const key = slot.join("/");
         const hasClash = slot.some((s) => clashCache[s]);
         const data = slot.map((s) => slotMap.get(s)).find(Boolean);
+
         colorCache[key] = hasClash
           ? "bg-red-ui text-red-dim"
           : data
@@ -107,96 +148,109 @@ export function Timetable() {
       }
     }
 
-    return {
+    return { colorCache, teacherCache, venueCache };
+  }, [slotData]);
+
+  // Destructure cached data
+  const { clashCache, clashDetailsCache } = slotData;
+  const { colorCache, teacherCache, venueCache } = cellData;
+
+  // Memoize key generation
+  const getKey = useCallback((slot: string[]): string => slot.join("/"), []);
+
+  // Memoize clash details calculation
+  const getClashDetails = useCallback(
+    (slot: string[]) => {
+      const clashed = slot.filter((s) => clashCache[s]);
+      if (!clashed.length) return null;
+      const teachers = new Set<string>();
+      const courses = new Set<string>();
+      clashed.forEach((s) => {
+        clashDetailsCache[s]?.teachers.forEach((t: string) => teachers.add(t));
+        clashDetailsCache[s]?.courses.forEach((c: string) => courses.add(c));
+      });
+      return { teachers: [...teachers], courses: [...courses], slots: clashed };
+    },
+    [clashCache, clashDetailsCache],
+  );
+
+  // Optimize cell rendering with better memoization
+  const renderCell = useCallback(
+    (slot: string[], slotIndex: number, dayIndex: number) => {
+      const key = getKey(slot);
+      const isClash = slot.some((s) => clashCache[s]);
+      const selected = slot.some((s) => selectedSlots.includes(s));
+      const handleClick = useCallback(() => slot.forEach(toggleSlot), [slot]);
+
+      return (
+        <Tooltip key={slotIndex}>
+          <TooltipTrigger asChild>
+            <MemoizedCell
+              slot={slot}
+              slotIndex={slotIndex}
+              dayIndex={dayIndex}
+              onClick={handleClick}
+              className={cn(
+                "p-2 text-xs text-center border h-24 max-h-24 overflow-hidden transition-colors duration-200 dark:border-gray-700 hover:cursor-pointer",
+                colorCache[key],
+                selected &&
+                  "bg-yellow-4 text-black-8 dark:bg-yellowdark-7 hover:bg-yellow-4 dark:hover:bg-yellowdark-7",
+                isClash && "relative",
+              )}
+            >
+              {slot.join(" / ")}
+              <MotionDiv
+                className="mt-1 font-semibold"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                <p>{teacherCache[key]}</p>
+                <p>{venueCache[key]}</p>
+              </MotionDiv>
+              {isClash && (
+                <MotionDiv
+                  className="absolute top-1 right-1"
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  whileHover={{
+                    rotate: [0, -10, 10, -10, 0],
+                    transition: { duration: 0.5 },
+                  }}
+                >
+                  <AlertCircle className="h-4 w-4 text-red-normal" />
+                </MotionDiv>
+              )}
+            </MemoizedCell>
+          </TooltipTrigger>
+          {isClash && (
+            <TooltipContent
+              side="top"
+              className="border-2 border-red-normal bg-red-ui text-red-normal"
+            >
+              <div className="p-1 text-xs">
+                <p className="mb-1 font-bold">Slot Clash Detected!</p>
+                {getClashDetails(slot)?.courses.map((course, i) => (
+                  <p key={i}>{course}</p>
+                ))}
+              </div>
+            </TooltipContent>
+          )}
+        </Tooltip>
+      );
+    },
+    [
+      getKey,
+      clashCache,
+      selectedSlots,
+      toggleSlot,
       colorCache,
       teacherCache,
-      teacherVenueCache: venueCache,
-      clashCache,
-      clashDetailsCache,
-    };
-  }, [selectedTeachers, courses]);
-
-  const getKey = (slot: string[]): string => slot.join("/");
-  const getClashDetails = (slot: string[]) => {
-    const clashed = slot.filter((s) => clashCache[s]);
-    if (!clashed.length) return null;
-    const teachers = new Set<string>();
-    const courses = new Set<string>();
-    clashed.forEach((s) => {
-      clashDetailsCache[s]?.teachers.forEach((t) => teachers.add(t));
-      clashDetailsCache[s]?.courses.forEach((c) => courses.add(c));
-    });
-    return { teachers: [...teachers], courses: [...courses], slots: clashed };
-  };
-
-  const renderCell = (slot: string[], slotIndex: number, dayIndex: number) => {
-    const key = getKey(slot);
-    const isClash = slot.some((s) => clashCache[s]);
-    const selected = slot.some((s) => selectedSlots.includes(s));
-
-    return (
-      <Tooltip key={slotIndex}>
-        <TooltipTrigger asChild>
-          <MotionTd
-            className={cn(
-              "p-2 text-xs text-center border h-24 max-h-24 overflow-hidden transition-colors duration-200 dark:border-gray-700 hover:cursor-pointer",
-              colorCache[key],
-              selected &&
-                "bg-yellow-4 text-black-8 dark:bg-yellowdark-7 hover:bg-yellow-4 dark:hover:bg-yellowdark-7",
-              isClash && "relative",
-            )}
-            onClick={() => slot.forEach(toggleSlot)}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{
-              type: "spring",
-              stiffness: 500,
-              damping: 30,
-              delay: slotIndex * 0.01 + dayIndex * 0.03,
-            }}
-          >
-            {slot.join(" / ")}
-            <MotionDiv
-              className="mt-1 font-semibold"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              <p>{teacherCache[key]}</p>
-              <p>{teacherVenueCache[key]}</p>
-            </MotionDiv>
-            {isClash && (
-              <MotionDiv
-                className="absolute top-1 right-1"
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                whileHover={{
-                  rotate: [0, -10, 10, -10, 0],
-                  transition: { duration: 0.5 },
-                }}
-              >
-                <AlertCircle className="h-4 w-4 text-red-normal" />
-              </MotionDiv>
-            )}
-          </MotionTd>
-        </TooltipTrigger>
-        {isClash && (
-          <TooltipContent
-            side="top"
-            className="border-2 border-red-normal bg-red-ui text-red-normal"
-          >
-            <div className="p-1 text-xs">
-              <p className="mb-1 font-bold">Slot Clash Detected!</p>
-              {getClashDetails(slot)?.courses.map((course, i) => (
-                <p key={i}>{course}</p>
-              ))}
-            </div>
-          </TooltipContent>
-        )}
-      </Tooltip>
-    );
-  };
+      venueCache,
+      getClashDetails,
+    ],
+  );
 
   return (
     <TooltipProvider>
