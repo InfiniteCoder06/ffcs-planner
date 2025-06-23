@@ -1,6 +1,3 @@
-import html2canvas from "html2canvas-pro";
-import { jsPDF } from "jspdf";
-
 /**
  * Exports the timetable as a PDF file
  * @param element The HTML element to export
@@ -11,6 +8,8 @@ export async function exportToPdf(
   filename: string,
 ): Promise<void> {
   // Add a class to the element for styling during export
+  const jsPDF = (await import("jspdf")).default;
+  const html2canvas = (await import("html2canvas-pro")).default;
   element.classList.add("exporting");
 
   try {
@@ -85,8 +84,8 @@ export async function exportToImage(
   isDarkMode: boolean = false,
 ): Promise<void> {
   // Add a class to the element for styling during export
-  // element.classList.add("exporting");
-
+  element.classList.add("exporting");
+  const html2canvas = (await import("html2canvas-pro")).default;
   try {
     const canvas = await html2canvas(element, {
       scale: 2, // Higher scale for better quality
@@ -98,7 +97,7 @@ export async function exportToImage(
     });
 
     // Remove the export class
-    // element.classList.remove("exporting");
+    element.classList.remove("exporting");
 
     // Create a download link
     const link = document.createElement("a");
