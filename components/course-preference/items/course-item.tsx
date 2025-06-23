@@ -74,7 +74,7 @@ const CourseItem = React.memo(function CourseItem({
           >
             <ChevronUpIcon
               className={cn("w-4 h-4 transition-transform", {
-                "rotate-180": isExpanded,
+                "rotate-180": !isExpanded,
               })}
             />
           </Button>
