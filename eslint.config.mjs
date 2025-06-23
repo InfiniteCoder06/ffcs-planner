@@ -1,4 +1,3 @@
-import css from "@eslint/css";
 import js from "@eslint/js";
 import { defineConfig } from "eslint/config";
 import pluginPrettier from "eslint-plugin-prettier";
@@ -13,14 +12,6 @@ export default defineConfig([
   // React recommendations
   pluginReact.configs.flat.recommended,
   pluginReact.configs.flat["jsx-runtime"],
-
-  // CSS linting
-  {
-    files: ["**/*.css"],
-    language: "css/css",
-    plugins: { css },
-    extends: ["css/recommended"],
-  },
 
   {
     plugins: {

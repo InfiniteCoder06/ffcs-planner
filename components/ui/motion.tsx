@@ -8,6 +8,8 @@ import {
   useScroll,
   useTransform,
   useSpring,
+  Easing,
+  AnimationGeneratorType,
 } from "motion/react";
 import { cn } from "@/lib/utils";
 import { useRef } from "react";
@@ -187,7 +189,7 @@ function ScrollAnimation({
     const baseTransition = {
       duration,
       delay: delay + stagger,
-      ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number],
+      ease: [0.25, 0.46, 0.45, 0.94] as Easing,
     };
 
     switch (animation) {
@@ -221,7 +223,10 @@ function ScrollAnimation({
           animate: isInView
             ? { scale: 1, opacity: 1 }
             : { scale: 0.8, opacity: 0 },
-          transition: { ...baseTransition, ease: [0.34, 1.56, 0.64, 1] },
+          transition: {
+            ...baseTransition,
+            ease: [0.34, 1.56, 0.64, 1] as Easing,
+          },
         };
       case "zoomIn":
         return {
@@ -229,7 +234,10 @@ function ScrollAnimation({
           animate: isInView
             ? { scale: 1, opacity: 1 }
             : { scale: 0, opacity: 0 },
-          transition: { ...baseTransition, ease: [0.34, 1.56, 0.64, 1] },
+          transition: {
+            ...baseTransition,
+            ease: [0.34, 1.56, 0.64, 1] as Easing,
+          },
         };
       case "rotateIn":
         return {
@@ -237,7 +245,10 @@ function ScrollAnimation({
           animate: isInView
             ? { rotate: 0, scale: 1, opacity: 1 }
             : { rotate: -15, scale: 0.8, opacity: 0 },
-          transition: { ...baseTransition, ease: [0.34, 1.56, 0.64, 1] },
+          transition: {
+            ...baseTransition,
+            ease: [0.34, 1.56, 0.64, 1] as Easing,
+          },
         };
       case "bounceIn":
         return {
@@ -247,13 +258,11 @@ function ScrollAnimation({
             : { scale: 0.3, opacity: 0 },
           transition: {
             ...baseTransition,
-            ease: [0.68, -0.55, 0.265, 1.55],
-            scale: {
-              type: "spring",
-              damping: 10,
-              stiffness: 100,
-              restDelta: 0.001,
-            },
+            ease: [0.68, -0.55, 0.265, 1.55] as Easing,
+            type: "spring" as AnimationGeneratorType,
+            stiffness: 100,
+            damping: 10,
+            restDelta: 0.001,
           },
         };
       default:
