@@ -1,7 +1,7 @@
 "use client";
 
 import { useScheduleStore, type Course, type Teacher } from "@/lib/store";
-import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { ChevronUpIcon } from "lucide-react";
 import React, { useCallback, useState } from "react";
 
 import { AddCourseDialog } from "@/components/course-preference/dialogs/add-course-dialog";
@@ -13,6 +13,7 @@ import {
   MotionDiv,
   MotionLi,
 } from "@/components/ui/motion";
+import { cn } from "@/lib/utils";
 
 interface CourseItemProps {
   index: number;
@@ -71,11 +72,11 @@ const CourseItem = React.memo(function CourseItem({
             aria-label={isExpanded ? "Collapse teachers" : "Expand teachers"}
             className="transition-transform duration-200"
           >
-            {isExpanded ? (
-              <ChevronUpIcon className="w-4 h-4" />
-            ) : (
-              <ChevronDownIcon className="w-4 h-4" />
-            )}
+            <ChevronUpIcon
+              className={cn("w-4 h-4 transition-transform", {
+                "rotate-180": isExpanded,
+              })}
+            />
           </Button>
           {editMode && (
             <>

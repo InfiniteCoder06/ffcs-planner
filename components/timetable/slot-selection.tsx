@@ -13,7 +13,7 @@ import {
   MotionDiv,
   ScrollAnimation,
 } from "../ui/motion";
-import { Check, Plus, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { Check, Plus, ChevronUpIcon } from "lucide-react";
 import { manualSlotSelectionStore } from "@/lib/store";
 import { useState } from "react";
 
@@ -57,11 +57,11 @@ export function SlotSelector() {
               aria-label={isExpanded ? "Collapse teachers" : "Expand teachers"}
               className="transition-transform duration-200"
             >
-              {isExpanded ? (
-                <ChevronUpIcon className="w-4 h-4" />
-              ) : (
-                <ChevronDownIcon className="w-4 h-4" />
-              )}
+              <ChevronUpIcon
+                className={cn("w-4 h-4 transition-transform", {
+                  "rotate-180": isExpanded,
+                })}
+              />
             </Button>
           </div>
         </div>
