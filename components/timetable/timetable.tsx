@@ -13,7 +13,24 @@ import { cn } from "@/lib/utils";
 import { AlertCircle } from "lucide-react";
 import { SlotSelector } from "./slot-selection";
 
-const THEORY_HOURS = [
+interface TimeRange {
+  start: string;
+  end: string;
+}
+
+interface TeacherData {
+  name: string;
+  color: string;
+  venue: string;
+  courseId: string;
+}
+
+interface ClashDetails {
+  teachers: string[];
+  courses: string[];
+}
+
+const THEORY_HOURS: TimeRange[] = [
   { start: "8:00 AM", end: "8:50 AM" },
   { start: "9:00 AM", end: "9:50 AM" },
   { start: "10:00 AM", end: "10:50 AM" },
@@ -29,7 +46,7 @@ const THEORY_HOURS = [
   { start: "6:51 PM", end: "7:00 PM" },
 ];
 
-const LAB_HOURS = [
+const LAB_HOURS: TimeRange[] = [
   { start: "08:00 AM", end: "09:40 AM" },
   { start: "09:50 AM", end: "10:40 AM" },
   { start: "10:40 AM", end: "11:30 AM" },
@@ -41,8 +58,7 @@ const LAB_HOURS = [
 
 export function Timetable() {
   const { selectedTeachers, courses } = useScheduleStore();
-  const { selectedSlots, selectSlot, deselectSlot } =
-    manualSlotSelectionStore();
+  const { selectedSlots, toggleSlot } = manualSlotSelectionStore();
 
   const {
     colorCache,
@@ -55,29 +71,23 @@ export function Timetable() {
     const teacherCache: Record<string, string> = {};
     const venueCache: Record<string, string> = {};
     const clashCache: Record<string, boolean> = {};
-    const clashDetailsCache: Record<
-      string,
-      { teachers: string[]; courses: string[] }
-    > = {};
-    const slotMap = new Map();
+    const clashDetailsCache: Record<string, ClashDetails> = {};
+    const slotMap = new Map<string, TeacherData>();
 
     selectedTeachers.forEach(({ slots, name, color, venue = "", course }) => {
       slots.forEach((s) => {
         if (slotMap.has(s)) {
           clashCache[s] = true;
           clashDetailsCache[s] ??= { teachers: [], courses: [] };
-
-          const existing = slotMap.get(s);
+          const existing = slotMap.get(s)!;
           const prevCourse = courses.find((c) => c.id === existing.courseId);
           const currCourse = courses.find((c) => c.id === course);
-
           clashDetailsCache[s].teachers.push(existing.name, name);
           clashDetailsCache[s].courses.push(
             prevCourse?.code ?? "Unknown",
             currCourse?.code ?? "Unknown",
           );
         }
-
         slotMap.set(s, { name, color, venue, courseId: course });
       });
     });
@@ -87,13 +97,11 @@ export function Timetable() {
         const key = slot.join("/");
         const hasClash = slot.some((s) => clashCache[s]);
         const data = slot.map((s) => slotMap.get(s)).find(Boolean);
-
         colorCache[key] = hasClash
-          ? "bg-reda-solid text-white"
+          ? "bg-red-ui text-red-dim"
           : data
             ? `bg-${data.color}-ui text-${data.color}-dim`
             : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-800";
-
         teacherCache[key] = data?.name ?? "";
         venueCache[key] = data?.venue ?? "";
       }
@@ -108,18 +116,16 @@ export function Timetable() {
     };
   }, [selectedTeachers, courses]);
 
-  const getKey = (slot: string[]) => slot.join("/");
+  const getKey = (slot: string[]): string => slot.join("/");
   const getClashDetails = (slot: string[]) => {
     const clashed = slot.filter((s) => clashCache[s]);
     if (!clashed.length) return null;
-
     const teachers = new Set<string>();
     const courses = new Set<string>();
     clashed.forEach((s) => {
       clashDetailsCache[s]?.teachers.forEach((t) => teachers.add(t));
       clashDetailsCache[s]?.courses.forEach((c) => courses.add(c));
     });
-
     return { teachers: [...teachers], courses: [...courses], slots: clashed };
   };
 
@@ -135,16 +141,11 @@ export function Timetable() {
             className={cn(
               "p-2 text-xs text-center border h-24 max-h-24 overflow-hidden transition-colors duration-200 dark:border-gray-700 hover:cursor-pointer",
               colorCache[key],
-              selected && "bg-yellow-4 text-black-8 dark:bg-yellowdark-7",
+              selected &&
+                "bg-yellow-4 text-black-8 dark:bg-yellowdark-7 hover:bg-yellow-4 dark:hover:bg-yellowdark-7",
               isClash && "relative",
             )}
-            onClick={() => {
-              if (selected) {
-                slot.forEach(deselectSlot);
-              } else {
-                slot.forEach(selectSlot);
-              }
-            }}
+            onClick={() => slot.forEach(toggleSlot)}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{
