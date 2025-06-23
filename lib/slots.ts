@@ -1,8 +1,36 @@
+import { TimeRange } from "../types";
+
 export const days = ["MON", "TUE", "WED", "THU", "FRI"];
 
 type Slot = string[];
 type Day = (typeof days)[number];
 type TimetableData = Record<Day, Slot[]>;
+
+export const THEORY_HOURS: TimeRange[] = [
+  { start: "8:00 AM", end: "8:50 AM" },
+  { start: "9:00 AM", end: "9:50 AM" },
+  { start: "10:00 AM", end: "10:50 AM" },
+  { start: "11:00 AM", end: "11:50 AM" },
+  { start: "12:00 PM", end: "12:50 PM" },
+  { start: "-", end: "-" }, // Break
+  { start: "", end: "" }, // Lunch
+  { start: "2:00 PM", end: "2:50 PM" },
+  { start: "3:00 PM", end: "3:50 PM" },
+  { start: "4:00 PM", end: "4:50 PM" },
+  { start: "5:00 PM", end: "5:50 PM" },
+  { start: "6:00 PM", end: "6:50 PM" },
+  { start: "6:51 PM", end: "7:00 PM" },
+];
+
+export const LAB_HOURS: TimeRange[] = [
+  { start: "08:00 AM", end: "09:40 AM" },
+  { start: "09:50 AM", end: "10:40 AM" },
+  { start: "10:40 AM", end: "11:30 AM" },
+  { start: "", end: "" }, // Lunch
+  { start: "2:00 PM", end: "3:40 PM" },
+  { start: "3:51 PM", end: "5:30 PM" },
+  { start: "5:40 PM", end: "7:20 PM" },
+];
 
 export const timetableData = <TimetableData>{
   MON: [

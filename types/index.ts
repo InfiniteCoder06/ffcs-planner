@@ -21,3 +21,47 @@ export interface DialogButtonProps {
   buttonText?: string;
   disabled?: boolean;
 }
+
+export interface TeacherInfo {
+  name: string;
+  color: string;
+  venue: string;
+  course: string;
+}
+
+export interface TimetableCache {
+  colorCache: Record<string, string>;
+  teacherCache: Record<string, string>;
+  courseCache: Record<string, string>;
+  venueCache: Record<string, string>;
+}
+
+export interface TimeRange {
+  start: string;
+  end: string;
+}
+
+export interface TeacherData {
+  name: string;
+  color: string;
+  venue: string;
+  courseId: string;
+}
+
+export interface ClashDetails {
+  teachers: string[];
+  courses: string[];
+  slots: string[];
+}
+
+export interface SlotData {
+  slotMap: Map<string, TeacherData>;
+  clashCache: Record<string, boolean>;
+  clashDetailsCache: Record<string, ClashDetails>;
+}
+
+export interface CellData {
+  colorCache: Record<string, string>;
+  teacherCache: Record<string, string>;
+  venueCache: Record<string, string>;
+}

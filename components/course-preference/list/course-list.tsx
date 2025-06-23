@@ -43,7 +43,7 @@ export function CourseList({ editMode }: CourseListProps) {
       );
     });
 
-    return [...filtered].sort((a, b) =>
+    return filtered.sort((a, b) =>
       sortBy === "code"
         ? a.code.localeCompare(b.code)
         : a.name.localeCompare(b.name),

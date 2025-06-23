@@ -22,9 +22,6 @@ export async function exportToPdf(
       height: element.scrollHeight,
     });
 
-    // Remove the export class
-    element.classList.remove("exporting");
-
     const imgData = canvas.toDataURL("image/png");
 
     // Determine orientation based on dimensions
@@ -66,10 +63,11 @@ export async function exportToPdf(
     // Save the PDF
     pdf.save(filename);
   } catch (error) {
-    // Remove the export class in case of error
-    element.classList.remove("exporting");
     console.error("Error exporting to PDF:", error);
     throw error;
+  } finally {
+    // Remove the export class
+    element.classList.remove("exporting");
   }
 }
 
