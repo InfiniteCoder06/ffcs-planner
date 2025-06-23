@@ -287,3 +287,21 @@ export const useScheduleStore = create<State & Actions>()(
     },
   ),
 );
+
+export const manualSlotSelectionStore = create<{
+  selectedSlots: string[];
+  clearSelectedSlots: () => void;
+  toggleSlot: (slot: string) => void;
+}>((set) => ({
+  selectedSlots: [],
+  clearSelectedSlots: () => set({ selectedSlots: [] }),
+  toggleSlot: (slot) =>
+    set((state) => {
+      const isSelected = state.selectedSlots.includes(slot);
+      return {
+        selectedSlots: isSelected
+          ? state.selectedSlots.filter((s) => s !== slot)
+          : [...state.selectedSlots, slot],
+      };
+    }),
+}));

@@ -7,10 +7,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { days, timetableData } from "@/lib/slots";
-import { useScheduleStore } from "@/lib/store";
+import { manualSlotSelectionStore, useScheduleStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { AlertCircle } from "lucide-react";
 import { useMemo } from "react";
+import { SlotSelector } from "./slot-selection";
 
 export function Timetable() {
   const { selectedTeachers, courses } = useScheduleStore();
@@ -40,6 +41,12 @@ export function Timetable() {
     { start: "3:51 PM", end: "5:30 PM" },
     { start: "5:40 PM", end: "7:20 PM" },
   ];
+  const { selectedSlots, toggleSlot } = manualSlotSelectionStore();
+
+  const isManualSlotSelected = (slots: string[]) => {
+    const isSelected = slots.some((s) => selectedSlots.includes(s));
+    return isSelected;
+  };
 
   const timetableCache = useMemo(() => {
     const colorCache: Record<string, string> = {};
@@ -146,6 +153,7 @@ export function Timetable() {
 
   return (
     <TooltipProvider>
+      <SlotSelector />
       <ScrollAnimation animation="fadeIn" duration={0.8}>
         <div className="overflow-x-auto">
           <table className="w-full border-collapse rounded-lg shadow-sm border divide-gray-200 dark:divide-gray-700 overflow-hidden">
@@ -239,9 +247,19 @@ export function Timetable() {
                           <MotionTd
                             className={cn(
                               "p-2 text-xs text-center border h-24 max-h-24 overflow-hidden transition-colors duration-200 dark:border-gray-700",
-                              getColorForSlot(slot),
                               hasClash(slot) && "relative",
+                              getColorForSlot(slot),
+                              isManualSlotSelected(slot) &&
+                                "bg-yellow-solid text-yellow-normal",
                             )}
+                            onClick={() => {
+                              const slotKey = getSlotKey(slot);
+                              const slots = slotKey.split("/");
+
+                              slots.forEach((s) => {
+                                toggleSlot(s);
+                              });
+                            }}
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{
