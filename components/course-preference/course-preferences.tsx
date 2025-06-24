@@ -16,6 +16,7 @@ import { Course, Teacher, useScheduleStore } from "@/lib/store";
 import { UploadIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { BulkAddTeachersDialog } from "./dialogs/add-bulk-teacher-dialog";
 
 export function CoursePreferences() {
   const [editMode, setEditMode] = useState(false);
@@ -134,24 +135,42 @@ export function CoursePreferences() {
             >
               <AnimatePresenceWrapper>
                 {courseCount > 0 && (
-                  <MotionDiv
-                    initial={{ opacity: 0, scale: 0.8, x: 20 }}
-                    animate={{ opacity: 1, scale: 1, x: 0 }}
-                    exit={{ opacity: 0, scale: 0.8, x: 20 }}
-                    transition={{
-                      duration: 0.3,
-                      type: "spring",
-                      stiffness: 300,
-                    }}
-                  >
-                    <IconButton
-                      icon={editMode ? "check" : "edit"}
-                      variant={editMode ? "success" : "warning"}
-                      size="sm"
-                      label={editMode ? "Done" : "Edit"}
-                      onClick={toggleEditMode}
-                    />
-                  </MotionDiv>
+                  <>
+                    <MotionDiv
+                      initial={{ opacity: 0, scale: 0.8, x: 20 }}
+                      animate={{ opacity: 1, scale: 1, x: 0 }}
+                      exit={{ opacity: 0, scale: 0.8, x: 20 }}
+                      transition={{
+                        duration: 0.3,
+                        type: "spring",
+                        stiffness: 300,
+                      }}
+                    >
+                      <IconButton
+                        icon={editMode ? "check" : "edit"}
+                        variant={editMode ? "success" : "warning"}
+                        size="sm"
+                        label={editMode ? "Done" : "Edit"}
+                        onClick={toggleEditMode}
+                      />
+                    </MotionDiv>
+                    <MotionDiv
+                      initial={{ opacity: 0, scale: 0.8, x: 20 }}
+                      animate={{ opacity: 1, scale: 1, x: 0 }}
+                      exit={{ opacity: 0, scale: 0.8, x: 20 }}
+                      transition={{
+                        duration: 0.3,
+                        type: "spring",
+                        stiffness: 300,
+                      }}
+                    >
+                      <BulkAddTeachersDialog
+                        buttonVariant="default"
+                        buttonSize="sm"
+                        disabled={editMode}
+                      />
+                    </MotionDiv>
+                  </>
                 )}
               </AnimatePresenceWrapper>
 
