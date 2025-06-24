@@ -64,8 +64,14 @@ export const TimetableCell = memo(function TimetableCell({
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            <p>{cache.teacherCache[key]}</p>
-            <p>{cache.venueCache[key]}</p>
+            {clashDetails ? (
+              <></>
+            ) : (
+              <>
+                <p>{cache.teacherCache[key]}</p>
+                <p>{cache.venueCache[key]}</p>
+              </>
+            )}
           </MotionDiv>
           {isClash && (
             <MotionDiv
