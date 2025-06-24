@@ -107,7 +107,11 @@ const CourseItem = React.memo(function CourseItem({
               damping: 30,
             }}
           >
-            <TeacherList courseTeachers={courseTeachers} editMode={editMode} />
+            <TeacherList
+              courseTeachers={courseTeachers}
+              editMode={editMode}
+              course={course}
+            />
           </MotionDiv>
         )}
       </AnimatePresenceWrapper>

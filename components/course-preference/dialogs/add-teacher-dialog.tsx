@@ -30,6 +30,7 @@ import { DialogButtonProps } from "@/types";
 
 interface AddTeacherDialogProps extends DialogButtonProps {
   teacherToEdit: Teacher | null;
+  course: string | null;
 }
 
 export function AddTeacherDialog({
@@ -38,6 +39,7 @@ export function AddTeacherDialog({
   buttonSize = "sm",
   buttonIcon = "add",
   buttonText = "Add Teacher",
+  course = "",
 }: AddTeacherDialogProps) {
   const { addTeacher, editTeacher, courses } = useScheduleStore();
 
@@ -61,7 +63,7 @@ export function AddTeacherDialog({
       setSelectedColor("orange");
       setSlots("");
       setVenue("");
-      setSelectedCourse("");
+      setSelectedCourse(course || "");
     }
   }, [teacherToEdit, open]);
 

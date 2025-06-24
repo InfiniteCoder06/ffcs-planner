@@ -146,6 +146,7 @@ export default function TeacherItem({
                 buttonSize="sm"
                 buttonIcon="edit"
                 buttonText=""
+                course={null}
               />
               <DeleteDialog
                 description="Are you sure you want to remove this teacher?"

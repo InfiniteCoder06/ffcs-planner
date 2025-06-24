@@ -17,18 +17,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useScheduleStore, type Teacher } from "@/lib/store";
+import { Course, useScheduleStore, type Teacher } from "@/lib/store";
 import { Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 interface TeacherListProps {
   courseTeachers: Teacher[];
   editMode: boolean;
+  course: Course;
 }
 
 export default function TeacherList({
   courseTeachers,
   editMode,
+  course,
 }: TeacherListProps) {
   const { teacherSlotClash } = useScheduleStore();
   const [searchQuery, setSearchQuery] = useState("");
@@ -79,6 +81,7 @@ export default function TeacherList({
           teacherToEdit={null}
           buttonVariant="ghost"
           buttonSize="sm"
+          course={course.id}
         />
       </div>
 
