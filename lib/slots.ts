@@ -24,8 +24,8 @@ export const THEORY_HOURS: TimeRange[] = [
 
 export const LAB_HOURS: TimeRange[] = [
   { start: "08:00 AM", end: "09:40 AM" },
-  { start: "09:50 AM", end: "10:40 AM" },
-  { start: "10:40 AM", end: "11:30 AM" },
+  { start: "09:50 AM", end: "11:30 AM" },
+  { start: "11:40 AM", end: "01:20 PM" },
   { start: "", end: "" }, // Lunch
   { start: "2:00 PM", end: "3:40 PM" },
   { start: "3:51 PM", end: "5:30 PM" },
