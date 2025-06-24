@@ -149,10 +149,9 @@ export function BulkAddTeachersDialog({
           <DialogHeader>
             <DialogTitle>Bulk Add Teachers</DialogTitle>
             <DialogDescription>
-              Paste teacher data from a table (e.g., Excel, Google Sheets)
-              below. Each line should represent a teacher, with columns for
-              &quot;Slot Detail&quot;, &quot;Venue&quot;, and
-              &quot;Faculty&quot; (separated by tabs or multiple spaces).
+              1. Login to VTOP <br /> 2. Click Academics &gt; Course
+              Registration Allocation <br /> 3. Copy the data from the table{" "}
+              <br /> 4. Paste it below and associate with a course
             </DialogDescription>
           </DialogHeader>
 
