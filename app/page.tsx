@@ -10,6 +10,7 @@ import {
   Stagger,
 } from "@/components/ui/motion";
 import { ExportSection } from "@/components/timetable/export/export-section";
+import { Title } from "@/components/title";
 
 export default function Home() {
   return (
@@ -24,9 +25,7 @@ export default function Home() {
             delay: 0.2,
           }}
         >
-          <h1 className="mb-6 text-4xl font-bold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            FFCS Planner
-          </h1>
+          <Title />
         </MotionDiv>
       </Parallax>
 
