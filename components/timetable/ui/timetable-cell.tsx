@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/tooltip";
 import { AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { manualSlotSelectionStore } from "@/lib/store";
+import { manualSlotSelectionStore, useScheduleStore } from "@/lib/store";
 import { useClashDetails } from "@/hooks/useClashDetails";
 import { TimetableCache } from "@/types";
 
@@ -25,10 +25,15 @@ export const TimetableCell = memo(function TimetableCell({
   cache,
 }: TimetableCellProps) {
   const { selectedSlots, toggleSlot } = manualSlotSelectionStore();
+  const { getSlotClashes } = useScheduleStore();
   const getClashDetails = useClashDetails();
 
   const key = slot.join("/");
-  const isClash = slot.some((s) => getClashDetails([s]));
+
+  // Check for clashes using the store's clash detection for each slot in this cell
+  const clashes = slot.flatMap((s) => getSlotClashes(s));
+  const isClash = clashes.length > 0;
+
   const selected = slot.some((s) => selectedSlots.includes(s));
   const clashDetails = getClashDetails(slot);
 

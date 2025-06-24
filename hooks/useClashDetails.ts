@@ -1,34 +1,39 @@
 import { useCallback } from "react";
-import { useSlotData } from "./useSlotData";
-import type { ClashDetails } from "@/types";
+import { useScheduleStore } from "@/lib/store";
 
 export function useClashDetails() {
-  const { clashCache, clashDetailsCache } = useSlotData();
+  const { getSlotClashes, getCourse } = useScheduleStore();
 
   return useCallback(
-    (slot: string[]): ClashDetails | null => {
-      const clashed = slot.filter((s) => clashCache[s]);
-      if (!clashed.length) return null;
+    (slots: string[]) => {
+      // Check if any of the slots have clashes
+      const allClashes = slots.flatMap((slot) => getSlotClashes(slot));
 
-      const teachers = new Set<string>();
-      const courses = new Set<string>();
-      const slots = new Set<string>();
+      if (allClashes.length === 0) return null;
 
-      clashed.forEach((s) => {
-        const details = clashDetailsCache[s];
-        if (details) {
-          details.teachers.forEach((t) => teachers.add(t));
-          details.courses.forEach((c) => courses.add(c));
-          details.slots.forEach((sl) => slots.add(sl));
-        }
+      // Get course names for the clashing teachers
+      const courses = allClashes.flatMap((clash) => {
+        const course1 = getCourse(clash.teacher1.course);
+        const course2 = getCourse(clash.teacher2.course);
+
+        const course1Name = course1
+          ? `${course1.code} - ${course1.name} (${clash.teacher1.name})`
+          : `Unknown Course (${clash.teacher1.name})`;
+        const course2Name = course2
+          ? `${course2.code} - ${course2.name} (${clash.teacher2.name})`
+          : `Unknown Course (${clash.teacher2.name})`;
+
+        return [course1Name, course2Name];
       });
 
+      // Remove duplicates
+      const uniqueCourses = [...new Set(courses)];
+
       return {
-        teachers: [...teachers],
-        courses: [...courses],
-        slots: [...slots],
+        courses: uniqueCourses,
+        clashes: allClashes,
       };
     },
-    [clashCache, clashDetailsCache],
+    [getSlotClashes, getCourse],
   );
 }

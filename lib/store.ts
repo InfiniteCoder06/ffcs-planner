@@ -2,6 +2,32 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { timetableData } from "./slots";
+
+// Helper function to get all slots that occur at the same time
+const getSlotsAtSameTime = (targetSlot: string): string[] => {
+  const slotsAtSameTime: string[] = [];
+
+  // Check each day and time slot
+  Object.values(timetableData).forEach((daySchedule) => {
+    daySchedule.forEach((timeSlots) => {
+      if (timeSlots.includes(targetSlot)) {
+        // Add all slots from this time period
+        slotsAtSameTime.push(...timeSlots.filter((slot) => slot !== ""));
+      }
+    });
+  });
+
+  return [...new Set(slotsAtSameTime)]; // Remove duplicates
+};
+
+// Helper function to check if two slots clash (occur at same time)
+// const doSlotsClash = (slot1: string, slot2: string): boolean => {
+//   if (slot1 === slot2) return true;
+
+//   const slot1Times = getSlotsAtSameTime(slot1);
+//   return slot1Times.includes(slot2);
+// };
 
 export interface Course {
   id: string;
@@ -186,12 +212,23 @@ export const useScheduleStore = create<State & Actions>()(
         );
 
         for (const slot of teacher.slots) {
+          const slotsAtSameTime = getSlotsAtSameTime(slot);
           for (const t of selected) {
-            if (t.slots.includes(slot)) {
+            const hasClash = t.slots.some((tSlot) =>
+              slotsAtSameTime.includes(tSlot),
+            );
+            if (hasClash) {
+              const clashingSlots = t.slots.filter((tSlot) =>
+                slotsAtSameTime.includes(tSlot),
+              );
               if (!clashes[t.id]) {
-                clashes[t.id] = { ...t, slots: [slot] };
-              } else if (!clashes[t.id].slots.includes(slot)) {
-                clashes[t.id].slots.push(slot);
+                clashes[t.id] = { ...t, slots: clashingSlots };
+              } else {
+                clashingSlots.forEach((clashSlot) => {
+                  if (!clashes[t.id].slots.includes(clashSlot)) {
+                    clashes[t.id].slots.push(clashSlot);
+                  }
+                });
               }
             }
           }
@@ -200,10 +237,16 @@ export const useScheduleStore = create<State & Actions>()(
         return Object.values(clashes);
       },
 
-      getTeachersClash: (slots) =>
-        get().teachers.filter((t) =>
-          t.slots.some((slot) => slots.includes(slot)),
-        ),
+      getTeachersClash: (slots) => {
+        return get().teachers.filter((teacher) =>
+          teacher.slots.some((teacherSlot) => {
+            return slots.some((slot) => {
+              const slotsAtSameTime = getSlotsAtSameTime(slot);
+              return slotsAtSameTime.includes(teacherSlot);
+            });
+          }),
+        );
+      },
 
       getExportData: () => {
         const { courses, teachers, selectedTeachers, selectedSlots } = get();
@@ -224,22 +267,26 @@ export const useScheduleStore = create<State & Actions>()(
       getSlotClashes: (slot) => {
         const { selectedTeachers } = get();
         const clashes: ClashInfo[] = [];
+        const slotsAtSameTime = getSlotsAtSameTime(slot);
 
-        // Find all teachers that have this slot
-        const teachersWithSlot = selectedTeachers.filter((teacher) =>
-          teacher.slots.includes(slot),
+        // Find all teachers that have slots occurring at the same time as the target slot
+        const teachersWithConflictingSlots = selectedTeachers.filter(
+          (teacher) =>
+            teacher.slots.some((teacherSlot) =>
+              slotsAtSameTime.includes(teacherSlot),
+            ),
         );
 
-        // If less than 2 teachers have this slot, there's no clash
-        if (teachersWithSlot.length < 2) return [];
+        // If less than 2 teachers have conflicting slots, there's no clash
+        if (teachersWithConflictingSlots.length < 2) return [];
 
         // Create clash pairs
-        for (let i = 0; i < teachersWithSlot.length; i++) {
-          for (let j = i + 1; j < teachersWithSlot.length; j++) {
+        for (let i = 0; i < teachersWithConflictingSlots.length; i++) {
+          for (let j = i + 1; j < teachersWithConflictingSlots.length; j++) {
             clashes.push({
               slot,
-              teacher1: teachersWithSlot[i],
-              teacher2: teachersWithSlot[j],
+              teacher1: teachersWithConflictingSlots[i],
+              teacher2: teachersWithConflictingSlots[j],
             });
           }
         }
@@ -251,32 +298,35 @@ export const useScheduleStore = create<State & Actions>()(
       getAllClashes: () => {
         const { selectedTeachers } = get();
         const clashes: ClashInfo[] = [];
-        const slotMap = new Map<string, Teacher[]>();
+        const processedSlotPairs = new Set<string>();
 
-        // Populate the map more efficiently
-        selectedTeachers.forEach((teacher) => {
-          teacher.slots.forEach((slot) => {
-            if (!slotMap.has(slot)) {
-              slotMap.set(slot, []);
-            }
-            slotMap.get(slot)!.push(teacher);
-          });
-        });
+        // Check each teacher's slots against every other teacher's slots
+        for (let i = 0; i < selectedTeachers.length; i++) {
+          for (let j = i + 1; j < selectedTeachers.length; j++) {
+            const teacher1 = selectedTeachers[i];
+            const teacher2 = selectedTeachers[j];
 
-        // Check each slot for clashes
-        slotMap.forEach((teachers, slot) => {
-          if (teachers.length >= 2) {
-            for (let i = 0; i < teachers.length; i++) {
-              for (let j = i + 1; j < teachers.length; j++) {
-                clashes.push({
-                  slot,
-                  teacher1: teachers[i],
-                  teacher2: teachers[j],
-                });
+            // Check each slot of teacher1 against each slot of teacher2
+            for (const slot1 of teacher1.slots) {
+              const slotsAtSameTime = getSlotsAtSameTime(slot1);
+
+              for (const slot2 of teacher2.slots) {
+                if (slotsAtSameTime.includes(slot2)) {
+                  // Create a unique identifier for this slot pair to avoid duplicates
+                  const pairId = [slot1, slot2].sort().join("-");
+                  if (!processedSlotPairs.has(pairId)) {
+                    processedSlotPairs.add(pairId);
+                    clashes.push({
+                      slot: slot1, // Use the first slot as reference
+                      teacher1,
+                      teacher2,
+                    });
+                  }
+                }
               }
             }
           }
-        });
+        }
 
         return clashes;
       },
