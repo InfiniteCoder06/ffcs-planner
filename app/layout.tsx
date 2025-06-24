@@ -46,7 +46,7 @@ export default function RootLayout({
           </TooltipProvider>
         </ThemeProvider>
       </body>
-      <Analytics />
+      {process.env.NODE_ENV === "production" && <Analytics />}
     </html>
   );
 }

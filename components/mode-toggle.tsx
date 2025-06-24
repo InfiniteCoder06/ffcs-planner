@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MotionDiv } from "./ui/motion";
 
-export function ModeToggle() {
+export function ModeToggle({ isMobile = false }: { isMobile?: boolean }) {
   const { setTheme } = useTheme();
 
   return (
@@ -22,12 +22,20 @@ export function ModeToggle() {
       transition={{ duration: 0.5, delay: 0.2 }}
     >
       <DropdownMenu>
-        <DropdownMenuTrigger className="absolute right-4 top-4" asChild>
-          <SimpleButton variant="outline" size="icon">
-            <Sun className="w-4 h-4 transition-all scale-100 rotate-0 dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute w-4 h-4 transition-all scale-0 rotate-90 dark:rotate-0 dark:scale-100" />
-            <span className="sr-only">Toggle theme</span>
-          </SimpleButton>
+        <DropdownMenuTrigger className="" asChild>
+          {isMobile ? (
+            <SimpleButton variant="outline">
+              <Sun className="w-4 h-4 transition-all scale-100 rotate-0 dark:-rotate-90 dark:scale-0 dark:hidden" />
+              <Moon className="w-4 h-4 transition-all scale-0 rotate-90 dark:rotate-0 dark:scale-100" />
+              <span className="">Toggle theme</span>
+            </SimpleButton>
+          ) : (
+            <SimpleButton variant="outline" size="icon">
+              <Sun className="w-4 h-4 transition-all scale-100 rotate-0 dark:-rotate-90 dark:scale-0 dark:hidden" />
+              <Moon className="absolute w-4 h-4 transition-all scale-0 rotate-90 dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">Toggle theme</span>
+            </SimpleButton>
+          )}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => setTheme("light")}>

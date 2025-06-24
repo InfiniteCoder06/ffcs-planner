@@ -1,5 +1,8 @@
 import getConfig from "next/config";
 import { Updater } from "./updater";
+import { MobileNav } from "./mobile-nav";
+import { IssueButton } from "./issues";
+import { ModeToggle } from "./mode-toggle";
 
 export function Title() {
   const { publicRuntimeConfig } = getConfig();
@@ -11,7 +14,12 @@ export function Title() {
         FFCS Planner
         <p className="text-lg font-normal text-gray-400">Version {version}</p>
       </h1>
-      <Updater version={version} />
+      <MobileNav />
+      <div className="hidden md:flex fixed top-4 right-6 gap-2">
+        <IssueButton />
+        <ModeToggle />
+      </div>
+      {process.env.NODE_ENV === "production" && <Updater version={version} />}
     </>
   );
 }

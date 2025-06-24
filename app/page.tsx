@@ -1,7 +1,6 @@
 import { Timetable } from "@/components/timetable/timetable";
 import { ClashVisualization } from "@/components/timetable/clash-detection/clash-visualization";
 import { CoursePreferences } from "@/components/course-preference/course-preferences";
-import { ModeToggle } from "@/components/mode-toggle";
 import { SelectedCoursesTable } from "@/components/selected-courses-table";
 import {
   MotionDiv,
@@ -11,6 +10,7 @@ import {
 } from "@/components/ui/motion";
 import { ExportSection } from "@/components/timetable/export/export-section";
 import { Title } from "@/components/title";
+import { Footer } from "@/components/footer";
 
 export default function Home() {
   return (
@@ -37,6 +37,7 @@ export default function Home() {
           delay={0.3}
         >
           <MotionDiv
+            id="course-management"
             className="rounded-lg border bg-card p-6 shadow-sm"
             whileHover={{
               scale: 1.01,
@@ -58,6 +59,7 @@ export default function Home() {
           delay={0.1}
         >
           <MotionDiv
+            id="timetable"
             className="rounded-lg border bg-card p-6 shadow-sm"
             whileHover={{
               scale: 1.01,
@@ -86,6 +88,7 @@ export default function Home() {
           delay={0.2}
         >
           <MotionDiv
+            id="selected-courses"
             className="rounded-lg border bg-card p-6 shadow-sm"
             whileHover={{
               scale: 1.01,
@@ -109,6 +112,7 @@ export default function Home() {
           delay={0.3}
         >
           <MotionDiv
+            id="export-share"
             className="rounded-lg border bg-card p-6 shadow-sm"
             whileHover={{
               scale: 1.01,
@@ -119,13 +123,30 @@ export default function Home() {
             <h2 className="mb-4 text-2xl font-semibold text-primary">
               Export & Share
             </h2>
-            <ScrollAnimation animation="rotateIn" delay={0.1}>
+            <ScrollAnimation animation="slideUp" delay={0.1}>
               <ExportSection />
             </ScrollAnimation>
           </MotionDiv>
         </ScrollAnimation>
+
+        <ScrollAnimation
+          animation="slideUp"
+          duration={0.8}
+          className="mb-8"
+          delay={0.4}
+        >
+          <MotionDiv
+            className="rounded-lg border bg-card p-6 shadow-sm"
+            whileHover={{
+              scale: 1.01,
+              boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+            }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          >
+            <Footer />
+          </MotionDiv>
+        </ScrollAnimation>
       </Stagger>
-      <ModeToggle />
     </main>
   );
 }
