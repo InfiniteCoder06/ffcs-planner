@@ -24,9 +24,7 @@ import { ExportPreview } from "./export-preview";
 import { useTheme } from "next-themes";
 
 export function ExportSection() {
-  const [exportType, setExportType] = useState<"pdf" | "image" | "print">(
-    "pdf",
-  );
+  const [exportType, setExportType] = useState<"pdf" | "image">("image");
   const [isExporting, setIsExporting] = useState(false);
   const { selectedTeachers } = useScheduleStore();
   const previewRef = useRef<HTMLDivElement>(null);
@@ -59,13 +57,6 @@ export function ExportSection() {
             description: "Your timetable has been exported as an image",
           });
           break;
-        case "print":
-          window.print();
-          toast("Print dialog opened", {
-            description:
-              "Use your browser's print dialog to print your timetable",
-          });
-          break;
       }
 
       // Clean up
@@ -93,9 +84,7 @@ export function ExportSection() {
           <Tabs
             defaultValue="pdf"
             className="mb-4"
-            onValueChange={(value) =>
-              setExportType(value as "pdf" | "image" | "print")
-            }
+            onValueChange={(value) => setExportType(value as "pdf" | "image")}
           >
             <TabsList className="grid w-full grid-cols-3 mb-4">
               <TabsTrigger value="pdf" className="flex items-center gap-2">
@@ -186,9 +175,7 @@ export function ExportSection() {
               )}
               {isExporting
                 ? "Exporting..."
-                : exportType === "print"
-                  ? "Print"
-                  : `Export as ${exportType.toUpperCase()}`}
+                : `Export as ${exportType.toWellFormed()}`}
             </Button>
           </div>
         </div>
