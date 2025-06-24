@@ -42,7 +42,7 @@ export const TimetableCell = memo(function TimetableCell({
         <MotionTd
           className={cn(
             "p-2 text-xs text-center border h-24 max-h-24 overflow-hidden transition-colors duration-200 dark:border-gray-700 hover:cursor-pointer",
-            cache.colorCache[key],
+            clashDetails ? "bg-red-solid text-white" : cache.colorCache[key],
             selected &&
               "bg-yellow-4 text-black-8 dark:bg-yellowdark-7 hover:bg-yellow-4 dark:hover:bg-yellowdark-7",
             isClash && "relative",

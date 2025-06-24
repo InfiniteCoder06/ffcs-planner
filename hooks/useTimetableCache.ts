@@ -38,13 +38,9 @@ export function useTimetableCache(
           .map((s) => slotTeacherMap.get(s))
           .find(Boolean);
 
-        const hasClash = clashCache && slot.some((s) => clashCache[s]);
-
-        colorCache[slotKey] = hasClash
-          ? "bg-red-ui text-red-dim"
-          : matchedTeacher
-            ? `bg-${matchedTeacher.color}-ui text-${matchedTeacher.color}-dim`
-            : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-800";
+        colorCache[slotKey] = matchedTeacher
+          ? `bg-${matchedTeacher.color}-ui text-${matchedTeacher.color}-dim`
+          : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-800";
 
         teacherCache[slotKey] = matchedTeacher?.name || "";
         courseCache[slotKey] = matchedTeacher?.course || "";
