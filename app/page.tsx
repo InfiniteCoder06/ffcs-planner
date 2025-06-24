@@ -125,25 +125,6 @@ export default function Home() {
           </MotionDiv>
         </ScrollAnimation>
       </Stagger>
-
-      {/* <MotionDiv
-        className="absolute bottom-4 right-4"
-        initial={{ scale: 0, rotate: -180 }}
-        animate={{ scale: 1, rotate: 0 }}
-        transition={{
-          delay: 1,
-          type: "spring",
-          stiffness: 200,
-          damping: 20
-        }}
-        whileHover={{
-          scale: 1.1,
-          rotate: 5,
-          boxShadow: "0 10px 20px rgba(0,0,0,0.2)"
-        }}
-        whileTap={{ scale: 0.9 }}
-      >
-      </MotionDiv> */}
       <ModeToggle />
     </main>
   );
