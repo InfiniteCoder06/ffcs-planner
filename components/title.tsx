@@ -1,8 +1,9 @@
 import getConfig from "next/config";
 import { Updater } from "./updater";
 import { MobileNav } from "./mobile-nav";
-import { IssueButton } from "./issues";
+import { IssueButton } from "./custom-ui/buttons/issues";
 import { ModeToggle } from "./mode-toggle";
+import { HowToButton } from "./custom-ui/buttons/how-to";
 
 export function Title() {
   const { publicRuntimeConfig } = getConfig();
@@ -16,6 +17,7 @@ export function Title() {
       </h1>
       <MobileNav />
       <div className="hidden md:flex fixed top-4 right-6 gap-2">
+        <HowToButton />
         <IssueButton />
         <ModeToggle />
       </div>

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
-import { IssueButton } from "@/components/issues";
+import { IssueButton } from "@/components/custom-ui/buttons/issues";
 import {
   Sheet,
   SheetContent,
@@ -12,6 +12,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { HowToButton } from "./custom-ui/buttons/how-to";
 
 export function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
@@ -38,6 +39,7 @@ export function MobileNav() {
             <SheetTitle>Navigation</SheetTitle>
           </SheetHeader>
           <nav className="flex flex-col gap-4 mt-6 items-center">
+            <HowToButton />
             <IssueButton />
             <ModeToggle isMobile />
             <Button
