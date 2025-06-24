@@ -1,5 +1,4 @@
 import getConfig from "next/config";
-import { Updater } from "./updater";
 import { MobileNav } from "./mobile-nav";
 import { IssueButton } from "./custom-ui/buttons/issues";
 import { ModeToggle } from "./mode-toggle";
@@ -21,7 +20,6 @@ export function Title() {
         <IssueButton />
         <ModeToggle />
       </div>
-      {process.env.NODE_ENV === "production" && <Updater version={version} />}
     </>
   );
 }
