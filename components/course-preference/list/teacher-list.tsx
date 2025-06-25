@@ -127,33 +127,32 @@ export default function TeacherList({
         if (a.isSelected && !b.isSelected) return -1;
         if (!a.isSelected && b.isSelected) return 1;
 
-        // If both are selected or both are not selected, proceed to clash logic
+        // 2. Prioritize identical slot clashes (yellow) first
+        if (a.hasSameSlotClash && !b.hasSameSlotClash) return -1;
+        if (!a.hasSameSlotClash && b.hasSameSlotClash) return 1;
+
+        // 3. Prioritize non-clashing over other clashes
         const aIsClashing = a.clashes.length > 0;
         const bIsClashing = b.clashes.length > 0;
+        const aHasOtherClash = aIsClashing && !a.hasSameSlotClash;
+        const bHasOtherClash = bIsClashing && !b.hasSameSlotClash;
 
-        // 2. Prioritize non-clashing over clashing
-        if (!aIsClashing && bIsClashing) return -1; // a (no clash) before b (clash)
-        if (aIsClashing && !bIsClashing) return 1; // b (no clash) before a (clash)
+        if (!aIsClashing && bHasOtherClash) return -1; // no clash before other clash
+        if (aHasOtherClash && !bIsClashing) return 1; // no clash before other clash
 
-        // If both are clashing (or both are non-clashing), proceed to identical slot clash
-        if (aIsClashing && bIsClashing) {
-          // 3. Prioritize identical slot clashes (yellow) over other clashes (red)
-          if (a.hasSameSlotClash && !b.hasSameSlotClash) return -1; // a (yellow) before b (red)
-          if (!a.hasSameSlotClash && b.hasSameSlotClash) return 1; // b (yellow) before a (red)
-        }
-
-        // 4. Sort by color preference
+        // 4. Sort by color preference - matching color filter comes first
         if (colorFilter) {
           const aMatchesColor = a.teacher.color === colorFilter;
           const bMatchesColor = b.teacher.color === colorFilter;
           if (aMatchesColor && !bMatchesColor) return -1;
           if (!aMatchesColor && bMatchesColor) return 1;
         }
-        // If no color filter or both match/don't match, sort alphabetically by color
+
+        // 5. Sort alphabetically by color
         const colorCompare = a.teacher.color.localeCompare(b.teacher.color);
         if (colorCompare !== 0) return colorCompare;
 
-        // 5. Finally, if all above are equal, sort by teacher name for stable order
+        // 6. Finally, sort alphabetically by teacher name
         return a.teacher.name.localeCompare(b.teacher.name);
       });
   }, [
