@@ -90,7 +90,7 @@ const SlotGroup = ({
 };
 
 export function SlotSelector() {
-  const { selectedSlots, toggleSlot, clearSelectedSlots } =
+  const { manualSelectedSlots, toggleSlot, clearSelectedSlots } =
     manualSlotSelectionStore();
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -183,7 +183,7 @@ export function SlotSelector() {
                         key={`${sectionIndex}-${groupIndex}`}
                         slots={slotGroup.data}
                         className={slotGroup.className}
-                        selectedSlots={selectedSlots}
+                        selectedSlots={manualSelectedSlots}
                         toggleSlot={toggleSlot}
                       />
                     ))}

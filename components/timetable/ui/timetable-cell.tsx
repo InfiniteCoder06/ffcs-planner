@@ -1,4 +1,4 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { MotionDiv, MotionTd } from "@/components/ui/motion";
 import {
   Tooltip,
@@ -24,17 +24,25 @@ export const TimetableCell = memo(function TimetableCell({
   dayIndex,
   cache,
 }: TimetableCellProps) {
-  const { selectedSlots, toggleSlot } = manualSlotSelectionStore();
-  const { getSlotClashes } = useScheduleStore();
+  const { manualSelectedSlots, toggleSlot } = manualSlotSelectionStore();
+  const { getAllClashes } = useScheduleStore();
   const getClashDetails = useClashDetails();
 
   const key = slot.join("/");
 
-  // Check for clashes using the store's clash detection for each slot in this cell
-  const clashes = slot.flatMap((s) => getSlotClashes(s));
-  const isClash = clashes.length > 0;
+  const allClashes = useMemo(() => getAllClashes(), [getAllClashes]);
 
-  const selected = slot.some((s) => selectedSlots.includes(s));
+  // Check for clashes using the store's clash detection for each slot in this cell
+  // but exclude clashes between slots within the same cell
+  // const clashes = slot.flatMap((s) =>
+  //   getSlotClashes(s).filter((clash) => {
+  //     // Only show clash if the clashing slots are NOT in the current cell
+  //     return !slot.includes(clash.slot);
+  //   }),
+  // );
+  // const isClash = clashes.length > 0;
+
+  const selected = slot.some((s) => manualSelectedSlots.includes(s));
   const clashDetails = getClashDetails(slot);
 
   const handleClick = useCallback(() => {
@@ -47,10 +55,12 @@ export const TimetableCell = memo(function TimetableCell({
         <MotionTd
           className={cn(
             "p-2 text-xs text-center border h-24 max-h-24 overflow-hidden transition-colors duration-200 dark:border-gray-700 hover:cursor-pointer",
-            clashDetails ? "bg-red-solid text-white" : cache.colorCache[key],
+            allClashes.length > 0 && clashDetails
+              ? "bg-red-solid text-white"
+              : cache.colorCache[key],
             selected &&
               "bg-yellow-4 text-black-8 dark:bg-yellowdark-7 hover:bg-yellow-4 dark:hover:bg-yellowdark-7",
-            isClash && "relative",
+            allClashes.length > 0 && "relative",
           )}
           onClick={handleClick}
           initial={{ opacity: 0, scale: 0.9 }}
@@ -69,7 +79,7 @@ export const TimetableCell = memo(function TimetableCell({
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            {clashDetails ? (
+            {allClashes.length > 0 && clashDetails ? (
               <></>
             ) : (
               <>
@@ -78,7 +88,7 @@ export const TimetableCell = memo(function TimetableCell({
               </>
             )}
           </MotionDiv>
-          {isClash && (
+          {allClashes.length > 0 && clashDetails && (
             <MotionDiv
               className="absolute top-1 right-1"
               initial={{ opacity: 0, scale: 0 }}
@@ -94,7 +104,7 @@ export const TimetableCell = memo(function TimetableCell({
           )}
         </MotionTd>
       </TooltipTrigger>
-      {clashDetails && (
+      {allClashes.length > 0 && clashDetails && (
         <TooltipContent
           side="top"
           className="border-2 border-red-normal bg-red-ui text-red-normal"
