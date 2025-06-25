@@ -17,9 +17,11 @@ import type { Teacher } from "@/types";
  * including teacher info, course info, venue, colors, and pre-computed clash states.
  */
 export function useTimetableRenderData(): TimetableRenderData {
-  const { selectedTeachers, courses, getAllClashes } = useScheduleStore();
+  const { getSelectedTeachers, courses, getAllClashes } = useScheduleStore();
   const { manualSelectedSlots } = manualSlotSelectionStore();
   const totalCredits = useTotalCredits();
+
+  const selectedTeachers = getSelectedTeachers();
 
   // Memoize all clashes
   const allClashes = useMemo(() => getAllClashes(), [getAllClashes]);

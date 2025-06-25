@@ -2,6 +2,7 @@ import { Timetable } from "@/components/timetable/timetable";
 import { ClashVisualization } from "@/components/timetable/clash-detection/clash-visualization";
 import { CoursePreferences } from "@/components/course-preference/course-preferences";
 import { SelectedCoursesTable } from "@/components/selected-courses-table";
+import { TimetableManagement } from "@/components/timetable/timetable-management";
 import {
   MotionDiv,
   ScrollAnimation,
@@ -71,6 +72,9 @@ export default function Home() {
               Timetable
             </h2>
             <div className="space-y-4">
+              <ScrollAnimation animation="scaleUp" delay={0.1}>
+                <TimetableManagement />
+              </ScrollAnimation>
               <ScrollAnimation animation="scaleUp" delay={0.2}>
                 <ClashVisualization />
               </ScrollAnimation>
