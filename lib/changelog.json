@@ -1,5 +1,18 @@
 [
   {
+    "version": "1.1.1",
+    "entries": [
+      {
+        "type": "🔧 Bug Fixes",
+        "description": "Fix course not explanding when icon clicked."
+      },
+      {
+        "type": "🔧 Bug Fixes",
+        "description": "Fix changelog button overflow."
+      }
+    ]
+  },
+  {
     "version": "1.1.0",
     "entries": [
       {
