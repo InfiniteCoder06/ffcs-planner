@@ -199,7 +199,7 @@ export function BulkAddTeachersDialog({
                 onChange={(e) => setRawInput(e.target.value)}
                 placeholder={`Example:\nC2+TC2+TCC2\tPRP134\tMANIMARAN A\tTH\nC1+TC1+TCC1\tPRP267\tSARAVANARAJAN M C\tTH`}
                 rows={8}
-                className="font-mono text-xs"
+                className="font-mono text-xs max-h-[300px]"
               />
             </MotionDiv>
           </div>
