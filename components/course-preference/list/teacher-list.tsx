@@ -41,9 +41,43 @@ export default function TeacherList({
   const availableSlots = useMemo(() => {
     const slots = new Set<string>();
     courseTeachers.forEach((teacher) => {
-      teacher.slots.forEach((slot) => slots.add(slot));
+      teacher.slots.forEach((slot) => {
+        if (slot.startsWith("L")) {
+          const slotNumber = parseInt(slot.slice(1), 10);
+          if (slotNumber % 2 === 1) {
+            slots.add(`L${slotNumber} + L${slotNumber + 1}`);
+          }
+        } else {
+          slots.add(slot);
+        }
+      });
     });
-    return Array.from(slots).sort();
+    return Array.from(slots).sort((a, b) => {
+      const getSlotInfo = (slot: string) => {
+        if (slot.includes("+")) {
+          const firstSlot = slot.split(" + ")[0];
+          const type = firstSlot.charAt(0);
+          const number = parseInt(firstSlot.slice(1), 10);
+          return { type, number };
+        } else {
+          const type = slot.charAt(0);
+          const number = parseInt(slot.slice(1), 10) || 0;
+          return { type, number };
+        }
+      };
+
+      const aInfo = getSlotInfo(a);
+      const bInfo = getSlotInfo(b);
+
+      if (aInfo.type !== bInfo.type) {
+        if (aInfo.type === "T" && bInfo.type === "L") return -1;
+        if (aInfo.type === "L" && bInfo.type === "T") return 1;
+        if (aInfo.type === "T" && bInfo.type === "T")
+          return aInfo.number - bInfo.number;
+      }
+
+      return aInfo.number - bInfo.number;
+    });
   }, [courseTeachers]);
 
   const filteredTeacherStates = useMemo(() => {
@@ -56,7 +90,7 @@ export default function TeacherList({
 
       // Apply slot filter if selected
       const matchesSlotFilter =
-        !slotFilter || teacher.slots.includes(slotFilter);
+        !slotFilter || teacher.slots.includes(slotFilter.split(" + ")[0]);
 
       return matchesSearch && matchesSlotFilter;
     });
