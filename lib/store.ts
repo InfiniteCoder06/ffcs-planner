@@ -7,51 +7,69 @@ import {
   doSlotsClash,
   getDaysForSlot,
 } from "./clash-detection";
-import { Course, Teacher, ClashInfo } from "@/types";
+import { Course, Teacher, ClashInfo, Timetable } from "@/types";
 
 type State = {
   courses: Course[];
   teachers: Teacher[];
-  selectedTeachers: Teacher[];
-  selectedSlots: string[];
+  timetables: Timetable[];
+  activeTimetableId: string | null;
 };
 
 type Actions = {
+  // Course actions
   getCourse: (id: string) => Course | undefined;
   addCourse: (course: Omit<Course, "id">) => void;
   editCourse: (id: string, course: Partial<Omit<Course, "id">>) => void;
   removeCourse: (id: string) => void;
 
+  // Teacher actions
   addTeacher: (teacher: Omit<Teacher, "id">) => void;
   editTeacher: (id: string, teacher: Partial<Omit<Teacher, "id">>) => void;
   removeTeacher: (id: string) => void;
   deleteAllTeachersForCourse: (courseId: string) => void;
 
-  clearSelectedTeachers: () => void;
-  clearAll: () => void;
+  // Timetable actions
+  createTimetable: (name?: string) => string;
+  deleteTimetable: (id: string) => void;
+  renameTimetable: (id: string, name: string) => void;
+  setActiveTimetable: (id: string) => void;
+  duplicateTimetable: (id: string, newName?: string) => string;
 
+  // Active timetable actions
+  getActiveTimetable: () => Timetable | null;
+  getSelectedTeachers: () => Teacher[];
+  getSelectedSlots: () => string[];
   toggleTeacherInTimetable: (teacherId: string) => void;
   isTeacherSelected: (teacherId: string) => boolean;
+  clearSelectedTeachers: () => void;
 
+  // Clash detection
   teacherSlotClash: (teacherId: string) => Teacher[];
   hasSameSlotClashWithSelected: (teacherId: string) => boolean;
-
   getSlotClashes: (slot: string) => ClashInfo[];
   getAllClashes: () => ClashInfo[];
 
+  // Import/Export
   getExportData: () => {
     courses: Course[];
     teachers: Teacher[];
     selectedTeachers: Teacher[];
     selectedSlots: string[];
+    timetables: Timetable[];
+    activeTimetableId: string | null;
   };
   setExportData: (data: {
     courses: Course[];
     teachers: Teacher[];
     selectedTeachers: Teacher[];
     selectedSlots: string[];
+    timetables?: Timetable[];
+    activeTimetableId?: string | null;
   }) => void;
 
+  // Utility
+  clearAll: () => void;
   clearClashCaches: () => void;
 };
 
@@ -60,9 +78,10 @@ export const useScheduleStore = create<State & Actions>()(
     (set, get) => ({
       courses: [],
       teachers: [],
-      selectedTeachers: [],
-      selectedSlots: [],
+      timetables: [],
+      activeTimetableId: null,
 
+      // Course actions
       getCourse: (id) => get().courses.find((c) => c.id === id),
 
       addCourse: (course) =>
@@ -78,14 +97,29 @@ export const useScheduleStore = create<State & Actions>()(
         })),
 
       removeCourse: (id) =>
-        set((state) => ({
-          courses: state.courses.filter((c) => c.id !== id),
-          teachers: state.teachers.filter((t) => t.course !== id),
-          selectedTeachers: state.selectedTeachers.filter(
-            (t) => t.course !== id,
-          ),
-        })),
+        set((state) => {
+          const newTimetables = state.timetables.map((timetable) => ({
+            ...timetable,
+            selectedTeachers: timetable.selectedTeachers.filter(
+              (t) => t.course !== id,
+            ),
+            selectedSlots: Array.from(
+              new Set(
+                timetable.selectedTeachers
+                  .filter((t) => t.course !== id)
+                  .flatMap((t) => t.slots),
+              ),
+            ),
+          }));
 
+          return {
+            courses: state.courses.filter((c) => c.id !== id),
+            teachers: state.teachers.filter((t) => t.course !== id),
+            timetables: newTimetables,
+          };
+        }),
+
+      // Teacher actions
       addTeacher: (teacher) =>
         set((state) => ({
           teachers: [
@@ -101,9 +135,14 @@ export const useScheduleStore = create<State & Actions>()(
 
           clearClashDetectionCaches();
 
+          const newTimetables = state.timetables.map((timetable) => ({
+            ...timetable,
+            selectedTeachers: timetable.selectedTeachers.map(updateFn),
+          }));
+
           return {
             teachers: state.teachers.map(updateFn),
-            selectedTeachers: state.selectedTeachers.map(updateFn),
+            timetables: newTimetables,
           };
         }),
 
@@ -111,9 +150,22 @@ export const useScheduleStore = create<State & Actions>()(
         set((state) => {
           clearClashDetectionCaches();
 
+          const newTimetables = state.timetables.map((timetable) => {
+            const newSelectedTeachers = timetable.selectedTeachers.filter(
+              (t) => t.id !== id,
+            );
+            return {
+              ...timetable,
+              selectedTeachers: newSelectedTeachers,
+              selectedSlots: Array.from(
+                new Set(newSelectedTeachers.flatMap((t) => t.slots)),
+              ),
+            };
+          });
+
           return {
             teachers: state.teachers.filter((t) => t.id !== id),
-            selectedTeachers: state.selectedTeachers.filter((t) => t.id !== id),
+            timetables: newTimetables,
           };
         }),
 
@@ -121,65 +173,191 @@ export const useScheduleStore = create<State & Actions>()(
         set((state) => {
           clearClashDetectionCaches();
 
+          const newTimetables = state.timetables.map((timetable) => {
+            const newSelectedTeachers = timetable.selectedTeachers.filter(
+              (t) => t.course !== courseId,
+            );
+            return {
+              ...timetable,
+              selectedTeachers: newSelectedTeachers,
+              selectedSlots: Array.from(
+                new Set(newSelectedTeachers.flatMap((t) => t.slots)),
+              ),
+            };
+          });
+
           return {
             teachers: state.teachers.filter((t) => t.course !== courseId),
-            selectedTeachers: state.selectedTeachers.filter(
-              (t) => t.course !== courseId,
-            ),
+            timetables: newTimetables,
           };
         }),
 
-      clearSelectedTeachers: () => {
-        set({ selectedTeachers: [], selectedSlots: [] });
-        clearClashDetectionCaches();
-      },
+      // Timetable actions
+      createTimetable: (name) => {
+        const id = crypto.randomUUID();
+        const currentTime = new Date();
+        const timetableName =
+          name || `Timetable ${get().timetables.length + 1}`;
 
-      clearAll: () => {
-        set({
-          courses: [],
-          teachers: [],
+        const newTimetable: Timetable = {
+          id,
+          name: timetableName,
           selectedTeachers: [],
           selectedSlots: [],
-        });
-        clearClashDetectionCaches();
+          createdAt: currentTime,
+          updatedAt: currentTime,
+        };
+
+        set((state) => ({
+          timetables: [...state.timetables, newTimetable],
+          activeTimetableId: id,
+        }));
+
+        return id;
       },
 
-      toggleTeacherInTimetable: (teacherId) =>
+      deleteTimetable: (id) =>
         set((state) => {
-          const teacher = state.teachers.find((t) => t.id === teacherId);
-          if (!teacher) return state;
-
-          const isSelected = state.selectedTeachers.some(
-            (t) => t.id === teacherId,
-          );
-
-          clearClashDetectionCaches();
-
-          if (isSelected) {
-            const newSelectedTeachers = state.selectedTeachers.filter(
-              (t) => t.id !== teacherId,
-            );
-            const newSelectedSlots = Array.from(
-              new Set(newSelectedTeachers.flatMap((t) => t.slots)),
-            );
-
-            return {
-              selectedTeachers: newSelectedTeachers,
-              selectedSlots: newSelectedSlots,
-            };
-          }
+          const newTimetables = state.timetables.filter((t) => t.id !== id);
+          const newActiveTimetableId =
+            state.activeTimetableId === id
+              ? newTimetables.length > 0
+                ? newTimetables[0].id
+                : null
+              : state.activeTimetableId;
 
           return {
-            selectedTeachers: [...state.selectedTeachers, teacher],
-            selectedSlots: Array.from(
-              new Set([...state.selectedSlots, ...teacher.slots]),
-            ),
+            timetables: newTimetables,
+            activeTimetableId: newActiveTimetableId,
           };
         }),
 
-      isTeacherSelected: (teacherId) =>
-        get().selectedTeachers.some((t) => t.id === teacherId),
+      renameTimetable: (id, name) =>
+        set((state) => ({
+          timetables: state.timetables.map((t) =>
+            t.id === id ? { ...t, name, updatedAt: new Date() } : t,
+          ),
+        })),
 
+      setActiveTimetable: (id) => set({ activeTimetableId: id }),
+
+      duplicateTimetable: (id, newName) => {
+        const state = get();
+        const sourceTimetable = state.timetables.find((t) => t.id === id);
+        if (!sourceTimetable) return "";
+
+        const newId = crypto.randomUUID();
+        const currentTime = new Date();
+        const timetableName = newName || `${sourceTimetable.name} (Copy)`;
+
+        const newTimetable: Timetable = {
+          id: newId,
+          name: timetableName,
+          selectedTeachers: [...sourceTimetable.selectedTeachers],
+          selectedSlots: [...sourceTimetable.selectedSlots],
+          createdAt: currentTime,
+          updatedAt: currentTime,
+        };
+
+        set((state) => ({
+          timetables: [...state.timetables, newTimetable],
+          activeTimetableId: newId,
+        }));
+
+        return newId;
+      },
+
+      // Active timetable actions
+      getActiveTimetable: () => {
+        const state = get();
+        return (
+          state.timetables.find((t) => t.id === state.activeTimetableId) || null
+        );
+      },
+
+      getSelectedTeachers: () => {
+        const activeTimetable = get().getActiveTimetable();
+        return activeTimetable?.selectedTeachers || [];
+      },
+
+      getSelectedSlots: () => {
+        const activeTimetable = get().getActiveTimetable();
+        return activeTimetable?.selectedSlots || [];
+      },
+
+      clearSelectedTeachers: () => {
+        const state = get();
+        if (!state.activeTimetableId) return;
+
+        set((state) => ({
+          timetables: state.timetables.map((t) =>
+            t.id === state.activeTimetableId
+              ? {
+                  ...t,
+                  selectedTeachers: [],
+                  selectedSlots: [],
+                  updatedAt: new Date(),
+                }
+              : t,
+          ),
+        }));
+
+        clearClashDetectionCaches();
+      },
+
+      toggleTeacherInTimetable: (teacherId) => {
+        const state = get();
+        if (!state.activeTimetableId) return;
+
+        const teacher = state.teachers.find((t) => t.id === teacherId);
+        if (!teacher) return;
+
+        const activeTimetable = state.getActiveTimetable();
+        if (!activeTimetable) return;
+
+        const isSelected = activeTimetable.selectedTeachers.some(
+          (t) => t.id === teacherId,
+        );
+
+        clearClashDetectionCaches();
+
+        set((state) => ({
+          timetables: state.timetables.map((t) => {
+            if (t.id !== state.activeTimetableId) return t;
+
+            if (isSelected) {
+              const newSelectedTeachers = t.selectedTeachers.filter(
+                (st) => st.id !== teacherId,
+              );
+              return {
+                ...t,
+                selectedTeachers: newSelectedTeachers,
+                selectedSlots: Array.from(
+                  new Set(newSelectedTeachers.flatMap((st) => st.slots)),
+                ),
+                updatedAt: new Date(),
+              };
+            } else {
+              const newSelectedTeachers = [...t.selectedTeachers, teacher];
+              return {
+                ...t,
+                selectedTeachers: newSelectedTeachers,
+                selectedSlots: Array.from(
+                  new Set(newSelectedTeachers.flatMap((st) => st.slots)),
+                ),
+                updatedAt: new Date(),
+              };
+            }
+          }),
+        }));
+      },
+
+      isTeacherSelected: (teacherId) => {
+        const selectedTeachers = get().getSelectedTeachers();
+        return selectedTeachers.some((t) => t.id === teacherId);
+      },
+
+      // Clash detection methods (adapted for active timetable)
       teacherSlotClash: (teacherId) => {
         const teacherToConsider = get().teachers.find(
           (t) => t.id === teacherId,
@@ -189,28 +367,21 @@ export const useScheduleStore = create<State & Actions>()(
         const clashes: Teacher[] = [];
         const processedClashingTeacherIds = new Set<string>();
 
-        // Get currently selected teachers, excluding the one being considered if it's already selected
-        const currentlySelectedTeachers = get().selectedTeachers.filter(
-          (t) => t.id !== teacherId,
-        );
+        const currentlySelectedTeachers = get()
+          .getSelectedTeachers()
+          .filter((t) => t.id !== teacherId);
 
-        // Iterate through each slot of the teacher being considered
         for (const slotOfTeacherToConsider of teacherToConsider.slots) {
           const daysForSlotOfTeacherToConsider = getDaysForSlot(
             slotOfTeacherToConsider,
           );
 
-          // For each day this slot occurs
           for (const day of daysForSlotOfTeacherToConsider) {
-            // Check against every other selected teacher
             for (const otherSelectedTeacher of currentlySelectedTeachers) {
-              // If this other selected teacher has already been identified as clashing, skip
               if (processedClashingTeacherIds.has(otherSelectedTeacher.id))
                 continue;
 
-              // Check each slot of the other selected teacher
               for (const slotOfOtherTeacher of otherSelectedTeacher.slots) {
-                // If the other teacher's slot also occurs on this day
                 if (getDaysForSlot(slotOfOtherTeacher).includes(day)) {
                   if (
                     doSlotsClash(
@@ -220,15 +391,14 @@ export const useScheduleStore = create<State & Actions>()(
                       slotOfOtherTeacher,
                     )
                   ) {
-                    // Found a clash! Add the other selected teacher to the list
                     clashes.push(otherSelectedTeacher);
                     processedClashingTeacherIds.add(otherSelectedTeacher.id);
-                    break; // Move to the next `otherSelectedTeacher`
+                    break;
                   }
                 }
               }
               if (processedClashingTeacherIds.has(otherSelectedTeacher.id))
-                break; // Move to next `otherSelectedTeacher`
+                break;
             }
           }
         }
@@ -245,9 +415,9 @@ export const useScheduleStore = create<State & Actions>()(
           .sort()
           .join(",");
 
-        const currentlySelectedTeachers = get().selectedTeachers.filter(
-          (t) => t.id !== teacherId,
-        );
+        const currentlySelectedTeachers = get()
+          .getSelectedTeachers()
+          .filter((t) => t.id !== teacherId);
 
         for (const otherSelectedTeacher of currentlySelectedTeachers) {
           if (
@@ -261,38 +431,20 @@ export const useScheduleStore = create<State & Actions>()(
         return false;
       },
 
-      getExportData: () => {
-        const { courses, teachers, selectedTeachers, selectedSlots } = get();
-        return { courses, teachers, selectedTeachers, selectedSlots };
-      },
-
-      setExportData: (data) => {
-        const { courses, teachers, selectedTeachers, selectedSlots } = data;
-
-        set({
-          courses,
-          teachers,
-          selectedTeachers,
-          selectedSlots,
-        });
-      },
-
       getSlotClashes: (targetSlot: string) => {
-        const { selectedTeachers } = get();
+        const selectedTeachers = get().getSelectedTeachers();
         const clashes: ClashInfo[] = [];
-        const processedClashPairs = new Set<string>(); // To avoid duplicate teacher pairs for a slot
+        const processedClashPairs = new Set<string>();
 
         const targetSlotDays = getDaysForSlot(targetSlot);
 
         if (targetSlotDays.length === 0) return [];
 
-        // Find all teachers that have slots that clash with the target slot on the same day
         for (const day of targetSlotDays) {
           const teachersOnThisDay = selectedTeachers.filter((t) =>
             t.slots.some((s) => getDaysForSlot(s).includes(day)),
           );
 
-          // Filter teachers that actually clash with targetSlot on this specific day
           const clashingTeachersWithTargetSlot = teachersOnThisDay.filter(
             (teacher) =>
               teacher.slots.some((teacherSlot) =>
@@ -300,10 +452,8 @@ export const useScheduleStore = create<State & Actions>()(
               ),
           );
 
-          // If less than 2 teachers (including the one for targetSlot) have conflicting slots, there's no clash for this day
           if (clashingTeachersWithTargetSlot.length < 2) continue;
 
-          // Create clash pairs
           for (let i = 0; i < clashingTeachersWithTargetSlot.length; i++) {
             for (
               let j = i + 1;
@@ -313,8 +463,6 @@ export const useScheduleStore = create<State & Actions>()(
               const teacher1 = clashingTeachersWithTargetSlot[i];
               const teacher2 = clashingTeachersWithTargetSlot[j];
 
-              // Ensure that at least one of the teachers involved in the pair has the targetSlot
-              // or that their slots clash with the targetSlot
               const isRelevantClash =
                 (teacher1.slots.includes(targetSlot) &&
                   teacher2.slots.some((s) =>
@@ -343,24 +491,20 @@ export const useScheduleStore = create<State & Actions>()(
       },
 
       getAllClashes: () => {
-        const { selectedTeachers } = get();
+        const selectedTeachers = get().getSelectedTeachers();
         const clashes: ClashInfo[] = [];
-        const processedClashes = new Set<string>(); // To avoid duplicate clash entries (teacher1-teacher2-slot-day)
+        const processedClashes = new Set<string>();
 
-        // Iterate through all possible pairs of selected teachers
         for (let i = 0; i < selectedTeachers.length; i++) {
           for (let j = i + 1; j < selectedTeachers.length; j++) {
             const teacher1 = selectedTeachers[i];
             const teacher2 = selectedTeachers[j];
 
-            // Check for clashes between their slots across all days
             for (const slot1 of teacher1.slots) {
               for (const slot2 of teacher2.slots) {
-                // Get days for both slots
                 const daysForSlot1 = getDaysForSlot(slot1);
                 const daysForSlot2 = getDaysForSlot(slot2);
 
-                // Find common days where both slots occur
                 const commonDays = daysForSlot1.filter((day) =>
                   daysForSlot2.includes(day),
                 );
@@ -393,6 +537,66 @@ export const useScheduleStore = create<State & Actions>()(
         return clashes;
       },
 
+      // Import/Export
+      getExportData: () => {
+        const { courses, teachers, timetables, activeTimetableId } = get();
+        const activeTimetable = get().getActiveTimetable();
+        const selectedTeachers = activeTimetable?.selectedTeachers || [];
+        const selectedSlots = activeTimetable?.selectedSlots || [];
+
+        return {
+          courses,
+          teachers,
+          selectedTeachers,
+          selectedSlots,
+          timetables,
+          activeTimetableId,
+        };
+      },
+
+      setExportData: (data) => {
+        const {
+          courses,
+          teachers,
+          selectedTeachers,
+          selectedSlots,
+          timetables,
+          activeTimetableId,
+        } = data;
+
+        // If importing with timetables data, restore full structure
+        if (timetables && activeTimetableId) {
+          set({
+            courses,
+            teachers,
+            timetables,
+            activeTimetableId,
+          });
+        } else {
+          // Legacy import - create a new timetable with the imported data
+          const id = get().createTimetable("Imported Timetable");
+
+          set((state) => ({
+            courses,
+            teachers,
+            timetables: state.timetables.map((t) =>
+              t.id === id ? { ...t, selectedTeachers, selectedSlots } : t,
+            ),
+          }));
+        }
+      },
+
+      // Utility
+      clearAll: () => {
+        set({
+          courses: [],
+          teachers: [],
+          timetables: [],
+          activeTimetableId: null,
+        });
+        clearClashDetectionCaches();
+      },
+
       clearClashCaches: () => {
         clearClashDetectionCaches();
       },
@@ -402,8 +606,8 @@ export const useScheduleStore = create<State & Actions>()(
       partialize: (state) => ({
         courses: state.courses,
         teachers: state.teachers,
-        selectedTeachers: state.selectedTeachers,
-        selectedSlots: state.selectedSlots,
+        timetables: state.timetables,
+        activeTimetableId: state.activeTimetableId,
       }),
     },
   ),

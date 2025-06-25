@@ -14,8 +14,10 @@ import { cn } from "@/lib/utils";
 import { IconButton } from "./ui/icon-button";
 
 export function SelectedCoursesTable() {
-  const { selectedTeachers, courses, toggleTeacherInTimetable } =
+  const { courses, toggleTeacherInTimetable, getSelectedTeachers } =
     useScheduleStore();
+
+  const selectedTeachers = getSelectedTeachers();
 
   // Calculate total credits
   const totalCredits = selectedTeachers.reduce((total, teacher) => {

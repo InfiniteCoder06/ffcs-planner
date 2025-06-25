@@ -6,7 +6,8 @@ interface CoursesTableProps {
 }
 
 export function CoursesTable({ totalCredits }: CoursesTableProps) {
-  const { selectedTeachers } = useScheduleStore();
+  const { getSelectedTeachers } = useScheduleStore();
+  const selectedTeachers = getSelectedTeachers();
 
   return (
     <div className="mt-4">

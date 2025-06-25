@@ -19,30 +19,28 @@ import { Label } from "@/components/ui/label";
 import { MotionDiv } from "@/components/ui/motion";
 import { useScheduleStore } from "@/lib/store";
 
-const generateDefaultFilename = () => {
-  const now = new Date();
-  const datePart = now.toISOString().split("T")[0];
-  const timePart = now.toLocaleTimeString().replace(/:/g, ":");
-  return `timetable-${datePart}-${timePart}`;
-};
-
 export function DownloadTimetableDialog({
   disabled = false,
 }: {
   disabled?: boolean;
 }) {
-  const { getExportData } = useScheduleStore();
+  const { getExportData, getActiveTimetable } = useScheduleStore();
 
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const activeTimetable = getActiveTimetable();
+
   useEffect(() => {
     if (open) {
-      setName(generateDefaultFilename());
+      const defaultName = activeTimetable?.name || "timetable";
+      const now = new Date();
+      const datePart = now.toISOString().split("T")[0];
+      setName(`${defaultName}-${datePart}`);
     }
-  }, [open]);
+  }, [open, activeTimetable]);
 
   const handleDownload = useCallback(() => {
     if (!name.trim()) return;

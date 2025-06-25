@@ -9,7 +9,8 @@ import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 export function ClashVisualization() {
-  const { selectedTeachers, getAllClashes } = useScheduleStore();
+  const { getSelectedTeachers, getAllClashes } = useScheduleStore();
+  const selectedTeachers = getSelectedTeachers();
   const [showDetails, setShowDetails] = useState(false);
   const [animateAlert, setAnimateAlert] = useState(false);
 

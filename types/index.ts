@@ -99,11 +99,22 @@ export interface Teacher {
   course: string;
 }
 
+export interface Timetable {
+  id: string;
+  name: string;
+  selectedTeachers: Teacher[];
+  selectedSlots: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface ExportData {
   courses: Course[];
   teachers: Teacher[];
   selectedTeachers: Teacher[];
   selectedSlots: string[];
+  timetables?: Timetable[];
+  activeTimetableId?: string | null;
 }
 
 export interface ClashInfo {

@@ -26,10 +26,12 @@ import { useTheme } from "next-themes";
 export function ExportSection() {
   const [exportType, setExportType] = useState<"pdf" | "image">("image");
   const [isExporting, setIsExporting] = useState(false);
-  const { selectedTeachers } = useScheduleStore();
+  const { getSelectedTeachers } = useScheduleStore();
   const previewRef = useRef<HTMLDivElement>(null);
   const { theme } = useTheme();
   const isDarkMode = theme === "dark";
+
+  const selectedTeachers = getSelectedTeachers();
 
   const handleExport = async () => {
     if (!previewRef.current) return;
