@@ -26,6 +26,8 @@ import { colors } from "@/lib/utils";
 import type { DialogButtonProps } from "@/types";
 import { toast } from "sonner";
 import { MotionDiv } from "@/components/ui/motion";
+import { mergeSlots } from "@/lib/slots";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
 type BulkAddTeachersDialogProps = DialogButtonProps;
@@ -41,6 +43,7 @@ export function BulkAddTeachersDialog({
 
   const [open, setOpen] = useState(false);
   const [rawInput, setRawInput] = useState("");
+  const [merge, setMerge] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState("");
   const [colorIndex, setColorIndex] = useState(0);
 
@@ -61,7 +64,15 @@ export function BulkAddTeachersDialog({
       return;
     }
 
-    const lines = rawInput.split("\n").filter((line) => line.trim() !== "");
+    let lines: string[] = [];
+    if (merge) {
+      lines = mergeSlots(
+        rawInput.split("\n").filter((line) => line.trim() !== ""),
+      );
+    } else {
+      lines = rawInput.split("\n").filter((line) => line.trim() !== "");
+    }
+
     if (lines.length === 0) {
       toast.error("No Data Found", {
         description: "Please paste valid teacher data.",
@@ -201,6 +212,20 @@ export function BulkAddTeachersDialog({
                 rows={8}
                 className="font-mono text-xs max-h-[300px]"
               />
+            </MotionDiv>
+
+            <MotionDiv
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+              className="flex items-center space-x-2"
+            >
+              <Switch
+                id="useMerge"
+                checked={merge}
+                onCheckedChange={setMerge}
+              />
+              <Label htmlFor="useMerge">Embedded Course?</Label>
             </MotionDiv>
           </div>
 

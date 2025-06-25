@@ -197,3 +197,97 @@ export const clashMap: string[][] = [
   ["TE2", "L53"],
   ["TF2", "L59"],
 ];
+
+type SlotType = "ELA" | "ETH";
+
+interface SlotEntry {
+  slot: string;
+  course: string;
+  type: SlotType;
+}
+
+interface TeacherMap {
+  [teacher: string]: {
+    ELA: SlotEntry[];
+    ETH: SlotEntry[];
+  };
+}
+
+export function mergeSlots(dataLines: string[]): string[] {
+  const teacherMap: TeacherMap = {};
+
+  // Parse and group by teacher
+  for (const line of dataLines) {
+    const [slotStr, course, ...rest] = line.split(/\s+/);
+    const type = rest.pop() as SlotType;
+    const teacher = rest.join(" ");
+
+    if (!teacherMap[teacher]) {
+      teacherMap[teacher] = { ELA: [], ETH: [] };
+    }
+
+    teacherMap[teacher][type].push({ slot: slotStr, course, type });
+  }
+
+  // Helpers to determine morning/afternoon slots
+  const isMorning = (slot: string) => {
+    // Check if it's a morning lab slot (L1-L30)
+    const labMatch = slot.match(/L(\d+)/);
+    if (labMatch) {
+      return parseInt(labMatch[1]) <= 30;
+    }
+    // Check if it's a morning theory slot
+    return morningTheorySlots.includes(slot);
+  };
+
+  const isAfternoon = (slot: string) => {
+    // Check if it's an afternoon lab slot (L31-L60)
+    const labMatch = slot.match(/L(\d+)/);
+    if (labMatch) {
+      return parseInt(labMatch[1]) > 30;
+    }
+    // Check if it's an afternoon theory slot
+    return afternoonTheorySlots.includes(slot);
+  };
+
+  const result: string[] = [];
+
+  for (const [teacher, { ELA, ETH }] of Object.entries(teacherMap)) {
+    const merged: string[] = [];
+    const usedETH = new Set<string>();
+
+    for (const elaEntry of ELA) {
+      let prefix = "";
+      const elaSlots = elaEntry.slot.split("+");
+
+      for (const ethEntry of ETH) {
+        const ethSlot = ethEntry.slot;
+        if (
+          !usedETH.has(ethSlot) &&
+          ((morningTheorySlots.includes(ethSlot) &&
+            elaSlots.some(isAfternoon)) ||
+            (afternoonTheorySlots.includes(ethSlot) &&
+              elaSlots.some(isMorning)))
+        ) {
+          prefix = ethSlot + "+";
+          usedETH.add(ethSlot);
+          break;
+        }
+      }
+
+      merged.push(
+        `${prefix}${elaEntry.slot}\t${elaEntry.course}\t${teacher}\tELA`,
+      );
+    }
+
+    for (const ethEntry of ETH) {
+      if (!usedETH.has(ethEntry.slot)) {
+        merged.push(`${ethEntry.slot}\t${ethEntry.course}\t${teacher}\tETH`);
+      }
+    }
+
+    result.push(...merged);
+  }
+
+  return result;
+}

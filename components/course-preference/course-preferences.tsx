@@ -83,6 +83,7 @@ export function CoursePreferences() {
             const data = JSON.parse(e.target?.result as string);
             validateData(data);
             setExportData(data);
+            toast.success("Imported successfully!");
           } catch (parseError) {
             const errorMessage =
               parseError instanceof Error
