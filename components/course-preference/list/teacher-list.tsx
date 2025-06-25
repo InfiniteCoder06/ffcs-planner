@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Course, useScheduleStore, type Teacher } from "@/lib/store";
+import { type Course, useScheduleStore, type Teacher } from "@/lib/store";
 import { Search, X } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { DeleteDialog } from "../dialogs/delete-dialog";
@@ -33,11 +33,11 @@ export default function TeacherList({
   editMode,
   course,
 }: TeacherListProps) {
-  const { teacherSlotClash, deleteAllTeachersForCourse } = useScheduleStore();
+  const { teacherSlotClash, deleteAllTeachersForCourse, isTeacherSelected } =
+    useScheduleStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [slotFilter, setSlotFilter] = useState<string>("");
 
-  // Extract all unique slots from the teachers
   const availableSlots = useMemo(() => {
     const slots = new Set<string>();
     courseTeachers.forEach((teacher) => {
@@ -88,7 +88,6 @@ export default function TeacherList({
         (teacher.venue && teacher.venue.toLowerCase().includes(searchLower)) ||
         teacher.slots.some((slot) => slot.toLowerCase().includes(searchLower));
 
-      // Apply slot filter if selected
       const matchesSlotFilter =
         !slotFilter || teacher.slots.includes(slotFilter.split(" + ")[0]);
 
@@ -98,13 +97,26 @@ export default function TeacherList({
     return filtered
       .map((teacher) => {
         const clashes = teacherSlotClash(teacher.id);
+        const isSelected = isTeacherSelected(teacher.id);
         return {
           teacher,
           clashes,
+          isSelected,
         };
       })
-      .sort((a, b) => a.clashes.length - b.clashes.length); // Non-clashing first
-  }, [courseTeachers, teacherSlotClash, searchQuery, slotFilter]);
+      .sort((a, b) => {
+        if (a.isSelected && !b.isSelected) return -1;
+        if (!a.isSelected && b.isSelected) return 1;
+
+        return a.clashes.length - b.clashes.length;
+      });
+  }, [
+    courseTeachers,
+    teacherSlotClash,
+    searchQuery,
+    slotFilter,
+    isTeacherSelected,
+  ]);
 
   const handleDeleteAllTeachers = useCallback(() => {
     deleteAllTeachersForCourse(course.id);
