@@ -62,6 +62,7 @@ type Actions = {
   isTeacherSelected: (teacherId: string) => boolean;
 
   teacherSlotClash: (teacherId: string) => Teacher[];
+  hasSameSlotClashWithSelected: (teacherId: string) => boolean;
 
   getSlotClashes: (slot: string) => ClashInfo[];
   getAllClashes: () => ClashInfo[];
@@ -260,6 +261,32 @@ export const useScheduleStore = create<State & Actions>()(
           }
         }
         return clashes;
+      },
+
+      hasSameSlotClashWithSelected: (teacherId) => {
+        const teacherToConsider = get().teachers.find(
+          (t) => t.id === teacherId,
+        );
+        if (!teacherToConsider) return false;
+
+        const sortedTeacherToConsiderSlots = [...teacherToConsider.slots]
+          .sort()
+          .join(",");
+
+        const currentlySelectedTeachers = get().selectedTeachers.filter(
+          (t) => t.id !== teacherId,
+        );
+
+        for (const otherSelectedTeacher of currentlySelectedTeachers) {
+          if (
+            teacherToConsider.course === otherSelectedTeacher.course &&
+            sortedTeacherToConsiderSlots ===
+              [...otherSelectedTeacher.slots].sort().join(",")
+          ) {
+            return true;
+          }
+        }
+        return false;
       },
 
       getExportData: () => {

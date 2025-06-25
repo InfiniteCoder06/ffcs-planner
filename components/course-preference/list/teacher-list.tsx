@@ -33,8 +33,12 @@ export default function TeacherList({
   editMode,
   course,
 }: TeacherListProps) {
-  const { teacherSlotClash, deleteAllTeachersForCourse, isTeacherSelected } =
-    useScheduleStore();
+  const {
+    teacherSlotClash,
+    deleteAllTeachersForCourse,
+    isTeacherSelected,
+    hasSameSlotClashWithSelected,
+  } = useScheduleStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [slotFilter, setSlotFilter] = useState<string>("");
 
@@ -98,15 +102,20 @@ export default function TeacherList({
       .map((teacher) => {
         const clashes = teacherSlotClash(teacher.id);
         const isSelected = isTeacherSelected(teacher.id);
+        const hasSameSlotClash = hasSameSlotClashWithSelected(teacher.id);
         return {
           teacher,
           clashes,
           isSelected,
+          hasSameSlotClash,
         };
       })
       .sort((a, b) => {
         if (a.isSelected && !b.isSelected) return -1;
         if (!a.isSelected && b.isSelected) return 1;
+
+        if (a.hasSameSlotClash && !b.hasSameSlotClash) return -1;
+        if (!a.hasSameSlotClash && b.hasSameSlotClash) return 1;
 
         return a.clashes.length - b.clashes.length;
       });
@@ -223,16 +232,19 @@ export default function TeacherList({
             className="space-y-3"
             layout
           >
-            {filteredTeacherStates.map(({ teacher, clashes }, index) => (
-              <TeacherItem
-                key={teacher.id}
-                teacher={teacher}
-                editMode={editMode}
-                clashedTeachers={clashes}
-                className={clashes.length > 0 ? "opacity-50" : ""}
-                index={index}
-              />
-            ))}
+            {filteredTeacherStates.map(
+              ({ teacher, clashes, hasSameSlotClash }, index) => (
+                <TeacherItem
+                  key={teacher.id}
+                  teacher={teacher}
+                  editMode={editMode}
+                  clashedTeachers={clashes}
+                  className={clashes.length > 0 ? "opacity-50" : ""}
+                  index={index}
+                  hasSameSlotClash={hasSameSlotClash}
+                />
+              ),
+            )}
           </MotionUl>
         </AnimatePresenceWrapper>
       )}

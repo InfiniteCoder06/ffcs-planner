@@ -23,6 +23,7 @@ interface TeacherItemProps {
   className?: string;
   index: number;
   highlightedSlot?: string;
+  hasSameSlotClash: boolean;
 }
 
 export default function TeacherItem({
@@ -32,6 +33,7 @@ export default function TeacherItem({
   className,
   index,
   highlightedSlot,
+  hasSameSlotClash,
 }: TeacherItemProps) {
   const {
     getCourse,
@@ -82,7 +84,11 @@ export default function TeacherItem({
       <MotionLi
         className={cn(
           "p-3 rounded-md flex justify-between items-center gap-2",
-          hasClash ? "bg-red-ui" : `bg-${teacher.color}-ui`,
+          hasSameSlotClash
+            ? "bg-yellow-ui"
+            : hasClash
+              ? "bg-red-ui"
+              : `bg-${teacher.color}-ui`,
         )}
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -106,15 +112,28 @@ export default function TeacherItem({
                       transition: { duration: 0.5 },
                     }}
                   >
-                    <AlertCircle className={cn("text-red-dim")} />
+                    <AlertCircle
+                      className={cn(
+                        hasSameSlotClash ? "text-yellow-dim" : "text-red-dim",
+                      )}
+                    />
                   </MotionDiv>
                 </TooltipTrigger>
                 <TooltipContent
                   side="top"
-                  className={`border-2 bg-red-ui text-red-normal border-red-normal`}
+                  className={cn(
+                    "border-2 p-1",
+                    hasSameSlotClash
+                      ? "bg-yellow-ui text-yellow-normal border-yellow-normal"
+                      : "bg-red-ui text-red-normal border-red-normal",
+                  )}
                 >
                   <div className="p-1">
-                    <p className="font-bold mb-1">Slot Clash!</p>
+                    <p className="font-bold mb-1">
+                      {hasSameSlotClash
+                        ? "Identical Slot Clash!"
+                        : "Slot Clash!"}
+                    </p>
                     <div className="text-xs">
                       {clashedTeachers.map((t, i) => {
                         const course = getCourse(t.course);
