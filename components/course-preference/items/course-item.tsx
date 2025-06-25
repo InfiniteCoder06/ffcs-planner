@@ -71,7 +71,6 @@ const CourseItem = React.memo(function CourseItem({
           <Button
             variant="ghost"
             size="sm"
-            onClick={toggleExpanded}
             aria-label={isExpanded ? "Collapse teachers" : "Expand teachers"}
             className="transition-transform duration-200"
           >
