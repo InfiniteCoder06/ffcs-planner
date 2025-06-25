@@ -21,6 +21,7 @@ import { type Course, useScheduleStore, type Teacher } from "@/lib/store";
 import { Search, X } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { DeleteDialog } from "../dialogs/delete-dialog";
+import { cn } from "@/lib/utils";
 
 interface TeacherListProps {
   courseTeachers: Teacher[];
@@ -41,6 +42,7 @@ export default function TeacherList({
   } = useScheduleStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [slotFilter, setSlotFilter] = useState<string>("");
+  const [colorFilter, setColorFilter] = useState<string>("");
 
   const availableSlots = useMemo(() => {
     const slots = new Set<string>();
@@ -84,6 +86,14 @@ export default function TeacherList({
     });
   }, [courseTeachers]);
 
+  const availableColors = useMemo(() => {
+    const colors = new Set<string>();
+    courseTeachers.forEach((teacher) => {
+      colors.add(teacher.color);
+    });
+    return Array.from(colors).sort();
+  }, [courseTeachers]);
+
   const filteredTeacherStates = useMemo(() => {
     const filtered = courseTeachers.filter((teacher) => {
       const searchLower = searchQuery.toLowerCase();
@@ -95,7 +105,9 @@ export default function TeacherList({
       const matchesSlotFilter =
         !slotFilter || teacher.slots.includes(slotFilter.split(" + ")[0]);
 
-      return matchesSearch && matchesSlotFilter;
+      const matchesColorFilter = !colorFilter || teacher.color === colorFilter;
+
+      return matchesSearch && matchesSlotFilter && matchesColorFilter;
     });
 
     return filtered
@@ -111,20 +123,47 @@ export default function TeacherList({
         };
       })
       .sort((a, b) => {
+        // 1. Prioritize selected teachers
         if (a.isSelected && !b.isSelected) return -1;
         if (!a.isSelected && b.isSelected) return 1;
 
-        if (a.hasSameSlotClash && !b.hasSameSlotClash) return -1;
-        if (!a.hasSameSlotClash && b.hasSameSlotClash) return 1;
+        // If both are selected or both are not selected, proceed to clash logic
+        const aIsClashing = a.clashes.length > 0;
+        const bIsClashing = b.clashes.length > 0;
 
-        return a.clashes.length - b.clashes.length;
+        // 2. Prioritize non-clashing over clashing
+        if (!aIsClashing && bIsClashing) return -1; // a (no clash) before b (clash)
+        if (aIsClashing && !bIsClashing) return 1; // b (no clash) before a (clash)
+
+        // If both are clashing (or both are non-clashing), proceed to identical slot clash
+        if (aIsClashing && bIsClashing) {
+          // 3. Prioritize identical slot clashes (yellow) over other clashes (red)
+          if (a.hasSameSlotClash && !b.hasSameSlotClash) return -1; // a (yellow) before b (red)
+          if (!a.hasSameSlotClash && b.hasSameSlotClash) return 1; // b (yellow) before a (red)
+        }
+
+        // 4. Sort by color preference
+        if (colorFilter) {
+          const aMatchesColor = a.teacher.color === colorFilter;
+          const bMatchesColor = b.teacher.color === colorFilter;
+          if (aMatchesColor && !bMatchesColor) return -1;
+          if (!aMatchesColor && bMatchesColor) return 1;
+        }
+        // If no color filter or both match/don't match, sort alphabetically by color
+        const colorCompare = a.teacher.color.localeCompare(b.teacher.color);
+        if (colorCompare !== 0) return colorCompare;
+
+        // 5. Finally, if all above are equal, sort by teacher name for stable order
+        return a.teacher.name.localeCompare(b.teacher.name);
       });
   }, [
     courseTeachers,
     teacherSlotClash,
     searchQuery,
     slotFilter,
+    colorFilter,
     isTeacherSelected,
+    hasSameSlotClashWithSelected,
   ]);
 
   const handleDeleteAllTeachers = useCallback(() => {
@@ -157,7 +196,7 @@ export default function TeacherList({
 
       {courseTeachers.length > 0 && (
         <>
-          <div className="relative mb-2">
+          <div className="relative mb-3">
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search teachers, venues or slots..."
@@ -167,7 +206,7 @@ export default function TeacherList({
             />
           </div>
 
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-2">
             <Select
               value={slotFilter}
               onValueChange={(value) => setSlotFilter(value)}
@@ -192,6 +231,47 @@ export default function TeacherList({
                   variant="ghost"
                   size="icon"
                   onClick={() => setSlotFilter("")}
+                  className="h-9 w-9 shrink-0"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </AnimatePresenceWrapper>
+          </div>
+
+          <div className="flex items-center gap-2 mb-3">
+            <Select
+              value={colorFilter}
+              onValueChange={(value) => setColorFilter(value)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Filter by color" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {availableColors.map((color) => (
+                    <SelectItem key={color} value={color}>
+                      <div className="flex items-center gap-2">
+                        <div
+                          className={cn(
+                            "w-4 h-4 rounded-full",
+                            `bg-${color}-solid`,
+                          )}
+                        />
+                        {color.charAt(0).toUpperCase() + color.slice(1)}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+
+            <AnimatePresenceWrapper>
+              {colorFilter && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setColorFilter("")}
                   className="h-9 w-9 shrink-0"
                 >
                   <X className="h-4 w-4" />
