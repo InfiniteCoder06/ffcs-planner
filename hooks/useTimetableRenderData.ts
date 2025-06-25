@@ -10,7 +10,7 @@ import {
 } from "@/lib/clash-detection"; // Import doSlotsClash and getDaysForSlot from clash-detection
 import type { TimetableRenderData, CellRenderData } from "@/types";
 import { useTotalCredits } from "./useTotalCredits";
-import type { Teacher } from "@/lib/store";
+import type { Teacher } from "@/types";
 
 /**
  * Custom hook to prepare all data required for rendering the timetable,

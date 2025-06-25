@@ -82,3 +82,32 @@ export interface TimetableRenderData {
   allClashesCount: number;
   manualSelectedSlots: string[];
 }
+
+export interface Course {
+  id: string;
+  name: string;
+  code: string;
+  credits: number;
+}
+
+export interface Teacher {
+  id: string;
+  name: string;
+  color: string;
+  slots: string[];
+  venue: string;
+  course: string;
+}
+
+export interface ExportData {
+  courses: Course[];
+  teachers: Teacher[];
+  selectedTeachers: Teacher[];
+  selectedSlots: string[];
+}
+
+export interface ClashInfo {
+  slot: string;
+  teacher1: Teacher;
+  teacher2: Teacher;
+}
