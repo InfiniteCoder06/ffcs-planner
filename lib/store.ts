@@ -53,6 +53,7 @@ type Actions = {
   addTeacher: (teacher: Omit<Teacher, "id">) => void;
   editTeacher: (id: string, teacher: Partial<Omit<Teacher, "id">>) => void;
   removeTeacher: (id: string) => void;
+  deleteAllTeachersForCourse: (courseId: string) => void;
 
   clearSelectedTeachers: () => void;
   clearAll: () => void;
@@ -140,6 +141,18 @@ export const useScheduleStore = create<State & Actions>()(
           return {
             teachers: state.teachers.filter((t) => t.id !== id),
             selectedTeachers: state.selectedTeachers.filter((t) => t.id !== id),
+          };
+        }),
+
+      deleteAllTeachersForCourse: (courseId) =>
+        set((state) => {
+          clearClashDetectionCaches();
+
+          return {
+            teachers: state.teachers.filter((t) => t.course !== courseId),
+            selectedTeachers: state.selectedTeachers.filter(
+              (t) => t.course !== courseId,
+            ),
           };
         }),
 

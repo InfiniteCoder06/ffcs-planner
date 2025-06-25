@@ -19,7 +19,8 @@ import {
 } from "@/components/ui/select";
 import { Course, useScheduleStore, type Teacher } from "@/lib/store";
 import { Search, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { DeleteDialog } from "../dialogs/delete-dialog";
 
 interface TeacherListProps {
   courseTeachers: Teacher[];
@@ -32,7 +33,7 @@ export default function TeacherList({
   editMode,
   course,
 }: TeacherListProps) {
-  const { teacherSlotClash } = useScheduleStore();
+  const { teacherSlotClash, deleteAllTeachersForCourse } = useScheduleStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [slotFilter, setSlotFilter] = useState<string>("");
 
@@ -71,18 +72,32 @@ export default function TeacherList({
       .sort((a, b) => a.clashes.length - b.clashes.length); // Non-clashing first
   }, [courseTeachers, teacherSlotClash, searchQuery, slotFilter]);
 
+  const handleDeleteAllTeachers = useCallback(() => {
+    deleteAllTeachersForCourse(course.id);
+  }, [course.id, deleteAllTeachersForCourse]);
+
   return (
     <div className="p-4 border-t">
       <div className="flex items-center justify-between mb-2">
         <p className="text-sm font-medium">
           Teachers ({courseTeachers.length})
         </p>
-        <AddTeacherDialog
-          teacherToEdit={null}
-          buttonVariant="ghost"
-          buttonSize="sm"
-          course={course.id}
-        />
+        <div className="flex items-center gap-2">
+          <AddTeacherDialog
+            teacherToEdit={null}
+            buttonVariant="ghost"
+            buttonSize="sm"
+            course={course.id}
+          />
+          {courseTeachers.length > 0 && (
+            <DeleteDialog
+              description={`Are you sure you want to remove ALL ${courseTeachers.length} teachers for ${course.code}? This action cannot be undone.`}
+              onConfirm={handleDeleteAllTeachers}
+              buttonText="Clear Teachers"
+              buttonDisabled={courseTeachers.length === 0}
+            />
+          )}
+        </div>
       </div>
 
       {courseTeachers.length > 0 && (
