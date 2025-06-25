@@ -1,5 +1,42 @@
 [
   {
+    "version": "1.1.0",
+    "entries": [
+      {
+        "type": "🔄 Updates",
+        "description": "Update Sort Order functionality improved for better user experience."
+      },
+      {
+        "type": "🎨 Enhancements",
+        "description": "Default add purple color option added to the interface."
+      },
+      {
+        "type": "🎨 Enhancements",
+        "description": "Toggle expandable on item click feature implemented for improved navigation."
+      },
+      {
+        "type": "🎨 Enhancements",
+        "description": "Color Filter functionality enhanced for better visual organization."
+      },
+      {
+        "type": "🗑️ Removals",
+        "description": "Remove V1, V2 Slots - legacy slot versions deprecated and removed."
+      },
+      {
+        "type": "♿ Accessibility",
+        "description": "Improve Accessibility: Enhanced color contrast and navigation support."
+      },
+      {
+        "type": "🎨 Enhancements",
+        "description": "Show Similar slots in yellow color for better visual identification."
+      },
+      {
+        "type": "🎨 Enhancements",
+        "description": "Selected faculty will appear first in the faculty list for easier access."
+      }
+    ]
+  },
+  {
     "version": "1.0.1",
     "entries": [
       {
