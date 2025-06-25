@@ -1,5 +1,18 @@
 [
   {
+    "version": "1.0.1",
+    "entries": [
+      {
+        "type": "🔧 Bug Fixes",
+        "description": "Responsive Design."
+      },
+      {
+        "type": "🎨 Enhancements",
+        "description": "Sort Slot filter list alphabetically."
+      }
+    ]
+  },
+  {
     "version": "1.0.0",
     "entries": [
       {
