@@ -50,7 +50,7 @@ export function ChangelogDialog({ currentAppVersion }: ChangelogDialogProps) {
             </DialogDescription>
           </DialogHeader>
 
-          <ScrollArea className="max-h-[80vh] py-4 pr-4 overflow-hidden overflow-y-auto">
+          <ScrollArea className="max-h-[60vh] py-4 pr-4 overflow-hidden overflow-y-auto">
             <div className="space-y-4">
               {changelogData.map((versionEntry) => (
                 <div key={versionEntry.version}>
