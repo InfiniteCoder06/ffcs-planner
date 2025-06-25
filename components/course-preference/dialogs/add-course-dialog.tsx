@@ -58,7 +58,7 @@ export function AddCourseDialog({
     const courseData = {
       code: code.trim(),
       name: name.trim(),
-      credits: parseInt(credits) || 0,
+      credits: parseFloat(credits) || 0,
     };
 
     if (courseToEdit) {
@@ -139,6 +139,7 @@ export function AddCourseDialog({
                 id="credits"
                 type="number"
                 min="1"
+                step={0.5}
                 value={credits}
                 onChange={(e) => setCredits(e.target.value)}
               />
