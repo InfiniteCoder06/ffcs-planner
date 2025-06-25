@@ -1,4 +1,5 @@
-import { Teacher, useScheduleStore } from "@/lib/store";
+import { useScheduleStore } from "@/lib/store";
+import { Teacher } from "@/types";
 
 interface CourseRowProps {
   teacher: Teacher;

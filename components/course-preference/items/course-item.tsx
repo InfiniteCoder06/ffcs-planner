@@ -1,6 +1,6 @@
 "use client";
 
-import { useScheduleStore, type Course, type Teacher } from "@/lib/store";
+import { useScheduleStore } from "@/lib/store";
 import { ChevronUpIcon } from "lucide-react";
 import React, { useCallback, useState } from "react";
 
@@ -14,6 +14,7 @@ import {
   MotionLi,
 } from "@/components/ui/motion";
 import { cn } from "@/lib/utils";
+import { Course, Teacher } from "@/types";
 
 interface CourseItemProps {
   index: number;

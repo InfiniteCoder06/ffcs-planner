@@ -17,8 +17,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MotionDiv } from "@/components/ui/motion";
-import { Course, useScheduleStore } from "@/lib/store";
-import { DialogButtonProps } from "@/types";
+import { useScheduleStore } from "@/lib/store";
+import { Course, DialogButtonProps } from "@/types";
 
 interface AddCourseDialogProps extends DialogButtonProps {
   courseToEdit?: Course | null;

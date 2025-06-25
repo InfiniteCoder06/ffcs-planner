@@ -17,11 +17,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { type Course, useScheduleStore, type Teacher } from "@/lib/store";
+import { useScheduleStore } from "@/lib/store";
 import { Search, X } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { DeleteDialog } from "../dialogs/delete-dialog";
 import { cn } from "@/lib/utils";
+import { Teacher, Course } from "@/types";
 
 interface TeacherListProps {
   courseTeachers: Teacher[];
