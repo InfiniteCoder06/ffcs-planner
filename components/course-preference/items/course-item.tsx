@@ -57,7 +57,10 @@ const CourseItem = React.memo(function CourseItem({
         transition: { duration: 0.2 },
       }}
     >
-      <div className="flex items-center justify-between p-3">
+      <div
+        className="flex items-center justify-between p-3 cursor-pointer"
+        onClick={toggleExpanded}
+      >
         <div>
           <p className="font-medium">{course.code}</p>
           <p className="text-sm text-muted-foreground">
