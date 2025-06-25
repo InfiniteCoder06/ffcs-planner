@@ -6,6 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { MotionDiv } from "@/components/ui/motion";
 import { ToastWrapper } from "./toast";
 import { Analytics } from "@vercel/analytics/next";
+import { ChangelogDialog } from "@/components/changelog-dialog";
+import getConfig from "next/config";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,6 +29,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { publicRuntimeConfig } = getConfig();
+  const version = publicRuntimeConfig.version;
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -42,6 +47,7 @@ export default function RootLayout({
             >
               {children}
               <ToastWrapper />
+              <ChangelogDialog currentAppVersion={version} />
             </MotionDiv>
           </TooltipProvider>
         </ThemeProvider>

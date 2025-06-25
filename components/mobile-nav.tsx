@@ -13,17 +13,10 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { HowToButton } from "./custom-ui/buttons/how-to";
+import { ChangelogDialog } from "./changelog-dialog";
 
 export function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
-
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-      setIsOpen(false);
-    }
-  };
 
   return (
     <div className="md:hidden fixed top-4 right-4 z-50 flex gap-2">
@@ -39,37 +32,10 @@ export function MobileNav() {
             <SheetTitle>Navigation</SheetTitle>
           </SheetHeader>
           <nav className="flex flex-col gap-4 mt-6 items-center">
+            <ChangelogDialog currentAppVersion={undefined} />
             <HowToButton />
             <IssueButton />
             <ModeToggle isMobile />
-            <Button
-              variant="ghost"
-              className="justify-start"
-              onClick={() => scrollToSection("course-management")}
-            >
-              Course Management
-            </Button>
-            <Button
-              variant="ghost"
-              className="justify-start"
-              onClick={() => scrollToSection("timetable")}
-            >
-              Timetable
-            </Button>
-            <Button
-              variant="ghost"
-              className="justify-start"
-              onClick={() => scrollToSection("selected-courses")}
-            >
-              Selected Courses
-            </Button>
-            <Button
-              variant="ghost"
-              className="justify-start"
-              onClick={() => scrollToSection("export-share")}
-            >
-              Export & Share
-            </Button>
           </nav>
         </SheetContent>
       </Sheet>

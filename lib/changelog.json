@@ -1,0 +1,47 @@
+[
+  {
+    "version": "1.0.0",
+    "entries": [
+      {
+        "type": "🎉 Initial Release",
+        "description": "Welcome to FFCS Planner - Your complete VIT timetable management solution!"
+      },
+      {
+        "type": "📅 Timetable Generation",
+        "description": "Interactive timetable grid with visual course placement and real-time updates. Support for all VIT time slots including theory and lab sessions."
+      },
+      {
+        "type": "📚 Course Management",
+        "description": "Add, edit, and organize courses with faculty preferences. Support for course codes, names, and multiple faculty options per course."
+      },
+      {
+        "type": "👨‍🏫 Faculty Management",
+        "description": "Comprehensive teacher management system with bulk import capabilities and automatic slot merging for ELA/ETH combinations."
+      },
+      {
+        "type": "⚠️ Clash Detection",
+        "description": "Smart clash detection system that identifies scheduling conflicts between courses and provides detailed clash visualization."
+      },
+      {
+        "type": "📤 Export Functionality",
+        "description": "Export your timetable as high-quality PDF or image files with customizable formatting and branding."
+      },
+      {
+        "type": "🎨 Modern UI/UX",
+        "description": "Beautiful, responsive interface with dark/light theme support, smooth animations, and mobile-friendly design."
+      },
+      {
+        "type": "📊 Credit Tracking",
+        "description": "Automatic credit calculation and tracking to help you meet academic requirements."
+      },
+      {
+        "type": "🔍 Search and Filter",
+        "description": "Powerful search and filter options to quickly find courses, faculty, and timetable slots."
+      },
+      {
+        "type": "💾 Data Persistence",
+        "description": "Local storage support to save your timetable data across browser sessions."
+      }
+    ]
+  }
+]
