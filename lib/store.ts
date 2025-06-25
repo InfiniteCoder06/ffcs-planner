@@ -2,10 +2,23 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { timetableData } from "./slots";
+import { timetableData, getManualClashingSlot } from "./slots";
 
-// Helper function to get all slots that occur at the same time
+// Optimized clash detection with caching
+const slotTimeCache = new Map<string, string[]>();
+const clashResultCache = new Map<string, boolean>();
+
+// Generate cache key for clash pair
+const getClashCacheKey = (slot1: string, slot2: string): string => {
+  return [slot1, slot2].sort().join("|");
+};
+
 const getSlotsAtSameTime = (targetSlot: string): string[] => {
+  // Check cache first
+  if (slotTimeCache.has(targetSlot)) {
+    return slotTimeCache.get(targetSlot)!;
+  }
+
   const slotsAtSameTime: string[] = [];
 
   // Check each day and time slot
@@ -18,16 +31,52 @@ const getSlotsAtSameTime = (targetSlot: string): string[] => {
     });
   });
 
-  return [...new Set(slotsAtSameTime)]; // Remove duplicates
+  const result = [...new Set(slotsAtSameTime)]; // Remove duplicates
+  slotTimeCache.set(targetSlot, result); // Cache the result
+  return result;
 };
 
-// Helper function to check if two slots clash (occur at same time)
-// const doSlotsClash = (slot1: string, slot2: string): boolean => {
-//   if (slot1 === slot2) return true;
+// Enhanced optimized clash detection with caching
+const doSlotsClash = (slot1: string, slot2: string): boolean => {
+  if (slot1 === slot2) return true;
 
-//   const slot1Times = getSlotsAtSameTime(slot1);
-//   return slot1Times.includes(slot2);
-// };
+  // Check cache first
+  const cacheKey = getClashCacheKey(slot1, slot2);
+  if (clashResultCache.has(cacheKey)) {
+    return clashResultCache.get(cacheKey)!;
+  }
+
+  let result = false;
+
+  // Check for manual clashes first (most efficient)
+  const manualClash = getManualClashingSlot(slot1);
+  if (manualClash === slot2) {
+    result = true;
+  } else {
+    // Check reverse manual clash
+    const reverseManualClash = getManualClashingSlot(slot2);
+    if (reverseManualClash === slot1) {
+      result = true;
+    } else {
+      // Check if both are lab slots - labs in same time slot don't clash with each other
+      const slot1IsLab = slot1.startsWith("L");
+      const slot2IsLab = slot2.startsWith("L");
+
+      if (slot1IsLab && slot2IsLab) {
+        // Lab slots don't clash with other lab slots in the same time period
+        result = false;
+      } else {
+        // Check for same time slot clashes (theory with theory, or theory with lab)
+        const slot1Times = getSlotsAtSameTime(slot1);
+        result = slot1Times.includes(slot2);
+      }
+    }
+  }
+
+  // Cache the result
+  clashResultCache.set(cacheKey, result);
+  return result;
+};
 
 export interface Course {
   id: string;
@@ -99,6 +148,8 @@ type Actions = {
     selectedTeachers: Teacher[];
     selectedSlots: string[];
   }) => void;
+
+  clearClashCaches: () => void; // Add clearClashCaches to Actions type
 };
 
 export const useScheduleStore = create<State & Actions>()(
@@ -206,44 +257,49 @@ export const useScheduleStore = create<State & Actions>()(
         const teacher = get().teachers.find((t) => t.id === teacherId);
         if (!teacher) return [];
 
-        const clashes: Record<string, Teacher> = {};
+        const clashes = new Map<string, Teacher>();
         const selected = get().selectedTeachers.filter(
           (t) => t.id !== teacherId,
         );
 
+        // Pre-compute clashing slots for the teacher
+        const teacherClashMap = new Map<string, string[]>();
         for (const slot of teacher.slots) {
-          const slotsAtSameTime = getSlotsAtSameTime(slot);
+          const clashingSlots: string[] = [];
           for (const t of selected) {
-            const hasClash = t.slots.some((tSlot) =>
-              slotsAtSameTime.includes(tSlot),
+            clashingSlots.push(
+              ...t.slots.filter((tSlot) => doSlotsClash(slot, tSlot)),
             );
-            if (hasClash) {
-              const clashingSlots = t.slots.filter((tSlot) =>
-                slotsAtSameTime.includes(tSlot),
-              );
-              if (!clashes[t.id]) {
-                clashes[t.id] = { ...t, slots: clashingSlots };
-              } else {
-                clashingSlots.forEach((clashSlot) => {
-                  if (!clashes[t.id].slots.includes(clashSlot)) {
-                    clashes[t.id].slots.push(clashSlot);
-                  }
-                });
-              }
-            }
+          }
+          if (clashingSlots.length > 0) {
+            teacherClashMap.set(slot, clashingSlots);
           }
         }
 
-        return Object.values(clashes);
+        // Build clash results
+        for (const t of selected) {
+          const allClashingSlots = new Set<string>();
+
+          for (const [, clashingSlots] of teacherClashMap) {
+            for (const clashSlot of clashingSlots) {
+              if (t.slots.includes(clashSlot)) {
+                allClashingSlots.add(clashSlot);
+              }
+            }
+          }
+
+          if (allClashingSlots.size > 0) {
+            clashes.set(t.id, { ...t, slots: Array.from(allClashingSlots) });
+          }
+        }
+
+        return Array.from(clashes.values());
       },
 
       getTeachersClash: (slots) => {
         return get().teachers.filter((teacher) =>
           teacher.slots.some((teacherSlot) => {
-            return slots.some((slot) => {
-              const slotsAtSameTime = getSlotsAtSameTime(slot);
-              return slotsAtSameTime.includes(teacherSlot);
-            });
+            return slots.some((slot) => doSlotsClash(slot, teacherSlot));
           }),
         );
       },
@@ -267,13 +323,12 @@ export const useScheduleStore = create<State & Actions>()(
       getSlotClashes: (slot) => {
         const { selectedTeachers } = get();
         const clashes: ClashInfo[] = [];
-        const slotsAtSameTime = getSlotsAtSameTime(slot);
 
-        // Find all teachers that have slots occurring at the same time as the target slot
+        // Find all teachers that have slots that clash with the target slot
         const teachersWithConflictingSlots = selectedTeachers.filter(
           (teacher) =>
             teacher.slots.some((teacherSlot) =>
-              slotsAtSameTime.includes(teacherSlot),
+              doSlotsClash(slot, teacherSlot),
             ),
         );
 
@@ -298,7 +353,7 @@ export const useScheduleStore = create<State & Actions>()(
       getAllClashes: () => {
         const { selectedTeachers } = get();
         const clashes: ClashInfo[] = [];
-        const processedSlotPairs = new Set<string>();
+        const processedClashes = new Set<string>();
 
         // Check each teacher's slots against every other teacher's slots
         for (let i = 0; i < selectedTeachers.length; i++) {
@@ -308,14 +363,14 @@ export const useScheduleStore = create<State & Actions>()(
 
             // Check each slot of teacher1 against each slot of teacher2
             for (const slot1 of teacher1.slots) {
-              const slotsAtSameTime = getSlotsAtSameTime(slot1);
-
               for (const slot2 of teacher2.slots) {
-                if (slotsAtSameTime.includes(slot2)) {
-                  // Create a unique identifier for this slot pair to avoid duplicates
-                  const pairId = [slot1, slot2].sort().join("-");
-                  if (!processedSlotPairs.has(pairId)) {
-                    processedSlotPairs.add(pairId);
+                if (doSlotsClash(slot1, slot2)) {
+                  // Create a unique identifier for this clash to avoid duplicates
+                  const clashId = [teacher1.id, teacher2.id, slot1, slot2]
+                    .sort()
+                    .join("-");
+                  if (!processedClashes.has(clashId)) {
+                    processedClashes.add(clashId);
                     clashes.push({
                       slot: slot1, // Use the first slot as reference
                       teacher1,
@@ -329,6 +384,12 @@ export const useScheduleStore = create<State & Actions>()(
         }
 
         return clashes;
+      },
+
+      // Cache management functions
+      clearClashCaches: () => {
+        slotTimeCache.clear();
+        clashResultCache.clear();
       },
     }),
     {
@@ -344,29 +405,29 @@ export const useScheduleStore = create<State & Actions>()(
 );
 
 export const manualSlotSelectionStore = create<{
-  selectedSlots: string[];
+  manualSelectedSlots: string[];
   clearSelectedSlots: () => void;
   selectSlot: (slot: string) => void;
   deselectSlot: (slot: string) => void;
   toggleSlot: (slot: string) => void;
 }>((set) => ({
-  selectedSlots: [],
-  clearSelectedSlots: () => set({ selectedSlots: [] }),
+  manualSelectedSlots: [],
+  clearSelectedSlots: () => set({ manualSelectedSlots: [] }),
   selectSlot: (slot) =>
     set((state) => ({
-      selectedSlots: [...state.selectedSlots, slot],
+      manualSelectedSlots: [...state.manualSelectedSlots, slot],
     })),
   deselectSlot: (slot) =>
     set((state) => ({
-      selectedSlots: state.selectedSlots.filter((s) => s !== slot),
+      manualSelectedSlots: state.manualSelectedSlots.filter((s) => s !== slot),
     })),
   toggleSlot: (slot) =>
     set((state) => {
-      const isSelected = state.selectedSlots.includes(slot);
+      const isSelected = state.manualSelectedSlots.includes(slot);
       return {
-        selectedSlots: isSelected
-          ? state.selectedSlots.filter((s) => s !== slot)
-          : [...state.selectedSlots, slot],
+        manualSelectedSlots: isSelected
+          ? state.manualSelectedSlots.filter((s) => s !== slot)
+          : [...state.manualSelectedSlots, slot],
       };
     }),
 }));

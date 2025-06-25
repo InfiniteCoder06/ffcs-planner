@@ -184,3 +184,23 @@ export const afternoonLabSlots = [
   ["L57", "L58"],
   ["L59", "L60"],
 ];
+
+export const clashMap: string[][] = [
+  ["TB1", "L5"],
+  ["TC1", "L11"],
+  ["TE1", "L23"],
+  ["TF1", "L29"],
+  ["TB2", "L35"],
+  ["TC2", "L41"],
+  ["TD2", "L47"],
+  ["TE2", "L53"],
+  ["TF2", "L59"],
+];
+
+export function getManualClashingSlot(slot: string): string | null {
+  for (const [a, b] of clashMap) {
+    if (a === slot) return b;
+    if (b === slot) return a;
+  }
+  return null; // If no clash found
+}
