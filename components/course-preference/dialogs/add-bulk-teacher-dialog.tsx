@@ -140,7 +140,7 @@ export function BulkAddTeachersDialog({
     }
 
     setOpen(false);
-  }, [rawInput, selectedCourse, colorIndex, addTeacher]);
+  }, [rawInput, selectedCourse, colorIndex, addTeacher, merge]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
