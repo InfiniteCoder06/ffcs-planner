@@ -22,7 +22,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useScheduleStore } from "@/lib/store";
-import { colors } from "@/lib/utils";
 import type { DialogButtonProps } from "@/types";
 import { toast } from "sonner";
 import { MotionDiv } from "@/components/ui/motion";
@@ -45,14 +44,12 @@ export function BulkAddTeachersDialog({
   const [rawInput, setRawInput] = useState("");
   const [merge, setMerge] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState("");
-  const [colorIndex, setColorIndex] = useState(0);
 
   // Reset form when dialog is opened
   useEffect(() => {
     if (!open) {
       setRawInput("");
       setSelectedCourse("");
-      setColorIndex(0);
     }
   }, [open]);
 
@@ -115,13 +112,12 @@ export function BulkAddTeachersDialog({
       if (faculty && slotArray.length > 0) {
         const teacherData = {
           name: faculty,
-          color: colors[colorIndex % colors.length].value, // Cycle through colors
+          color: "purple",
           slots: slotArray,
           venue: venue,
           course: selectedCourse,
         };
         addTeacher(teacherData);
-        setColorIndex((prev) => prev + 1); // Increment for next teacher
         addedCount++;
       } else {
         errorCount++;
@@ -140,7 +136,7 @@ export function BulkAddTeachersDialog({
     }
 
     setOpen(false);
-  }, [rawInput, selectedCourse, colorIndex, addTeacher, merge]);
+  }, [rawInput, selectedCourse, addTeacher, merge]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
