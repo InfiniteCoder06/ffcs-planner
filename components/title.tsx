@@ -16,7 +16,7 @@ export function Title() {
         <p className="text-lg font-normal text-gray-400">Version {version}</p>
       </h1>
       <MobileNav />
-      <div className="hidden md:flex fixed top-4 right-6 gap-2">
+      <div className="hidden xl:flex fixed top-4 right-6 gap-2">
         <ChangelogDialog currentAppVersion={undefined} />
         <HowToButton />
         <IssueButton />

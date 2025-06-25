@@ -19,7 +19,7 @@ export function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="md:hidden fixed top-4 right-4 z-50 flex gap-2">
+    <div className="xl:hidden fixed top-4 right-4 z-50 flex gap-2">
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon">
