@@ -1,4 +1,4 @@
-import { TimeRange } from "../types";
+import type { TimeRange } from "../types";
 
 export const days = ["MON", "TUE", "WED", "THU", "FRI"];
 
@@ -32,7 +32,7 @@ export const LAB_HOURS: TimeRange[] = [
   { start: "5:40 PM", end: "7:20 PM" },
 ];
 
-export const timetableData = <TimetableData>{
+export const timetableData: TimetableData = {
   MON: [
     ["A1", "L1"],
     ["F1", "L2"],
@@ -185,6 +185,7 @@ export const afternoonLabSlots = [
   ["L59", "L60"],
 ];
 
+// Manual clashes that apply if slots occur on the same day
 export const clashMap: string[][] = [
   ["TB1", "L5"],
   ["TC1", "L11"],
@@ -196,11 +197,3 @@ export const clashMap: string[][] = [
   ["TE2", "L53"],
   ["TF2", "L59"],
 ];
-
-export function getManualClashingSlot(slot: string): string | null {
-  for (const [a, b] of clashMap) {
-    if (a === slot) return b;
-    if (b === slot) return a;
-  }
-  return null; // If no clash found
-}

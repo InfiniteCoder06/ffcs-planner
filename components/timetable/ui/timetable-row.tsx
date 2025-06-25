@@ -1,26 +1,34 @@
 import { memo } from "react";
 import { timetableData } from "@/lib/slots";
 import { TimetableCell } from "@/components/timetable/ui/timetable-cell";
-import { useTimetableCache } from "@/hooks/useTimetableCache";
+import type { TimetableRenderData } from "@/types";
+import { manualSlotSelectionStore } from "@/lib/store";
 
 interface TimetableRowProps {
   day: string;
   dayIndex: number;
+  cellsDataForDay: TimetableRenderData["cellsData"][string];
 }
 
 export const TimetableRow = memo(function TimetableRow({
   day,
   dayIndex,
+  cellsDataForDay,
 }: TimetableRowProps) {
-  const cache = useTimetableCache();
+  const { toggleSlot } = manualSlotSelectionStore(); // Keep toggleSlot here
+
   return (
     <tr>
       <td className="p-2 text-center font-bold border bg-gray-100 dark:bg-gray-900 dark:border-gray-700">
         {day}
       </td>
-      {timetableData[day].map((slot, slotIndex) => {
+      {timetableData[day].map((slotNamesInCell, slotIndex) => {
+        // Key for this specific cell (e.g., "A1/L1")
+        const cellKey = slotNamesInCell.join("/");
+        const cellData = cellsDataForDay[cellKey];
+
         // Handle lunch break
-        if (slotIndex === 6) {
+        if (cellKey === "" && slotIndex === 6) {
           return dayIndex === 0 ? (
             <td
               key={slotIndex}
@@ -34,11 +42,12 @@ export const TimetableRow = memo(function TimetableRow({
 
         return (
           <TimetableCell
-            key={slotIndex}
-            slot={slot}
+            key={cellKey}
+            slotNamesInCell={slotNamesInCell}
             slotIndex={slotIndex}
             dayIndex={dayIndex}
-            cache={cache}
+            cellData={cellData}
+            toggleSlot={toggleSlot}
           />
         );
       })}

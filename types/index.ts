@@ -65,3 +65,20 @@ export interface CellData {
   teacherCache: Record<string, string>;
   venueCache: Record<string, string>;
 }
+
+export interface CellRenderData {
+  color: string;
+  teacherName: string;
+  courseCode: string;
+  venue: string;
+  isClash: boolean;
+  clashDetails: { courses: string[] } | null;
+  isSelectedManual: boolean;
+}
+
+export interface TimetableRenderData {
+  cellsData: Record<string, Record<string, CellRenderData>>; // Day -> SlotKey -> CellRenderData
+  totalCredits: number;
+  allClashesCount: number;
+  manualSelectedSlots: string[];
+}

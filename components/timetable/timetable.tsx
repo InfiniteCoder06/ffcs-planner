@@ -7,7 +7,11 @@ import { SlotSelector } from "./slot-selection";
 import { TimetableHeader } from "./ui/timetable-header";
 import { TimetableBody } from "./ui/timetable-body";
 
+import { useTimetableRenderData } from "@/hooks/useTimetableRenderData";
+
 export const Timetable = memo(function Timetable() {
+  const { cellsData } = useTimetableRenderData();
+
   return (
     <TooltipProvider>
       <SlotSelector />
@@ -15,7 +19,7 @@ export const Timetable = memo(function Timetable() {
         <div className="overflow-x-auto select-none">
           <table className="w-full border-collapse rounded-lg shadow-sm border divide-gray-200 dark:divide-gray-700 overflow-hidden">
             <TimetableHeader />
-            <TimetableBody />
+            <TimetableBody cellsData={cellsData} />
           </table>
         </div>
       </ScrollAnimation>
