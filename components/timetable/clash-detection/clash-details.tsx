@@ -3,8 +3,9 @@
 import { Badge } from "@/components/ui/badge";
 import { MotionDiv, MotionLi } from "@/components/ui/motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useScheduleStore, type ClashInfo } from "@/lib/store";
+import { useScheduleStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { ClashInfo } from "@/types";
 import { AlertCircle, Clock } from "lucide-react";
 import { useMemo } from "react";
 

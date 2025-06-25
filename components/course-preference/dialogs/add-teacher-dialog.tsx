@@ -24,9 +24,9 @@ import {
 import { PencilIcon, PlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { Teacher, useScheduleStore } from "@/lib/store";
+import { useScheduleStore } from "@/lib/store";
 import { cn, colors } from "@/lib/utils";
-import { DialogButtonProps } from "@/types";
+import { DialogButtonProps, Teacher } from "@/types";
 
 interface AddTeacherDialogProps extends DialogButtonProps {
   teacherToEdit: Teacher | null;

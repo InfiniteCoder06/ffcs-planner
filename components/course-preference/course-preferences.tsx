@@ -12,11 +12,12 @@ import {
   ScrollAnimation,
 } from "@/components/ui/motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Course, Teacher, useScheduleStore } from "@/lib/store";
+import { useScheduleStore } from "@/lib/store";
 import { UploadIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { BulkAddTeachersDialog } from "./dialogs/add-bulk-teacher-dialog";
+import { Course, Teacher } from "@/types";
 
 export function CoursePreferences() {
   const [editMode, setEditMode] = useState(false);

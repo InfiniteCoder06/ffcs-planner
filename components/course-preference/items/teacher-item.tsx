@@ -11,8 +11,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useScheduleStore, type Teacher } from "@/lib/store";
+import { useScheduleStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { Teacher } from "@/types";
 import { AlertCircle, Check, Plus } from "lucide-react";
 import { useCallback } from "react";
 
