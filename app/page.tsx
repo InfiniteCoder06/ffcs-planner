@@ -3,6 +3,7 @@ import { ClashVisualization } from "@/components/timetable/clash-detection/clash
 import { CoursePreferences } from "@/components/course-preference/course-preferences";
 import { SelectedCoursesTable } from "@/components/selected-courses-table";
 import { TimetableManagement } from "@/components/timetable/timetable-management";
+import { MigrationHelper } from "@/components/migration-helper";
 import {
   MotionDiv,
   ScrollAnimation,
@@ -29,6 +30,8 @@ export default function Home() {
           <Title />
         </MotionDiv>
       </Parallax>
+
+      <MigrationHelper />
 
       <Stagger staggerDelay={0.15} animation="slideUp">
         <ScrollAnimation

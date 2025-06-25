@@ -14,6 +14,7 @@ type State = {
   teachers: Teacher[];
   timetables: Timetable[];
   activeTimetableId: string | null;
+  version?: number;
 };
 
 type Actions = {
@@ -40,6 +41,8 @@ type Actions = {
   getActiveTimetable: () => Timetable | null;
   getSelectedTeachers: () => Teacher[];
   getSelectedSlots: () => string[];
+  getTimetables: () => Timetable[];
+  getVersion: () => number;
   toggleTeacherInTimetable: (teacherId: string) => void;
   isTeacherSelected: (teacherId: string) => boolean;
   clearSelectedTeachers: () => void;
@@ -71,6 +74,9 @@ type Actions = {
   // Utility
   clearAll: () => void;
   clearClashCaches: () => void;
+
+  // Migration
+  migrateFromLegacyData: () => void;
 };
 
 export const useScheduleStore = create<State & Actions>()(
@@ -78,8 +84,11 @@ export const useScheduleStore = create<State & Actions>()(
     (set, get) => ({
       courses: [],
       teachers: [],
+      selectedTeachers: [],
+      selectedSlots: [],
       timetables: [],
       activeTimetableId: null,
+      version: 2,
 
       // Course actions
       getCourse: (id) => get().courses.find((c) => c.id === id),
@@ -283,6 +292,14 @@ export const useScheduleStore = create<State & Actions>()(
       getSelectedSlots: () => {
         const activeTimetable = get().getActiveTimetable();
         return activeTimetable?.selectedSlots || [];
+      },
+
+      getTimetables: () => {
+        return get().timetables;
+      },
+
+      getVersion: () => {
+        return get().version || 1;
       },
 
       clearSelectedTeachers: () => {
@@ -600,14 +617,93 @@ export const useScheduleStore = create<State & Actions>()(
       clearClashCaches: () => {
         clearClashDetectionCaches();
       },
+
+      // Migration function to convert old data format to new timetable system
+      migrateFromLegacyData: () => {
+        const state = get();
+
+        // Check if migration is needed (version < 2 or no version)
+        if (state.version && state.version >= 2) {
+          return; // Already migrated
+        }
+
+        // Check if this is legacy data (has selectedTeachers/selectedSlots at root level)
+        const legacyState = state as State & {
+          selectedTeachers?: Teacher[];
+          selectedSlots?: string[];
+        };
+        const hasLegacyData =
+          legacyState.selectedTeachers || legacyState.selectedSlots;
+
+        if (hasLegacyData) {
+          const legacySelectedTeachers = legacyState.selectedTeachers || [];
+          const legacySelectedSlots = legacyState.selectedSlots || [];
+
+          // Create a default timetable with the legacy data
+          const defaultTimetableId = crypto.randomUUID();
+          const currentTime = new Date();
+
+          const defaultTimetable: Timetable = {
+            id: defaultTimetableId,
+            name: "My Timetable",
+            selectedTeachers: legacySelectedTeachers,
+            selectedSlots: legacySelectedSlots,
+            createdAt: currentTime,
+            updatedAt: currentTime,
+          };
+
+          set({
+            courses: state.courses,
+            teachers: state.teachers,
+            timetables: [defaultTimetable],
+            activeTimetableId: defaultTimetableId,
+            version: 2,
+          });
+
+          console.log("Migrated legacy data to new timetable system");
+        } else if (
+          state.timetables.length === 0 &&
+          (state.courses.length > 0 || state.teachers.length > 0)
+        ) {
+          // Edge case: has courses/teachers but no timetables - create empty default timetable
+          const defaultTimetableId = crypto.randomUUID();
+          const currentTime = new Date();
+
+          const defaultTimetable: Timetable = {
+            id: defaultTimetableId,
+            name: "My Timetable",
+            selectedTeachers: [],
+            selectedSlots: [],
+            createdAt: currentTime,
+            updatedAt: currentTime,
+          };
+
+          set({
+            ...state,
+            timetables: [defaultTimetable],
+            activeTimetableId: defaultTimetableId,
+            version: 2,
+          });
+
+          console.log("Created default timetable for existing data");
+        } else {
+          // No migration needed, just set version
+          set({
+            ...state,
+            version: 2,
+          });
+        }
+      },
     }),
     {
       name: "schedule-store",
+      version: 2,
       partialize: (state) => ({
         courses: state.courses,
         teachers: state.teachers,
         timetables: state.timetables,
         activeTimetableId: state.activeTimetableId,
+        version: state.version,
       }),
     },
   ),
