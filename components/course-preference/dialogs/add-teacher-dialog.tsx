@@ -186,7 +186,7 @@ export function AddTeacherDialog({
                         value={color.value}
                         className={cn(
                           "my-2",
-                          `bg-${color.value}-solid text-white`,
+                          `bg-${color.value}-ui text-${color.value}-normal`,
                         )}
                       >
                         {color.name}
