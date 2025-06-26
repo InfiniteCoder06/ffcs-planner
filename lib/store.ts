@@ -54,8 +54,6 @@ type Actions = {
   getExportData: () => {
     courses: Course[];
     teachers: Teacher[];
-    selectedTeachers: Teacher[];
-    selectedSlots: string[];
     timetables: Timetable[];
     activeTimetableId: string | null;
   };
@@ -540,15 +538,10 @@ export const useScheduleStore = create<State & Actions>()(
       // Import/Export
       getExportData: () => {
         const { courses, teachers, timetables, activeTimetableId } = get();
-        const activeTimetable = get().getActiveTimetable();
-        const selectedTeachers = activeTimetable?.selectedTeachers || [];
-        const selectedSlots = activeTimetable?.selectedSlots || [];
 
         return {
           courses,
           teachers,
-          selectedTeachers,
-          selectedSlots,
           timetables,
           activeTimetableId,
         };
