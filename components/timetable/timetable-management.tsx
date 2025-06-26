@@ -94,10 +94,10 @@ export function TimetableManagement() {
 
   return (
     <div className="mb-4">
-      <div className="flex items-center justify-between p-4 border rounded-lg bg-card">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col items-start justify-between p-4 border rounded-lg md:flex-row md:items-center">
+        <div className="flex flex-col items-start gap-4 md:flex-row md:items-center">
           <div className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-muted-foreground" />
+            <Calendar className="w-5 h-5 text-muted-foreground" />
             <span className="font-medium">Active Timetable:</span>
           </div>
 
@@ -114,7 +114,7 @@ export function TimetableManagement() {
                 <Badge variant="secondary" className="ml-2">
                   {activeTimetable?.selectedTeachers.length || 0} courses
                 </Badge>
-                <ChevronDown className="h-4 w-4" />
+                <ChevronDown className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-80">
@@ -136,9 +136,9 @@ export function TimetableManagement() {
                         </Badge>
                       )}
                     </div>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
+                    <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
-                        <Users className="h-3 w-3" />
+                        <Users className="w-3 h-3" />
                         {timetable.selectedTeachers.length} courses
                       </span>
                       <span>
@@ -156,7 +156,7 @@ export function TimetableManagement() {
                         openRenameDialog(timetable.id, timetable.name);
                       }}
                     >
-                      <Edit className="h-3 w-3" />
+                      <Edit className="w-3 h-3" />
                     </Button>
                     <Button
                       variant="ghost"
@@ -166,7 +166,7 @@ export function TimetableManagement() {
                         handleDuplicate(timetable.id, timetable.name);
                       }}
                     >
-                      <Copy className="h-3 w-3" />
+                      <Copy className="w-3 h-3" />
                     </Button>
                     {timetables.length > 1 && (
                       <Button
@@ -177,7 +177,7 @@ export function TimetableManagement() {
                           handleDelete(timetable.id);
                         }}
                       >
-                        <Trash2 className="h-3 w-3 text-red-500" />
+                        <Trash2 className="w-3 h-3 text-red-500" />
                       </Button>
                     )}
                   </div>
@@ -189,8 +189,8 @@ export function TimetableManagement() {
 
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
+            <Button className="flex items-center gap-2 mt-4 md:mt-0">
+              <Plus className="w-4 h-4" />
               New Timetable
             </Button>
           </DialogTrigger>
