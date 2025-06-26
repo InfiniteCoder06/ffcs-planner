@@ -36,9 +36,9 @@ export function CoursePreferences() {
   const validateData = (data: any) => {
     if (
       !Array.isArray(data.courses) ||
-      !Array.isArray(data.teachers) ||
-      !Array.isArray(data.selectedTeachers) ||
-      !Array.isArray(data.selectedSlots)
+      !Array.isArray(data.teachers)
+      // !Array.isArray(data.timetables) ||
+      // !data.activeTimetableId
     ) {
       throw new Error("Invalid data format");
     }
@@ -55,17 +55,27 @@ export function CoursePreferences() {
       }
     });
 
-    data.selectedTeachers.forEach((teacher: Teacher) => {
-      if (!teacher.id || !teacher.name || !teacher.course) {
-        throw new Error("Invalid selected teacher data");
-      }
-    });
+    // data.timetables.forEach((timetable: Timetable) => {
+    //   if (
+    //     !timetable.id ||
+    //     !timetable.name ||
+    //     !Array.isArray(timetable.selectedTeachers)
+    //   ) {
+    //     throw new Error("Invalid timetable data");
+    //   }
 
-    data.selectedSlots.forEach((slot: string) => {
-      if (!slot) {
-        throw new Error("Invalid selected slot data");
-      }
-    });
+    //   timetable.selectedTeachers.forEach((teacher: Teacher) => {
+    //     if (!teacher.id || !teacher.name || !teacher.course) {
+    //       throw new Error("Invalid selected teacher data");
+    //     }
+    //   });
+
+    //   timetable.selectedSlots.forEach((slot: string) => {
+    //     if (!slot) {
+    //       throw new Error("Invalid selected slot data");
+    //     }
+    //   });
+    // });
   };
 
   const handleUploadTimetable = useCallback(() => {
