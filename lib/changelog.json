@@ -1,5 +1,14 @@
 [
   {
+    "version": "2.0.1",
+    "entries": [
+      {
+        "type": "🔧 Bug Fixes",
+        "description": "Fix Timetable import"
+      }
+    ]
+  },
+  {
     "version": "2.0.0",
     "entries": [
       {
