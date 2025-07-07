@@ -1,7 +1,7 @@
 "use client";
 
+import { AnimatePresence, motion, Transition } from "motion/react";
 import * as React from "react";
-import { AnimatePresence, Transition, motion } from "motion/react";
 
 import { cn } from "@/lib/utils";
 
@@ -586,7 +586,7 @@ function MotionHighlightItem({
 export {
   MotionHighlight,
   MotionHighlightItem,
-  useMotionHighlight,
-  type MotionHighlightProps,
   type MotionHighlightItemProps,
+  type MotionHighlightProps,
+  useMotionHighlight,
 };

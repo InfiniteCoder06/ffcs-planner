@@ -3,8 +3,6 @@
 import { Menu } from "lucide-react";
 import { useState } from "react";
 
-import { IssueButton } from "@/components/nav-bar/buttons/issues";
-import { ModeToggle } from "@/components/nav-bar/buttons/mode-toggle";
 import { AnimatedButton } from "@/components/ui/button";
 import {
   Sheet,
@@ -16,6 +14,8 @@ import {
 
 import { ChangelogDialog } from "../changelog-dialog";
 import { HowToButton } from "./buttons/how-to";
+import { IssueButton } from "./buttons/issues";
+import { ModeToggle } from "./buttons/mode-toggle";
 
 export function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);

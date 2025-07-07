@@ -1,5 +1,6 @@
-import { timetableData, clashMap, days } from "./slots";
 import type { TimeRange } from "@/types";
+
+import { clashMap, days, timetableData } from "./slots";
 
 // Internal caches for performance
 const concurrentSlotsCache = new Map<string, string[]>(); // Key: `${day}-${slot}` -> concurrent slots
@@ -113,4 +114,4 @@ export const clearClashDetectionCaches = () => {
   concurrentSlotsCache.clear();
   slotDayMapCache.clear();
 };
-export { timetableData, days };
+export { days, timetableData };

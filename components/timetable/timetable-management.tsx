@@ -1,6 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  Calendar,
+  ChevronDown,
+  Copy,
+  Edit,
+  Plus,
+  Trash2,
+  Users,
+} from "lucide-react";
+import { useState } from "react";
+
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,18 +30,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { MotionDiv } from "@/components/ui/motion";
 import { useScheduleStore } from "@/lib/store";
-import {
-  Plus,
-  ChevronDown,
-  Edit,
-  Copy,
-  Trash2,
-  Calendar,
-  Users,
-} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function TimetableManagement() {
@@ -86,12 +87,6 @@ export function TimetableManagement() {
     }
   };
 
-  useEffect(() => {
-    if (timetables.length == 0) {
-      createTimetable(`Timetable ${timetables.length + 1}`);
-    }
-  }, [timetables, activeTimetableId]);
-
   return (
     <div className="mb-4">
       <div className="flex flex-col items-start justify-between p-4 border rounded-lg md:flex-row md:items-center">
@@ -143,7 +138,9 @@ export function TimetableManagement() {
                       </span>
                       <span>
                         Updated:{" "}
-                        {new Date(timetable.updatedAt).toLocaleDateString()}
+                        {timetable.updatedAt
+                          ? new Date(timetable.updatedAt).toLocaleDateString()
+                          : "N/A"}
                       </span>
                     </div>
                   </div>
