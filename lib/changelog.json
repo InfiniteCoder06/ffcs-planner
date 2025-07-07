@@ -1,5 +1,14 @@
 [
   {
+    "version": "2.5.0",
+    "entries": [
+      {
+        "type": "🔧 Clash Detection",
+        "description": "Improved clash detection algorithm for better accuracy in identifying scheduling conflicts."
+      }
+    ]
+  },
+  {
     "version": "2.0.1",
     "entries": [
       {

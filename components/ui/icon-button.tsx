@@ -1,20 +1,19 @@
-import { Button, SimpleButton } from "./button";
+import { VariantProps } from "class-variance-authority";
 import {
-  PlusIcon,
-  PencilIcon,
-  TrashIcon,
   CheckIcon,
-  XIcon,
   Download,
+  PencilIcon,
+  PlusIcon,
+  TrashIcon,
+  XIcon,
 } from "lucide-react";
-import { ButtonSize, ButtonVariant } from "@/types";
+
+import { AnimatedButton, Button, buttonVariants } from "./button";
 
 type IconType = "add" | "edit" | "delete" | "check" | "close" | "download";
 
 interface IconButtonProps {
   icon: IconType;
-  variant?: ButtonVariant;
-  size?: ButtonSize;
   onClick?: () => void;
   disabled?: boolean;
   className?: string;
@@ -31,7 +30,7 @@ export function IconButton({
   className,
   label,
   useAnimation = true,
-}: IconButtonProps) {
+}: IconButtonProps & VariantProps<typeof buttonVariants>) {
   const getIcon = () => {
     switch (icon) {
       case "add":
@@ -50,6 +49,17 @@ export function IconButton({
   };
 
   return useAnimation ? (
+    <AnimatedButton
+      variant={variant}
+      size={size}
+      onClick={onClick}
+      disabled={disabled}
+      className={className}
+    >
+      {getIcon()}
+      {label && label}
+    </AnimatedButton>
+  ) : (
     <Button
       variant={variant}
       size={size}
@@ -60,16 +70,5 @@ export function IconButton({
       {getIcon()}
       {label && label}
     </Button>
-  ) : (
-    <SimpleButton
-      variant={variant}
-      size={size}
-      onClick={onClick}
-      disabled={disabled}
-      className={className}
-    >
-      {getIcon()}
-      {label && label}
-    </SimpleButton>
   );
 }

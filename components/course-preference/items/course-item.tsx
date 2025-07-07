@@ -1,44 +1,38 @@
 "use client";
 
-import { useScheduleStore } from "@/lib/store";
 import { ChevronUpIcon } from "lucide-react";
-import React, { useCallback, useState } from "react";
+import React, { memo, useCallback, useState } from "react";
 
-import { AddCourseDialog } from "@/components/course-preference/dialogs/add-course-dialog";
+import { CourseDialog } from "@/components/course-preference/dialogs/course-dialog";
 import { DeleteDialog } from "@/components/course-preference/dialogs/delete-dialog";
 import TeacherList from "@/components/course-preference/list/teacher-list";
-import { Button } from "@/components/ui/button";
+import { AnimatedButton } from "@/components/ui/button";
 import {
   AnimatePresenceWrapper,
   MotionDiv,
   MotionLi,
 } from "@/components/ui/motion";
+import { useScheduleStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { useEditProvider } from "@/src/hooks/useEditProvider";
 import { Course, Teacher } from "@/types";
 
 interface CourseItemProps {
   index: number;
   course: Course;
   courseTeachers: Teacher[];
-  editMode: boolean;
 }
 
 const CourseItem = React.memo(function CourseItem({
   index,
   course,
   courseTeachers,
-  editMode,
 }: CourseItemProps) {
-  const { removeCourse } = useScheduleStore();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const toggleExpanded = useCallback(() => {
     setIsExpanded((prev) => !prev);
   }, []);
-
-  const handleRemove = useCallback(() => {
-    removeCourse(course.id);
-  }, [course.id, removeCourse]);
 
   return (
     <MotionLi
@@ -69,33 +63,7 @@ const CourseItem = React.memo(function CourseItem({
           </p>
         </div>
         <div className="flex gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label={isExpanded ? "Collapse teachers" : "Expand teachers"}
-            className="transition-transform duration-200"
-          >
-            <ChevronUpIcon
-              className={cn("w-4 h-4 transition-transform", {
-                "rotate-180": !isExpanded,
-              })}
-            />
-          </Button>
-          {editMode && (
-            <>
-              <AddCourseDialog
-                courseToEdit={course}
-                buttonVariant="warning"
-                buttonSize="sm"
-                buttonIcon="edit"
-                buttonText=""
-              />
-              <DeleteDialog
-                description="Are you sure you want to remove this course?"
-                onConfirm={handleRemove}
-              />
-            </>
-          )}
+          <CourseItemActions course={course} isExpanded={isExpanded} />
         </div>
       </div>
       <AnimatePresenceWrapper>
@@ -110,11 +78,7 @@ const CourseItem = React.memo(function CourseItem({
               damping: 30,
             }}
           >
-            <TeacherList
-              courseTeachers={courseTeachers}
-              editMode={editMode}
-              course={course}
-            />
+            <TeacherList courseTeachers={courseTeachers} course={course} />
           </MotionDiv>
         )}
       </AnimatePresenceWrapper>
@@ -122,4 +86,47 @@ const CourseItem = React.memo(function CourseItem({
   );
 });
 
+const CourseItemActions = memo(
+  ({ course, isExpanded }: { course: Course; isExpanded: boolean }) => {
+    const { removeCourse } = useScheduleStore();
+    const { editMode } = useEditProvider();
+
+    const handleRemove = useCallback(() => {
+      removeCourse(course.id);
+    }, [course.id, removeCourse]);
+
+    return (
+      <>
+        {editMode && (
+          <>
+            <CourseDialog
+              courseToEdit={course}
+              variant="secondary"
+              size="icon"
+              buttonIcon="edit"
+            />
+            <DeleteDialog
+              description="Are you sure you want to remove this course?"
+              onConfirm={handleRemove}
+              size={"icon"}
+            />
+          </>
+        )}
+        <AnimatedButton
+          variant="ghost"
+          size="icon"
+          aria-label={isExpanded ? "Collapse teachers" : "Expand teachers"}
+          className="transition-transform duration-200"
+        >
+          <ChevronUpIcon
+            className={cn("w-4 h-4 transition-transform", {
+              "rotate-180": !isExpanded,
+            })}
+          />
+        </AnimatedButton>
+      </>
+    );
+  },
+);
+CourseItemActions.displayName = "CourseItemActions";
 export default CourseItem;

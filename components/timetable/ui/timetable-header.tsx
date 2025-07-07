@@ -1,5 +1,7 @@
 import { memo } from "react";
-import { THEORY_HOURS, LAB_HOURS } from "@/lib/slots";
+
+import { LAB_HOURS, THEORY_HOURS } from "@/src/constants/timetable";
+
 import { TimeRangeHeader } from "./timeslot-header";
 
 interface TimetableHeaderProps {

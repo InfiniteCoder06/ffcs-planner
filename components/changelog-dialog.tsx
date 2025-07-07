@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+
+import { AnimatedButton } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,10 +11,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MotionDiv } from "./ui/motion";
 import changelogData from "@/lib/changelog.json";
+
+import { MotionDiv } from "./ui/motion";
 
 interface ChangelogDialogProps {
   currentAppVersion: string | undefined;
@@ -30,12 +32,19 @@ export function ChangelogDialog({ currentAppVersion }: ChangelogDialogProps) {
     }
   }, [currentAppVersion]);
 
+  const handleDialogClose = useCallback(() => {
+    setIsOpen(false);
+  }, []);
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger className="" asChild>
-        <Button className={currentAppVersion == undefined ? "" : "hidden"}>
+        <AnimatedButton
+          variant="primary"
+          className={currentAppVersion == undefined ? "" : "hidden"}
+        >
           View Changelog
-        </Button>
+        </AnimatedButton>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] max-h-[90vh]">
         <MotionDiv
@@ -70,7 +79,9 @@ export function ChangelogDialog({ currentAppVersion }: ChangelogDialogProps) {
           </ScrollArea>
 
           <div className="flex justify-end pt-4">
-            <Button onClick={() => setIsOpen(false)}>Got It!</Button>
+            <AnimatedButton onClick={handleDialogClose} variant="primary">
+              Got It!
+            </AnimatedButton>
           </div>
         </MotionDiv>
       </DialogContent>

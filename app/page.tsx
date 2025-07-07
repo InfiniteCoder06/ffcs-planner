@@ -1,17 +1,18 @@
-import { Timetable } from "@/components/timetable/timetable";
-import { ClashVisualization } from "@/components/timetable/clash-detection/clash-visualization";
-import { CoursePreferences } from "@/components/course-preference/course-preferences";
+import { CoursePreference } from "@/components/course-preference/course-preferences";
+import { Footer } from "@/components/footer";
 import { SelectedCoursesTable } from "@/components/selected-courses-table";
-import { TimetableManagement } from "@/components/timetable/timetable-management";
+import { ClashVisualization } from "@/components/timetable/clash-detection/clash-visualization";
+import { ExportSection } from "@/components/timetable/export/export-section";
+import { TimetableManagement } from "@/components/timetable/management/timetable-management";
+import { Timetable } from "@/components/timetable/timetable";
+import { Title } from "@/components/title";
 import {
   MotionDiv,
-  ScrollAnimation,
   Parallax,
+  ScrollAnimation,
   Stagger,
 } from "@/components/ui/motion";
-import { ExportSection } from "@/components/timetable/export/export-section";
-import { Title } from "@/components/title";
-import { Footer } from "@/components/footer";
+import { EditProvider } from "@/src/providers/edit-provider";
 
 export default function Home() {
   return (
@@ -37,20 +38,9 @@ export default function Home() {
           className="mb-8"
           delay={0.3}
         >
-          <MotionDiv
-            id="course-management"
-            className="rounded-lg border bg-card p-6 shadow-sm"
-            whileHover={{
-              scale: 1.01,
-              boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
-            }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          >
-            <h2 className="mb-4 text-2xl font-semibold text-primary">
-              Course Management
-            </h2>
-            <CoursePreferences />
-          </MotionDiv>
+          <EditProvider>
+            <CoursePreference />
+          </EditProvider>
         </ScrollAnimation>
 
         <ScrollAnimation

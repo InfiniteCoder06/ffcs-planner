@@ -1,213 +1,52 @@
 "use client";
 
 import { useMemo } from "react";
-import { useScheduleStore, manualSlotSelectionStore } from "@/lib/store";
-import {
-  timetableData,
-  days,
-  getDaysForSlot,
-  doSlotsClash,
-} from "@/lib/clash-detection"; // Import doSlotsClash and getDaysForSlot from clash-detection
-import type { TimetableRenderData, CellRenderData } from "@/types";
-import { useTotalCredits } from "./useTotalCredits";
-import type { Teacher } from "@/types";
 
-/**
- * Custom hook to prepare all data required for rendering the timetable,
- * including teacher info, course info, venue, colors, and pre-computed clash states.
- */
+import { manualSlotSelectionStore, useScheduleStore } from "@/lib/store";
+import { days, timetableData } from "@/src/constants/timetable";
+import { getDaysForSlot, hasClashUsingMap } from "@/src/utils/clash-detection";
+import { getAllSlots, getVenueForSlot } from "@/src/utils/timetable";
+import type { CellRenderData, Teacher, TimetableRenderData } from "@/types";
+
+import { useTotalCredits } from "./useTotalCredits";
+
 export function useTimetableRenderData(): TimetableRenderData {
-  const { getSelectedTeachers, courses, getAllClashes } = useScheduleStore();
+  const { getSelectedTeachers, courses, getAllClashesEnhanced } =
+    useScheduleStore();
   const { manualSelectedSlots } = manualSlotSelectionStore();
   const totalCredits = useTotalCredits();
-
   const selectedTeachers = getSelectedTeachers();
 
   // Memoize all clashes
-  const allClashes = useMemo(() => getAllClashes(), [getAllClashes]);
+  const allClashes = useMemo(
+    () => getAllClashesEnhanced(selectedTeachers),
+    [getAllClashesEnhanced, selectedTeachers],
+  );
   const allClashesCount = allClashes.length;
 
   const cellsData = useMemo(() => {
-    const cells: Record<string, Record<string, CellRenderData>> = {};
-
-    // Create maps for quick lookups
+    // Create a map for quick course code lookups
     const courseCodeMap = new Map(courses.map((c) => [c.id, c.code]));
-    // const selectedTeacherMap = new Map(selectedTeachers.map((t) => [t.id, t]));
-    const teacherToSlotsMap = new Map<string, string[]>(); // teacherId -> [slot1, slot2, ...]
 
-    selectedTeachers.forEach((teacher) => {
-      teacherToSlotsMap.set(teacher.id, teacher.slots);
-    });
+    // Build a map of slot -> teachers occupying it for each day
+    const slotOccupancyMap = buildSlotOccupancyMap(selectedTeachers);
 
-    // Populate a reverse map of slot -> teachers occupying it
-    const slotOccupancyMap = new Map<
-      string,
-      { teacher: Teacher; day: string }[]
-    >();
+    // Pre-calculate clash details for all cells
+    const precomputedClashDetails = calculateClashDetails(
+      selectedTeachers,
+      slotOccupancyMap,
+      courseCodeMap,
+    );
 
-    selectedTeachers.forEach((teacher) => {
-      teacher.slots.forEach((slot) => {
-        getDaysForSlot(slot).forEach((day) => {
-          const key = `${day}-${slot}`;
-          if (!slotOccupancyMap.has(key)) {
-            slotOccupancyMap.set(key, []);
-          }
-          slotOccupancyMap.get(key)!.push({ teacher, day });
-        });
-      });
-    });
-
-    // Pre-calculate clash details for each (day, slot) combination
-    const precomputedClashDetails: Record<
-      string,
-      { courses: string[] } | null
-    > = {};
-    for (const day of days) {
-      for (const timePeriodSlots of timetableData[day]) {
-        for (const currentSlot of timePeriodSlots) {
-          const cellKey = `${day}-${currentSlot}`;
-          const currentSlotTeachers = slotOccupancyMap.get(cellKey) || [];
-
-          if (currentSlotTeachers.length > 1) {
-            const clashingCourseCodes: string[] = [];
-            const processedTeacherIds = new Set<string>();
-
-            // Collect all unique course codes involved in a clash for this specific slot-day
-            for (const { teacher } of currentSlotTeachers) {
-              if (!processedTeacherIds.has(teacher.id)) {
-                const courseCode =
-                  courseCodeMap.get(teacher.course) || "Unknown";
-                clashingCourseCodes.push(`${courseCode} (${teacher.name})`);
-                processedTeacherIds.add(teacher.id);
-              }
-            }
-            // Sort and remove duplicates
-            const uniqueClashingCourses = [
-              ...new Set(clashingCourseCodes),
-            ].sort();
-            precomputedClashDetails[cellKey] = {
-              courses: uniqueClashingCourses,
-            };
-          } else if (currentSlotTeachers.length === 1) {
-            // Check for cross-slot/cross-teacher clashes even if only one teacher occupies the direct slot
-            const mainTeacher = currentSlotTeachers[0].teacher;
-            let hasExternalClash = false;
-            const externalClashingCourseCodes: string[] = [];
-            const externalProcessedTeacherIds = new Set<string>();
-
-            for (const mainTeacherSlot of mainTeacher.slots) {
-              for (const otherSelectedTeacher of selectedTeachers) {
-                if (mainTeacher.id === otherSelectedTeacher.id) continue;
-
-                for (const otherTeacherSlot of otherSelectedTeacher.slots) {
-                  const otherTeacherDays = getDaysForSlot(otherTeacherSlot);
-                  if (
-                    otherTeacherDays.includes(day) &&
-                    doSlotsClash(day, mainTeacherSlot, day, otherTeacherSlot)
-                  ) {
-                    hasExternalClash = true;
-                    if (
-                      !externalProcessedTeacherIds.has(otherSelectedTeacher.id)
-                    ) {
-                      const otherCourseCode =
-                        courseCodeMap.get(otherSelectedTeacher.course) ||
-                        "Unknown";
-                      externalClashingCourseCodes.push(
-                        `${otherCourseCode} (${otherSelectedTeacher.name})`,
-                      );
-                      externalProcessedTeacherIds.add(otherSelectedTeacher.id);
-                    }
-                  }
-                }
-              }
-            }
-            if (hasExternalClash) {
-              const mainCourseCode =
-                courseCodeMap.get(mainTeacher.course) || "Unknown";
-              externalClashingCourseCodes.unshift(
-                `${mainCourseCode} (${mainTeacher.name})`,
-              ); // Add main teacher's info first
-              const uniqueExternalClashingCourses = [
-                ...new Set(externalClashingCourseCodes),
-              ].sort();
-              precomputedClashDetails[cellKey] = {
-                courses: uniqueExternalClashingCourses,
-              };
-            }
-          }
-        }
-      }
-    }
-
-    // Fill `cellsData` for all timetable slots
-    for (const day of days) {
-      cells[day] = {};
-      for (const timePeriodSlots of timetableData[day]) {
-        // A timetable cell can contain multiple concurrent slots (e.g., ["L1", "L2"])
-        const slotKey = timePeriodSlots.join("/"); // Create a unique key for the cell (e.g., "A1/L1")
-
-        // Find the selected teacher(s) associated with any of these slots on this specific day
-        const teachersInThisCell: Teacher[] = [];
-        const processedTeacherIdsForCell = new Set<string>();
-
-        for (const slotName of timePeriodSlots) {
-          const currentSlotTeachers =
-            slotOccupancyMap.get(`${day}-${slotName}`) || [];
-          for (const { teacher } of currentSlotTeachers) {
-            if (!processedTeacherIdsForCell.has(teacher.id)) {
-              teachersInThisCell.push(teacher);
-              processedTeacherIdsForCell.add(teacher.id);
-            }
-          }
-        }
-
-        let teacherName = "";
-        let courseCode = "";
-        let venue = "";
-        let color = "";
-        let isClash = false;
-        let clashDetail: { courses: string[] } | null = null;
-
-        if (teachersInThisCell.length > 0) {
-          // If there are multiple teachers in this cell, it's a direct slot clash for this cell
-          // Or if there's one teacher, but their slot clashes with another selected teacher's slot elsewhere.
-          isClash =
-            precomputedClashDetails[`${day}-${timePeriodSlots[0]}`] !==
-            undefined; // Check if any part of this cell has a clash
-          clashDetail =
-            precomputedClashDetails[`${day}-${timePeriodSlots[0]}`] || null;
-
-          // For display, use the info of the first teacher in the cell (or any if there's a clash)
-          const displayTeacher = teachersInThisCell[0]; // Or a more sophisticated choice if needed
-          teacherName = displayTeacher.name;
-          courseCode = courseCodeMap.get(displayTeacher.course) || "";
-          venue = displayTeacher.venue || "";
-          color = `bg-${displayTeacher.color}-ui text-${displayTeacher.color}-dim`;
-        } else {
-          // No selected teachers in this cell
-          color =
-            "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-800";
-        }
-
-        // Check if any individual slot within this cell is manually selected
-        const isSelectedManual = timePeriodSlots.some((s) =>
-          manualSelectedSlots.includes(s),
-        );
-
-        cells[day][slotKey] = {
-          color,
-          teacherName,
-          courseCode,
-          venue,
-          isClash: isClash || clashDetail !== null, // A cell is clashing if it has any precomputed clash detail
-          clashDetails: clashDetail,
-          isSelectedManual,
-        };
-      }
-    }
-
-    return cells;
-  }, [selectedTeachers, courses, manualSelectedSlots, allClashes]); // Recompute when selectedTeachers, courses, or manualSelectedSlots change
+    // Generate the final cell data for rendering
+    return generateCellsData(
+      selectedTeachers,
+      courseCodeMap,
+      slotOccupancyMap,
+      precomputedClashDetails,
+      manualSelectedSlots,
+    );
+  }, [selectedTeachers, courses, manualSelectedSlots]);
 
   return {
     cellsData,
@@ -215,4 +54,243 @@ export function useTimetableRenderData(): TimetableRenderData {
     allClashesCount,
     manualSelectedSlots,
   };
+}
+
+// Helper function to build the slot occupancy map
+function buildSlotOccupancyMap(teachers: Teacher[]) {
+  const slotOccupancyMap = new Map<
+    string,
+    { teacher: Teacher; day: string }[]
+  >();
+
+  teachers.forEach((teacher) => {
+    const allSlots = getAllSlots(teacher);
+
+    allSlots.forEach((slot) => {
+      getDaysForSlot(slot).forEach((day) => {
+        const key = `${day}-${slot}`;
+        if (!slotOccupancyMap.has(key)) {
+          slotOccupancyMap.set(key, []);
+        }
+        slotOccupancyMap.get(key)!.push({ teacher, day });
+      });
+    });
+  });
+
+  return slotOccupancyMap;
+}
+
+// Helper function to calculate clash details for all cells
+function calculateClashDetails(
+  teachers: Teacher[],
+  slotOccupancyMap: Map<string, { teacher: Teacher; day: string }[]>,
+  courseCodeMap: Map<string, string>,
+) {
+  const clashDetails: Record<string, { courses: string[] } | null> = {};
+
+  for (const day of days) {
+    for (const timePeriodSlots of timetableData[day]) {
+      for (const currentSlot of timePeriodSlots) {
+        const cellKey = `${day}-${currentSlot}`;
+        const currentSlotTeachers = slotOccupancyMap.get(cellKey) || [];
+
+        if (currentSlotTeachers.length > 1) {
+          clashDetails[cellKey] = getDirectClashDetails(
+            currentSlotTeachers,
+            courseCodeMap,
+          );
+        } else if (currentSlotTeachers.length === 1) {
+          const mainTeacher = currentSlotTeachers[0].teacher;
+          const crossSlotClash = getCrossSlotClashDetails(
+            mainTeacher,
+            teachers,
+            day,
+            courseCodeMap,
+            currentSlot,
+          );
+
+          if (crossSlotClash) {
+            clashDetails[cellKey] = crossSlotClash;
+          }
+        }
+      }
+    }
+  }
+
+  return clashDetails;
+}
+
+// Helper function to get direct clash details (multiple teachers in same slot)
+function getDirectClashDetails(
+  slotTeachers: { teacher: Teacher; day: string }[],
+  courseCodeMap: Map<string, string>,
+) {
+  const clashingCourseCodes: string[] = [];
+  const processedTeacherIds = new Set<string>();
+
+  for (const { teacher } of slotTeachers) {
+    if (!processedTeacherIds.has(teacher.id)) {
+      const courseCode = courseCodeMap.get(teacher.course) || "Unknown";
+      clashingCourseCodes.push(`${courseCode} (${teacher.name})`);
+      processedTeacherIds.add(teacher.id);
+    }
+  }
+
+  return {
+    courses: [...new Set(clashingCourseCodes)].sort(),
+  };
+}
+
+// Helper function to check for cross-slot clashes
+function getCrossSlotClashDetails(
+  mainTeacher: Teacher,
+  allTeachers: Teacher[],
+  day: string,
+  courseCodeMap: Map<string, string>,
+  currentSlot: string = "",
+) {
+  const clashingCourseCodes: string[] = [];
+  const processedTeacherIds = new Set<string>();
+  let hasAddedMainTeacher = false;
+
+  for (const otherTeacher of allTeachers) {
+    if (mainTeacher.id === otherTeacher.id) continue;
+
+    const clashingSlots = hasClashUsingMap(mainTeacher, otherTeacher);
+
+    if (
+      clashingSlots.length === 0 ||
+      (currentSlot && !clashingSlots.includes(currentSlot))
+    ) {
+      continue;
+    }
+
+    // Check if any of the clashing slots occur on the specified day
+    const relevantClashesForDay = clashingSlots.filter((slot) =>
+      getDaysForSlot(slot).includes(day),
+    );
+
+    if (relevantClashesForDay.length > 0) {
+      // Add the other teacher's course
+      if (!processedTeacherIds.has(otherTeacher.id)) {
+        const otherCourseCode =
+          courseCodeMap.get(otherTeacher.course) || "Unknown";
+        clashingCourseCodes.push(`${otherCourseCode} (${otherTeacher.name})`);
+        processedTeacherIds.add(otherTeacher.id);
+      }
+
+      // Add the main teacher's course (only once)
+      if (!hasAddedMainTeacher) {
+        const mainCourseCode =
+          courseCodeMap.get(mainTeacher.course) || "Unknown";
+        clashingCourseCodes.unshift(`${mainCourseCode} (${mainTeacher.name})`);
+        hasAddedMainTeacher = true;
+      }
+    }
+  }
+
+  return clashingCourseCodes.length > 0
+    ? { courses: [...new Set(clashingCourseCodes)].sort() }
+    : null;
+}
+
+// Helper function to generate the final cells data for rendering
+function generateCellsData(
+  teachers: Teacher[],
+  courseCodeMap: Map<string, string>,
+  slotOccupancyMap: Map<string, { teacher: Teacher; day: string }[]>,
+  clashDetails: Record<string, { courses: string[] } | null>,
+  manualSelectedSlots: string[],
+): Record<string, Record<string, CellRenderData>> {
+  const cells: Record<string, Record<string, CellRenderData>> = {};
+
+  const isSlotSelected = new Set(manualSelectedSlots);
+
+  for (const day of days) {
+    cells[day] = {};
+
+    for (const timePeriodSlots of timetableData[day]) {
+      const slotKey = timePeriodSlots.join("/");
+      const [slotA, slotB] = timePeriodSlots;
+      const teachersInCell = getTeachersInCell(
+        day,
+        timePeriodSlots,
+        slotOccupancyMap,
+      );
+
+      const isSelectedManual = timePeriodSlots.some((s) =>
+        isSlotSelected.has(s),
+      );
+      const clashKeyA = `${day}-${slotA}`;
+      const clashKeyB = `${day}-${slotB}`;
+      const clashInfo =
+        clashDetails[clashKeyA] || clashDetails[clashKeyB] || null;
+
+      if (teachersInCell.length === 0) {
+        cells[day][slotKey] = {
+          color:
+            "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-800",
+          teacherName: "",
+          courseCode: "",
+          venue: "",
+          isClash: !!clashInfo,
+          clashDetails: clashInfo,
+          isSelectedManual,
+        };
+        continue;
+      }
+
+      const displayTeacher = teachersInCell[0];
+      const courseCode = courseCodeMap.get(displayTeacher.course) || "";
+      const venue = findVenueForCell(displayTeacher, timePeriodSlots);
+      const colorClass = `bg-${displayTeacher.color}-ui text-${displayTeacher.color}-dim`;
+
+      cells[day][slotKey] = {
+        color: colorClass,
+        teacherName: displayTeacher.name,
+        courseCode,
+        venue,
+        isClash: !!clashInfo,
+        clashDetails: clashInfo,
+        isSelectedManual,
+      };
+    }
+  }
+
+  return cells;
+}
+
+// Helper function to get all teachers in a specific cell
+function getTeachersInCell(
+  day: string,
+  slots: string[],
+  slotOccupancyMap: Map<string, { teacher: Teacher; day: string }[]>,
+) {
+  const teachersInCell: Teacher[] = [];
+  const processedTeacherIds = new Set<string>();
+
+  for (const slot of slots) {
+    const slotTeachers = slotOccupancyMap.get(`${day}-${slot}`) || [];
+
+    for (const { teacher } of slotTeachers) {
+      if (!processedTeacherIds.has(teacher.id)) {
+        teachersInCell.push(teacher);
+        processedTeacherIds.add(teacher.id);
+      }
+    }
+  }
+
+  return teachersInCell;
+}
+
+// Helper function to find venue for a cell
+function findVenueForCell(teacher: Teacher, slots: string[]): string {
+  // Try to find venue for any slot in the cell
+  for (const slot of slots) {
+    const venue = getVenueForSlot(teacher, slot);
+    if (venue) {
+      return venue;
+    }
+  }
+  return "";
 }

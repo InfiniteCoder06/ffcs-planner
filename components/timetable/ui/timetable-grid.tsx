@@ -1,7 +1,8 @@
-import { days, timetableData } from "@/lib/slots";
-import { TimetableCell } from "./timetable-cell";
-import type { TimetableRenderData } from "@/types";
 import { manualSlotSelectionStore } from "@/lib/store";
+import { days, timetableData } from "@/src/constants/timetable";
+import type { TimetableRenderData } from "@/types";
+
+import { TimetableCell } from "./timetable-cell";
 import { TimetableHeader } from "./timetable-header";
 
 interface TimetableGridProps {

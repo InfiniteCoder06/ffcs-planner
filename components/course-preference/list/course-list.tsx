@@ -1,30 +1,20 @@
 "use client";
 
-import { useScheduleStore } from "@/lib/store";
 import { useCallback, useMemo, useState } from "react";
 
 import CourseItem from "@/components/course-preference/items/course-item";
-import { Input } from "@/components/ui/input";
 import {
   AnimatePresenceWrapper,
   fadeIn,
   MotionDiv,
   MotionUl,
 } from "@/components/ui/motion";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Search } from "lucide-react";
+import { useScheduleStore } from "@/lib/store";
 
-interface CourseListProps {
-  editMode: boolean;
-}
+import { SearchBar } from "../ui/search-bar";
+import { CourseSortMenu } from "../ui/sort-menu";
 
-export function CourseList({ editMode }: CourseListProps) {
+export function CourseList() {
   const { courses, teachers } = useScheduleStore();
   const [sortBy, setSortBy] = useState<"code" | "name">("code");
   const [searchQuery, setSearchQuery] = useState("");
@@ -55,34 +45,25 @@ export function CourseList({ editMode }: CourseListProps) {
     [],
   );
 
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(e.target.value);
+    },
+    [],
+  );
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold">Your Courses</h3>
 
         {courses.length > 1 && (
-          <Select value={sortBy} onValueChange={handleSortChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="code">Sort by Code</SelectItem>
-              <SelectItem value="name">Sort by Name</SelectItem>
-            </SelectContent>
-          </Select>
+          <CourseSortMenu value={sortBy} onChange={handleSortChange} />
         )}
       </div>
 
       {courses.length > 0 && (
-        <div className="relative mb-4">
-          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search courses by code or name..."
-            className="pl-8"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+        <SearchBar value={searchQuery} onChange={handleSearchChange} />
       )}
 
       {courses.length === 0 ? (
@@ -119,7 +100,6 @@ export function CourseList({ editMode }: CourseListProps) {
                 index={index}
                 course={course}
                 courseTeachers={getTeachersForCourse(course.id)}
-                editMode={editMode}
               />
             ))}
           </MotionUl>

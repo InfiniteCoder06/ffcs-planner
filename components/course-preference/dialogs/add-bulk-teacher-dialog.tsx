@@ -1,16 +1,11 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { VariantProps } from "class-variance-authority";
 import { PlusIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
+
+import { AnimatedButton, buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -21,23 +16,31 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useScheduleStore } from "@/lib/store";
-import type { DialogButtonProps } from "@/types";
-import { toast } from "sonner";
+import { Label } from "@/components/ui/label";
 import { MotionDiv } from "@/components/ui/motion";
-import { mergeSlots } from "@/lib/slots";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { useScheduleStore } from "@/lib/store";
+import { mergeSlots } from "@/src/utils/slots";
+import { isMorningSlot } from "@/src/utils/timetable";
+import type { DialogButtonProps } from "@/types";
 
 type BulkAddTeachersDialogProps = DialogButtonProps;
 
 export function BulkAddTeachersDialog({
-  buttonVariant = "default",
-  buttonSize = "sm",
+  variant,
+  size,
   buttonText = "Bulk Add Teachers",
   buttonIcon = "add",
   disabled = false,
-}: BulkAddTeachersDialogProps) {
+}: BulkAddTeachersDialogProps & VariantProps<typeof buttonVariants>) {
   const { addTeacher, courses } = useScheduleStore();
 
   const [open, setOpen] = useState(false);
@@ -84,19 +87,21 @@ export function BulkAddTeachersDialog({
       // Attempt to split by tab first, then by multiple spaces
       const parts = line.split("\t").map((p) => p.trim());
       let slotDetail = "";
-      let venue = "";
+      let venue = [];
       let faculty = "";
+      let type = "";
 
       if (parts.length >= 3) {
         slotDetail = parts[0];
-        venue = parts[1];
+        type = parts[3];
+        venue = parts[1].split(",");
         faculty = parts[2];
       } else {
         // Fallback to splitting by multiple spaces if tab split fails
         const spaceParts = line.split(/\s{2,}/).map((p) => p.trim());
         if (spaceParts.length >= 3) {
           slotDetail = spaceParts[0];
-          venue = spaceParts[1];
+          venue = [spaceParts[0]];
           faculty = spaceParts[2];
         } else {
           errorCount++;
@@ -110,11 +115,30 @@ export function BulkAddTeachersDialog({
         .filter((s) => s.length > 0);
 
       if (faculty && slotArray.length > 0) {
+        const morningSlots = slotArray.filter((slot) => isMorningSlot(slot));
+        const afternoonSlots = slotArray.filter((slot) => !isMorningSlot(slot));
+
         const teacherData = {
           name: faculty,
           color: "purple",
-          slots: slotArray,
-          venue: venue,
+          slots: {
+            morning: morningSlots.length > 0 ? morningSlots : null,
+            afternoon: afternoonSlots.length > 0 ? afternoonSlots : null,
+          },
+          venue: {
+            morning:
+              morningSlots.length > 0
+                ? type === "EM"
+                  ? venue[0]
+                  : venue[0]
+                : null,
+            afternoon:
+              afternoonSlots.length > 0
+                ? type === "EM"
+                  ? venue[1]
+                  : venue[0]
+                : null,
+          },
           course: selectedCourse,
         };
         addTeacher(teacherData);
@@ -136,15 +160,15 @@ export function BulkAddTeachersDialog({
     }
 
     setOpen(false);
-  }, [rawInput, selectedCourse, addTeacher, merge]);
+  }, [rawInput, selectedCourse, merge, addTeacher]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant={buttonVariant} size={buttonSize} disabled={disabled}>
+        <AnimatedButton variant={variant} size={size} disabled={disabled}>
           {buttonIcon === "add" && <PlusIcon className="w-4 h-4" />}
           {buttonText}
-        </Button>
+        </AnimatedButton>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[600px]">
@@ -227,17 +251,17 @@ export function BulkAddTeachersDialog({
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <AnimatedButton variant="outline">Cancel</AnimatedButton>
             </DialogClose>
-            <Button
-              variant="success"
+            <AnimatedButton
+              variant="green"
               onClick={handleAddTeachers}
               disabled={
                 !rawInput.trim() || !selectedCourse || courses.length === 0
               }
             >
               Add Teachers
-            </Button>
+            </AnimatedButton>
           </DialogFooter>
         </MotionDiv>
       </DialogContent>

@@ -1,16 +1,21 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useEffect } from "react";
+
 import { ScrollAnimation } from "@/components/ui/motion";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { SlotSelector } from "./slot-selection";
-import { TimetableHeader } from "./ui/timetable-header";
-import { TimetableBody } from "./ui/timetable-body";
-
 import { useTimetableRenderData } from "@/hooks/useTimetableRenderData";
+
+import { SlotSelector } from "./slot-selection";
+import { TimetableBody } from "./ui/timetable-body";
+import { TimetableHeader } from "./ui/timetable-header";
 
 export const Timetable = memo(function Timetable() {
   const { cellsData } = useTimetableRenderData();
+
+  useEffect(() => {
+    console.debug("Timetable cells data prepared:", cellsData);
+  }, [cellsData]);
 
   return (
     <TooltipProvider>

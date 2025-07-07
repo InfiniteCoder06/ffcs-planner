@@ -1,14 +1,15 @@
 "use client";
 
+import { AlertCircle } from "lucide-react";
 import { memo, useCallback } from "react";
+
 import { MotionDiv, MotionTd } from "@/components/ui/motion";
 import {
   Tooltip,
   TooltipContent,
-  TooltipTrigger,
   TooltipProvider,
+  TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TimetableRenderData } from "@/types";
 

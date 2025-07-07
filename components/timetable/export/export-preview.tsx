@@ -1,9 +1,10 @@
 "use client";
 
 import { CoursesTable } from "@/components/custom-ui/course-table";
+import { useTimetableRenderData } from "@/hooks/useTimetableRenderData";
+
 import { TimetableGrid } from "../ui/timetable-grid";
 import { ExportTimetableHeader } from "../ui/timetable-header";
-import { useTimetableRenderData } from "@/hooks/useTimetableRenderData";
 
 export function ExportPreview() {
   const { cellsData, totalCredits } = useTimetableRenderData();

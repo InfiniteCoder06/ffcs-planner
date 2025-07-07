@@ -1,16 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { MotionDiv, ScrollAnimation } from "@/components/ui/motion";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/animate-ui/radix/tabs";
-import { exportToImage, exportToPdf } from "@/lib/export-utils";
-import { useScheduleStore } from "@/lib/store";
-import { cn } from "@/lib/utils";
 import {
   Download,
   FileIcon as FilePdf,
@@ -18,10 +7,23 @@ import {
   Printer,
   Share2,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
+
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/animate-ui/radix/tabs";
+import { AnimatedButton } from "@/components/ui/button";
+import { MotionDiv, ScrollAnimation } from "@/components/ui/motion";
+import { useScheduleStore } from "@/lib/store";
+import { cn } from "@/lib/utils";
+import { exportToImage, exportToPdf } from "@/src/utils/export";
+
 import { ExportPreview } from "./export-preview";
-import { useTheme } from "next-themes";
 
 export function ExportSection() {
   const [exportType, setExportType] = useState<"pdf" | "image">("image");
@@ -156,7 +158,7 @@ export function ExportSection() {
           </div>
 
           <div className="flex justify-end mt-4">
-            <Button
+            <AnimatedButton
               onClick={handleExport}
               disabled={isExporting || !hasSelectedCourses}
               className="gap-2"
@@ -178,7 +180,7 @@ export function ExportSection() {
               {isExporting
                 ? "Exporting..."
                 : `Export as ${exportType.toWellFormed()}`}
-            </Button>
+            </AnimatedButton>
           </div>
         </div>
       </div>

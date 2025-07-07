@@ -118,12 +118,19 @@ export function SelectedCoursesTable() {
                           ></div>
                         </td>
                         <td className="px-6 py-4 text-sm whitespace-nowrap">
-                          {teacher.venue}
+                          <div className="space-y-1">
+                            {teacher.venue.morning && (
+                              <div>M: {teacher.venue.morning}</div>
+                            )}
+                            {teacher.venue.afternoon && (
+                              <div>A: {teacher.venue.afternoon}</div>
+                            )}
+                          </div>
                         </td>
                         <td className="px-6 py-4 text-sm whitespace-nowrap">
                           <IconButton
                             icon="delete"
-                            variant="error"
+                            variant="red"
                             size="sm"
                             useAnimation={false}
                             onClick={() => toggleTeacherInTimetable(teacher.id)}

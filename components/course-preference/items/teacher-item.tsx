@@ -1,9 +1,12 @@
 "use client";
 
-import { AddTeacherDialog } from "@/components/course-preference/dialogs/add-teacher-dialog";
+import { AlertCircle, Check, Plus } from "lucide-react";
+import { memo, useCallback, useMemo } from "react";
+
 import { DeleteDialog } from "@/components/course-preference/dialogs/delete-dialog";
+import { TeacherDialog } from "@/components/course-preference/dialogs/teacher-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { AnimatedButton } from "@/components/ui/button";
 import { MotionDiv, MotionLi } from "@/components/ui/motion";
 import {
   Tooltip,
@@ -13,13 +16,13 @@ import {
 } from "@/components/ui/tooltip";
 import { useScheduleStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { useEditProvider } from "@/src/hooks/useEditProvider";
+import { getAllSlots, isAfternoonTheory } from "@/src/utils/timetable";
 import { Teacher } from "@/types";
-import { AlertCircle, Check, Plus } from "lucide-react";
-import { useCallback } from "react";
 
 interface TeacherItemProps {
   teacher: Teacher;
-  editMode: boolean;
+  isSelected: boolean;
   clashedTeachers: Teacher[];
   className?: string;
   index: number;
@@ -29,28 +32,33 @@ interface TeacherItemProps {
 
 export default function TeacherItem({
   teacher,
-  editMode,
   clashedTeachers,
   className,
+  isSelected,
   index,
   highlightedSlot,
   hasSameSlotClash,
 }: TeacherItemProps) {
-  const {
-    getCourse,
-    removeTeacher,
-    toggleTeacherInTimetable,
-    isTeacherSelected,
-  } = useScheduleStore();
-  const isSelected = isTeacherSelected(teacher.id);
+  const { getCourse } = useScheduleStore();
   const hasClash = clashedTeachers.length > 0;
 
-  const handleRemove = useCallback(() => {
-    removeTeacher(teacher.id);
-  }, [teacher.id, removeTeacher]);
+  const teacherNameEnh = useMemo(() => {
+    const mergedSlots = [
+      ...(teacher.slots.morning ?? []),
+      ...(teacher.slots.afternoon ?? []),
+    ];
+    if (mergedSlots.length > 0) {
+      if (isAfternoonTheory(mergedSlots[0])) {
+        return `${teacher.name} (E)`;
+      }
+      return teacher.name;
+    }
+  }, [teacher]);
 
-  const renderSlots = () =>
-    teacher.slots.map((slot, slotIndex) => {
+  const renderSlots = () => {
+    const allSlots: string[] = getAllSlots(teacher);
+
+    return allSlots.map((slot, slotIndex) => {
       const isHighlighted = highlightedSlot === slot;
 
       return (
@@ -75,16 +83,13 @@ export default function TeacherItem({
         </MotionDiv>
       );
     });
-
-  const handleButtonClick = () => {
-    toggleTeacherInTimetable(teacher.id);
   };
 
   return (
     <TooltipProvider>
       <MotionLi
         className={cn(
-          "p-3 rounded-md flex justify-between items-center gap-2",
+          "p-3 rounded-lg border flex justify-between items-center gap-2",
           hasSameSlotClash
             ? "bg-yellow-ui"
             : hasClash
@@ -100,8 +105,8 @@ export default function TeacherItem({
       >
         <div className={className}>
           <div className="flex items-center gap-2">
-            <p className="font-medium">{teacher.name}</p>
-            {hasClash && !editMode && (
+            <p className="font-medium">{teacherNameEnh}</p>
+            {hasClash && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <MotionDiv
@@ -150,52 +155,97 @@ export default function TeacherItem({
               </Tooltip>
             )}
           </div>
-          {teacher.venue && (
+          {(teacher.venue.morning || teacher.venue.afternoon) && (
             <p className="text-xs text-muted-foreground">
-              Venue: {teacher.venue}
+              Venue:{" "}
+              {[
+                teacher.venue.morning && `M: ${teacher.venue.morning}`,
+                teacher.venue.afternoon && `A: ${teacher.venue.afternoon}`,
+              ]
+                .filter(Boolean)
+                .map((venue, index) => (
+                  <span key={index} className="font-medium">
+                    {index > 0 && " | "}
+                    {venue}
+                  </span>
+                ))}
             </p>
           )}
         </div>
         <div className="flex items-center gap-2">
-          {renderSlots()}
-          {editMode ? (
-            <>
-              <AddTeacherDialog
-                teacherToEdit={teacher}
-                buttonVariant="warningSolid"
-                buttonSize="sm"
-                buttonIcon="edit"
-                buttonText=""
-                course={null}
-              />
-              <DeleteDialog
-                description="Are you sure you want to remove this teacher?"
-                onConfirm={handleRemove}
-                useSolid
-              />
-            </>
-          ) : (
-            <Button
-              key={`${teacher.id}-${isSelected}`}
-              variant={isSelected ? "default" : "outline"}
-              className={cn(
-                "h-8 w-8",
-                isSelected
-                  ? `bg-${teacher.color}-solid text-white`
-                  : `text-${teacher.color}-dim`,
-                hasClash && isSelected && `bg-red-solid text-white`,
-              )}
-              onClick={handleButtonClick}
-            >
-              {isSelected ? (
-                <Check className="w-4 h-4" />
-              ) : (
-                <Plus className="w-4 h-4" />
-              )}
-            </Button>
-          )}
+          {renderSlots()}{" "}
+          <TeacherItemActions
+            teacher={teacher}
+            isSelected={isSelected}
+            hasClash={hasClash}
+          />
         </div>
       </MotionLi>
     </TooltipProvider>
   );
 }
+
+const TeacherItemActions = memo(
+  ({
+    teacher,
+    isSelected,
+    hasClash,
+  }: {
+    teacher: Teacher;
+    isSelected: boolean;
+    hasClash: boolean;
+  }) => {
+    const { removeTeacher, toggleTeacherInTimetable } = useScheduleStore();
+    const { editMode } = useEditProvider();
+
+    const handleButtonClick = useCallback(() => {
+      toggleTeacherInTimetable(teacher.id);
+    }, [teacher.id, toggleTeacherInTimetable]);
+
+    const handleRemove = useCallback(() => {
+      removeTeacher(teacher.id);
+    }, [teacher.id, removeTeacher]);
+
+    return (
+      <>
+        {editMode ? (
+          <>
+            <TeacherDialog
+              teacherToEdit={teacher}
+              variant="yellowSolid"
+              size="icon"
+              buttonIcon="edit"
+              course={null}
+            />
+            <DeleteDialog
+              description="Are you sure you want to remove this teacher?"
+              onConfirm={handleRemove}
+              size={"icon"}
+              useSolid
+            />
+          </>
+        ) : (
+          <AnimatedButton
+            key={`${teacher.id}-${isSelected}`}
+            variant={isSelected ? "default" : "outline"}
+            className={cn(
+              "h-8 w-8",
+              isSelected
+                ? `bg-${teacher.color}-solid text-white`
+                : `text-${teacher.color}-dim`,
+              hasClash && isSelected && `bg-red-solid text-white`,
+            )}
+            onClick={handleButtonClick}
+          >
+            {isSelected ? (
+              <Check className="w-4 h-4" />
+            ) : (
+              <Plus className="w-4 h-4" />
+            )}
+          </AnimatedButton>
+        )}
+      </>
+    );
+  },
+);
+TeacherItemActions.displayName = "TeacherItemActions";

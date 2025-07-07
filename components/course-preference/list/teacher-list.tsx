@@ -1,38 +1,29 @@
 "use client";
 
-import { AddTeacherDialog } from "@/components/course-preference/dialogs/add-teacher-dialog";
+import { useCallback, useMemo, useState } from "react";
+
+import { TeacherDialog } from "@/components/course-preference/dialogs/teacher-dialog";
 import TeacherItem from "@/components/course-preference/items/teacher-item";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   AnimatePresenceWrapper,
   MotionDiv,
   MotionUl,
 } from "@/components/ui/motion";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useScheduleStore } from "@/lib/store";
-import { Search, X } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { getAllSlots } from "@/src/utils/timetable";
+import { Course, Teacher } from "@/types";
+
 import { DeleteDialog } from "../dialogs/delete-dialog";
-import { cn } from "@/lib/utils";
-import { Teacher, Course } from "@/types";
+import { SearchBar } from "../ui/search-bar";
+import { CustomSortMenu } from "../ui/sort-menu";
 
 interface TeacherListProps {
   courseTeachers: Teacher[];
-  editMode: boolean;
   course: Course;
 }
 
 export default function TeacherList({
   courseTeachers,
-  editMode,
   course,
 }: TeacherListProps) {
   const {
@@ -48,7 +39,9 @@ export default function TeacherList({
   const availableSlots = useMemo(() => {
     const slots = new Set<string>();
     courseTeachers.forEach((teacher) => {
-      teacher.slots.forEach((slot) => {
+      const allSlots: string[] = getAllSlots(teacher);
+
+      allSlots.forEach((slot) => {
         if (slot.startsWith("L")) {
           const slotNumber = parseInt(slot.slice(1), 10);
           if (slotNumber % 2 === 1) {
@@ -98,13 +91,22 @@ export default function TeacherList({
   const filteredTeacherStates = useMemo(() => {
     const filtered = courseTeachers.filter((teacher) => {
       const searchLower = searchQuery.toLowerCase();
+
+      // Get all slots for the teacher
+      const allSlots: string[] = getAllSlots(teacher);
+
+      // Get all venues for the teacher
+      const allVenues = [teacher.venue.morning, teacher.venue.afternoon].filter(
+        Boolean,
+      );
+
       const matchesSearch =
         teacher.name.toLowerCase().includes(searchLower) ||
-        (teacher.venue && teacher.venue.toLowerCase().includes(searchLower)) ||
-        teacher.slots.some((slot) => slot.toLowerCase().includes(searchLower));
+        allVenues.some((venue) => venue?.toLowerCase().includes(searchLower)) ||
+        allSlots.some((slot) => slot.toLowerCase().includes(searchLower));
 
       const matchesSlotFilter =
-        !slotFilter || teacher.slots.includes(slotFilter.split(" + ")[0]);
+        !slotFilter || allSlots.includes(slotFilter.split(" + ")[0]);
 
       const matchesColorFilter = !colorFilter || teacher.color === colorFilter;
 
@@ -158,13 +160,28 @@ export default function TeacherList({
       });
   }, [
     courseTeachers,
-    teacherSlotClash,
     searchQuery,
     slotFilter,
     colorFilter,
+    teacherSlotClash,
     isTeacherSelected,
     hasSameSlotClashWithSelected,
   ]);
+
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(e.target.value);
+    },
+    [],
+  );
+
+  const handleColorChange = useCallback((value: string) => {
+    setColorFilter(value);
+  }, []);
+
+  const handleSlotChange = useCallback((value: string) => {
+    setSlotFilter(value);
+  }, []);
 
   const handleDeleteAllTeachers = useCallback(() => {
     deleteAllTeachersForCourse(course.id);
@@ -177,11 +194,13 @@ export default function TeacherList({
           Teachers ({courseTeachers.length})
         </p>
         <div className="flex items-center gap-2">
-          <AddTeacherDialog
+          <TeacherDialog
             teacherToEdit={null}
-            buttonVariant="ghost"
-            buttonSize="sm"
+            variant="secondary"
+            size="sm"
             course={course.id}
+            buttonText="Add Teacher"
+            buttonIcon={"add"}
           />
           {courseTeachers.length > 0 && (
             <DeleteDialog
@@ -195,91 +214,21 @@ export default function TeacherList({
       </div>
 
       {courseTeachers.length > 0 && (
-        <>
-          <div className="relative mb-3">
-            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search teachers, venues or slots..."
-              className="pl-8"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-
-          <div className="flex items-center gap-2 mb-2">
-            <Select
-              value={slotFilter}
-              onValueChange={(value) => setSlotFilter(value)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Filter by slot" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {availableSlots.map((slot) => (
-                    <SelectItem key={slot} value={slot}>
-                      Slot {slot}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-
-            <AnimatePresenceWrapper>
-              {slotFilter && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setSlotFilter("")}
-                  className="h-9 w-9 shrink-0"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
-            </AnimatePresenceWrapper>
-          </div>
-
-          <div className="flex items-center gap-2 mb-3">
-            <Select
-              value={colorFilter}
-              onValueChange={(value) => setColorFilter(value)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Filter by color" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {availableColors.map((color) => (
-                    <SelectItem key={color} value={color}>
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={cn(
-                            "w-4 h-4 rounded-full",
-                            `bg-${color}-solid`,
-                          )}
-                        />
-                        {color.charAt(0).toUpperCase() + color.slice(1)}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-
-            <AnimatePresenceWrapper>
-              {colorFilter && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setColorFilter("")}
-                  className="h-9 w-9 shrink-0"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
-            </AnimatePresenceWrapper>
-          </div>
-        </>
+        <div className="flex mb-2 flex-col w-full">
+          <SearchBar value={searchQuery} onChange={handleSearchChange} />
+          <CustomSortMenu
+            value={colorFilter}
+            onChange={handleColorChange}
+            values={availableColors}
+            placeholder="Filter by Color"
+          />
+          <CustomSortMenu
+            value={slotFilter}
+            onChange={handleSlotChange}
+            values={availableSlots}
+            placeholder="Filter by Slots"
+          />
+        </div>
       )}
 
       {courseTeachers.length === 0 ? (
@@ -313,15 +262,15 @@ export default function TeacherList({
             layout
           >
             {filteredTeacherStates.map(
-              ({ teacher, clashes, hasSameSlotClash }, index) => (
+              ({ teacher, clashes, hasSameSlotClash, isSelected }, index) => (
                 <TeacherItem
                   key={teacher.id}
                   teacher={teacher}
-                  editMode={editMode}
                   clashedTeachers={clashes}
                   className={clashes.length > 0 ? "opacity-50" : ""}
                   index={index}
                   hasSameSlotClash={hasSameSlotClash}
+                  isSelected={isSelected}
                 />
               ),
             )}

@@ -1,8 +1,9 @@
 import { memo } from "react";
-import { timetableData } from "@/lib/slots";
+
 import { TimetableCell } from "@/components/timetable/ui/timetable-cell";
-import type { TimetableRenderData } from "@/types";
 import { manualSlotSelectionStore } from "@/lib/store";
+import { timetableData } from "@/src/constants/timetable";
+import type { TimetableRenderData } from "@/types";
 
 interface TimetableRowProps {
   day: string;

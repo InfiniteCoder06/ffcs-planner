@@ -1,39 +1,9 @@
-export type ButtonVariant =
-  | "default"
-  | "outline"
-  | "secondary"
-  | "success"
-  | "warning"
-  | "warningSolid"
-  | "error"
-  | "errorSolid"
-  | "ghost"
-  | "link";
-
-export type ButtonSize = "default" | "sm" | "lg" | "icon";
-
 export type ButtonIconType = "add" | "edit";
 
 export interface DialogButtonProps {
-  buttonVariant?: ButtonVariant;
-  buttonSize?: ButtonSize;
   buttonIcon?: ButtonIconType;
   buttonText?: string;
   disabled?: boolean;
-}
-
-export interface TeacherInfo {
-  name: string;
-  color: string;
-  venue: string;
-  course: string;
-}
-
-export interface TimetableCache {
-  colorCache: Record<string, string>;
-  teacherCache: Record<string, string>;
-  courseCache: Record<string, string>;
-  venueCache: Record<string, string>;
 }
 
 export interface TimeRange {
@@ -41,23 +11,10 @@ export interface TimeRange {
   end: string;
 }
 
-export interface TeacherData {
-  name: string;
-  color: string;
-  venue: string;
-  courseId: string;
-}
-
 export interface ClashDetails {
   teachers: string[];
   courses: string[];
   slots: string[];
-}
-
-export interface SlotData {
-  slotMap: Map<string, TeacherData>;
-  clashCache: Record<string, boolean>;
-  clashDetailsCache: Record<string, ClashDetails>;
 }
 
 export interface CellData {
@@ -94,8 +51,14 @@ export interface Teacher {
   id: string;
   name: string;
   color: string;
-  slots: string[];
-  venue: string;
+  slots: {
+    morning: string[] | null;
+    afternoon: string[] | null;
+  };
+  venue: {
+    morning: string | null;
+    afternoon: string | null;
+  };
   course: string;
 }
 
@@ -104,8 +67,7 @@ export interface Timetable {
   name: string;
   selectedTeachers: Teacher[];
   selectedSlots: string[];
-  createdAt: Date;
-  updatedAt: Date;
+  updatedAt?: Date;
 }
 
 export interface ExportData {

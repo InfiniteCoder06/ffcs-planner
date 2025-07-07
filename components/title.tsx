@@ -1,9 +1,10 @@
 import getConfig from "next/config";
-import { MobileNav } from "./mobile-nav";
-import { IssueButton } from "./custom-ui/buttons/issues";
-import { ModeToggle } from "./mode-toggle";
-import { HowToButton } from "./custom-ui/buttons/how-to";
+
 import { ChangelogDialog } from "./changelog-dialog";
+import { HowToButton } from "./nav-bar/buttons/how-to";
+import { IssueButton } from "./nav-bar/buttons/issues";
+import { ModeToggle } from "./nav-bar/buttons/mode-toggle";
+import { MobileNav } from "./nav-bar/mobile-nav";
 
 export function Title() {
   const { publicRuntimeConfig } = getConfig();

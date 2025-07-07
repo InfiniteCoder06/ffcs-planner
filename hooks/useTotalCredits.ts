@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+
 import { useScheduleStore } from "@/lib/store";
 
 export function useTotalCredits(): number {

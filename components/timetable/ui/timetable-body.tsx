@@ -1,6 +1,7 @@
 import { memo } from "react";
-import { days } from "@/lib/slots";
+
 import { TimetableRow } from "@/components/timetable/ui/timetable-row";
+import { days } from "@/src/constants/timetable";
 import type { TimetableRenderData } from "@/types";
 
 interface TimetableBodyProps {

@@ -1,21 +1,23 @@
 "use client";
 
+import { Check, ChevronUpIcon, Plus } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
+
+import { manualSlotSelectionStore } from "@/lib/store";
+import { cn } from "@/lib/utils";
 import {
   afternoonLabSlots,
   afternoonTheorySlots,
   morningLabSlots,
   morningTheorySlots,
-} from "@/lib/slots";
-import { Button, SimpleButton } from "../ui/button";
-import { cn } from "@/lib/utils";
+} from "@/src/constants/slots";
+
+import { AnimatedButton } from "../ui/button";
 import {
   AnimatePresenceWrapper,
   MotionDiv,
   ScrollAnimation,
 } from "../ui/motion";
-import { Check, Plus, ChevronUpIcon } from "lucide-react";
-import { manualSlotSelectionStore } from "@/lib/store";
-import { useState, useCallback, useMemo } from "react";
 
 const SlotButton = ({
   slot,
@@ -28,7 +30,7 @@ const SlotButton = ({
   onClick: () => void;
   displayText: string;
 }) => (
-  <SimpleButton
+  <AnimatedButton
     key={Array.isArray(slot) ? slot.join(",") : slot}
     variant={isSelected ? "default" : "outline"}
     className={cn(
@@ -39,7 +41,7 @@ const SlotButton = ({
   >
     {isSelected ? <Check className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
     {displayText}
-  </SimpleButton>
+  </AnimatedButton>
 );
 
 const SlotGroup = ({
@@ -139,12 +141,16 @@ export function SlotSelector() {
           <div className="flex gap-2">
             <AnimatePresenceWrapper>
               {isExpanded && (
-                <Button variant="error" size="sm" onClick={handleClearAll}>
+                <AnimatedButton
+                  variant="red"
+                  size="sm"
+                  onClick={handleClearAll}
+                >
                   Clear All
-                </Button>
+                </AnimatedButton>
               )}
             </AnimatePresenceWrapper>
-            <Button
+            <AnimatedButton
               variant="ghost"
               size="sm"
               onClick={(e) => {
@@ -159,7 +165,7 @@ export function SlotSelector() {
                   "rotate-180": !isExpanded,
                 })}
               />
-            </Button>
+            </AnimatedButton>
           </div>
         </div>
         <AnimatePresenceWrapper>

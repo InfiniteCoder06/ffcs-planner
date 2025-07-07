@@ -2,12 +2,15 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+
+import { defaultTimetable } from "@/src/mocks/fake-timetable";
 import {
-  clearClashDetectionCaches,
-  doSlotsClash,
-  getDaysForSlot,
-} from "./clash-detection";
-import { Course, Teacher, ClashInfo, Timetable } from "@/types";
+  hasClashEnhanced,
+  hasClashUsingMap,
+} from "@/src/utils/clash-detection";
+import { clearClashDetectionCaches } from "@/src/utils/clash-detection";
+import { getAllSlots } from "@/src/utils/timetable";
+import { ClashInfo, Course, Teacher, Timetable } from "@/types";
 
 type State = {
   courses: Course[];
@@ -47,8 +50,7 @@ type Actions = {
   // Clash detection
   teacherSlotClash: (teacherId: string) => Teacher[];
   hasSameSlotClashWithSelected: (teacherId: string) => boolean;
-  getSlotClashes: (slot: string) => ClashInfo[];
-  getAllClashes: () => ClashInfo[];
+  getAllClashesEnhanced: (teachers: Teacher[]) => ClashInfo[];
 
   // Import/Export
   getExportData: () => {
@@ -76,7 +78,7 @@ export const useScheduleStore = create<State & Actions>()(
     (set, get) => ({
       courses: [],
       teachers: [],
-      timetables: [],
+      timetables: [defaultTimetable],
       activeTimetableId: null,
 
       // Course actions
@@ -105,7 +107,10 @@ export const useScheduleStore = create<State & Actions>()(
               new Set(
                 timetable.selectedTeachers
                   .filter((t) => t.course !== id)
-                  .flatMap((t) => t.slots),
+                  .flatMap((t) => [
+                    ...(t.slots.morning || []),
+                    ...(t.slots.afternoon || []),
+                  ]),
               ),
             ),
           }));
@@ -156,7 +161,12 @@ export const useScheduleStore = create<State & Actions>()(
               ...timetable,
               selectedTeachers: newSelectedTeachers,
               selectedSlots: Array.from(
-                new Set(newSelectedTeachers.flatMap((t) => t.slots)),
+                new Set(
+                  newSelectedTeachers.flatMap((t) => [
+                    ...(t.slots.morning || []),
+                    ...(t.slots.afternoon || []),
+                  ]),
+                ),
               ),
             };
           });
@@ -179,7 +189,12 @@ export const useScheduleStore = create<State & Actions>()(
               ...timetable,
               selectedTeachers: newSelectedTeachers,
               selectedSlots: Array.from(
-                new Set(newSelectedTeachers.flatMap((t) => t.slots)),
+                new Set(
+                  newSelectedTeachers.flatMap((t) => [
+                    ...(t.slots.morning || []),
+                    ...(t.slots.afternoon || []),
+                  ]),
+                ),
               ),
             };
           });
@@ -202,7 +217,6 @@ export const useScheduleStore = create<State & Actions>()(
           name: timetableName,
           selectedTeachers: [],
           selectedSlots: [],
-          createdAt: currentTime,
           updatedAt: currentTime,
         };
 
@@ -253,7 +267,6 @@ export const useScheduleStore = create<State & Actions>()(
           name: timetableName,
           selectedTeachers: [...sourceTimetable.selectedTeachers],
           selectedSlots: [...sourceTimetable.selectedSlots],
-          createdAt: currentTime,
           updatedAt: currentTime,
         };
 
@@ -331,7 +344,7 @@ export const useScheduleStore = create<State & Actions>()(
                 ...t,
                 selectedTeachers: newSelectedTeachers,
                 selectedSlots: Array.from(
-                  new Set(newSelectedTeachers.flatMap((st) => st.slots)),
+                  new Set(newSelectedTeachers.flatMap((st) => getAllSlots(st))),
                 ),
                 updatedAt: new Date(),
               };
@@ -341,7 +354,7 @@ export const useScheduleStore = create<State & Actions>()(
                 ...t,
                 selectedTeachers: newSelectedTeachers,
                 selectedSlots: Array.from(
-                  new Set(newSelectedTeachers.flatMap((st) => st.slots)),
+                  new Set(newSelectedTeachers.flatMap((st) => getAllSlots(st))),
                 ),
                 updatedAt: new Date(),
               };
@@ -362,44 +375,15 @@ export const useScheduleStore = create<State & Actions>()(
         );
         if (!teacherToConsider) return [];
 
-        const clashes: Teacher[] = [];
-        const processedClashingTeacherIds = new Set<string>();
-
-        const currentlySelectedTeachers = get()
+        const otherSelectedTeachers = get()
           .getSelectedTeachers()
           .filter((t) => t.id !== teacherId);
 
-        for (const slotOfTeacherToConsider of teacherToConsider.slots) {
-          const daysForSlotOfTeacherToConsider = getDaysForSlot(
-            slotOfTeacherToConsider,
-          );
+        const clashes: Teacher[] = hasClashEnhanced(
+          teacherToConsider,
+          otherSelectedTeachers,
+        );
 
-          for (const day of daysForSlotOfTeacherToConsider) {
-            for (const otherSelectedTeacher of currentlySelectedTeachers) {
-              if (processedClashingTeacherIds.has(otherSelectedTeacher.id))
-                continue;
-
-              for (const slotOfOtherTeacher of otherSelectedTeacher.slots) {
-                if (getDaysForSlot(slotOfOtherTeacher).includes(day)) {
-                  if (
-                    doSlotsClash(
-                      day,
-                      slotOfTeacherToConsider,
-                      day,
-                      slotOfOtherTeacher,
-                    )
-                  ) {
-                    clashes.push(otherSelectedTeacher);
-                    processedClashingTeacherIds.add(otherSelectedTeacher.id);
-                    break;
-                  }
-                }
-              }
-              if (processedClashingTeacherIds.has(otherSelectedTeacher.id))
-                break;
-            }
-          }
-        }
         return clashes;
       },
 
@@ -409,7 +393,7 @@ export const useScheduleStore = create<State & Actions>()(
         );
         if (!teacherToConsider) return false;
 
-        const sortedTeacherToConsiderSlots = [...teacherToConsider.slots]
+        const sortedTeacherToConsiderSlots = [...getAllSlots(teacherToConsider)]
           .sort()
           .join(",");
 
@@ -421,7 +405,7 @@ export const useScheduleStore = create<State & Actions>()(
           if (
             teacherToConsider.course === otherSelectedTeacher.course &&
             sortedTeacherToConsiderSlots ===
-              [...otherSelectedTeacher.slots].sort().join(",")
+              [...getAllSlots(otherSelectedTeacher)].sort().join(",")
           ) {
             return true;
           }
@@ -429,106 +413,31 @@ export const useScheduleStore = create<State & Actions>()(
         return false;
       },
 
-      getSlotClashes: (targetSlot: string) => {
-        const selectedTeachers = get().getSelectedTeachers();
-        const clashes: ClashInfo[] = [];
-        const processedClashPairs = new Set<string>();
-
-        const targetSlotDays = getDaysForSlot(targetSlot);
-
-        if (targetSlotDays.length === 0) return [];
-
-        for (const day of targetSlotDays) {
-          const teachersOnThisDay = selectedTeachers.filter((t) =>
-            t.slots.some((s) => getDaysForSlot(s).includes(day)),
-          );
-
-          const clashingTeachersWithTargetSlot = teachersOnThisDay.filter(
-            (teacher) =>
-              teacher.slots.some((teacherSlot) =>
-                doSlotsClash(day, targetSlot, day, teacherSlot),
-              ),
-          );
-
-          if (clashingTeachersWithTargetSlot.length < 2) continue;
-
-          for (let i = 0; i < clashingTeachersWithTargetSlot.length; i++) {
-            for (
-              let j = i + 1;
-              j < clashingTeachersWithTargetSlot.length;
-              j++
-            ) {
-              const teacher1 = clashingTeachersWithTargetSlot[i];
-              const teacher2 = clashingTeachersWithTargetSlot[j];
-
-              const isRelevantClash =
-                (teacher1.slots.includes(targetSlot) &&
-                  teacher2.slots.some((s) =>
-                    doSlotsClash(day, targetSlot, day, s),
-                  )) ||
-                (teacher2.slots.includes(targetSlot) &&
-                  teacher1.slots.some((s) =>
-                    doSlotsClash(day, targetSlot, day, s),
-                  ));
-
-              if (isRelevantClash) {
-                const clashPairId = [teacher1.id, teacher2.id].sort().join("-");
-                if (!processedClashPairs.has(clashPairId)) {
-                  processedClashPairs.add(clashPairId);
-                  clashes.push({
-                    slot: targetSlot,
-                    teacher1: teacher1,
-                    teacher2: teacher2,
-                  });
-                }
-              }
-            }
-          }
-        }
-        return clashes;
-      },
-
-      getAllClashes: () => {
-        const selectedTeachers = get().getSelectedTeachers();
+      getAllClashesEnhanced: (teachers: Teacher[]) => {
         const clashes: ClashInfo[] = [];
         const processedClashes = new Set<string>();
 
-        for (let i = 0; i < selectedTeachers.length; i++) {
-          for (let j = i + 1; j < selectedTeachers.length; j++) {
-            const teacher1 = selectedTeachers[i];
-            const teacher2 = selectedTeachers[j];
+        for (let i = 0; i < teachers.length; i++) {
+          for (let j = i + 1; j < teachers.length; j++) {
+            const teacher1 = teachers[i];
+            const teacher2 = teachers[j];
 
-            for (const slot1 of teacher1.slots) {
-              for (const slot2 of teacher2.slots) {
-                const daysForSlot1 = getDaysForSlot(slot1);
-                const daysForSlot2 = getDaysForSlot(slot2);
+            if (teacher1.id === teacher2.id) continue;
 
-                const commonDays = daysForSlot1.filter((day) =>
-                  daysForSlot2.includes(day),
-                );
+            const clashMap = hasClashUsingMap(teacher1, teacher2);
+            if (clashMap.length > 0) {
+              clashMap.forEach((clash) => {
+                const clashId = `${teacher1.id}-${teacher2.id}-${clash}`;
 
-                for (const day of commonDays) {
-                  if (doSlotsClash(day, slot1, day, slot2)) {
-                    const clashId = [
-                      teacher1.id,
-                      teacher2.id,
-                      slot1,
-                      slot2,
-                      day,
-                    ]
-                      .sort()
-                      .join("-");
-                    if (!processedClashes.has(clashId)) {
-                      processedClashes.add(clashId);
-                      clashes.push({
-                        slot: slot1,
-                        teacher1,
-                        teacher2,
-                      });
-                    }
-                  }
+                if (!processedClashes.has(clashId)) {
+                  processedClashes.add(clashId);
+                  clashes.push({
+                    slot: clash,
+                    teacher1,
+                    teacher2,
+                  });
                 }
-              }
+              });
             }
           }
         }

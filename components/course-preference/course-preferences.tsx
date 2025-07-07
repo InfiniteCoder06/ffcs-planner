@@ -1,36 +1,91 @@
 "use client";
 
-import { AddCourseDialog } from "@/components/course-preference/dialogs/add-course-dialog";
+import { UploadIcon } from "lucide-react";
+import { memo, useCallback, useMemo } from "react";
+import { toast } from "sonner";
+
+import { CourseDialog } from "@/components/course-preference/dialogs/course-dialog";
 import { DeleteDialog } from "@/components/course-preference/dialogs/delete-dialog";
 import { DownloadTimetableDialog } from "@/components/course-preference/dialogs/download-timetable";
 import { CourseList } from "@/components/course-preference/list/course-list";
-import { Button } from "@/components/ui/button";
-import { IconButton } from "@/components/ui/icon-button";
-import {
-  AnimatePresenceWrapper,
-  MotionDiv,
-  ScrollAnimation,
-} from "@/components/ui/motion";
+import { AnimatedButton } from "@/components/ui/button";
+import { MotionDiv } from "@/components/ui/motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useScheduleStore } from "@/lib/store";
-import { UploadIcon } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
-import { BulkAddTeachersDialog } from "./dialogs/add-bulk-teacher-dialog";
+import { useEditProvider } from "@/src/hooks/useEditProvider";
 import { Course, Teacher } from "@/types";
 
-export function CoursePreferences() {
-  const [editMode, setEditMode] = useState(false);
-  const { courses, clearAll, clearSelectedTeachers, setExportData } =
+import { EditIcon } from "../icon-memo";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
+import { Separator } from "../ui/separator";
+
+export function CoursePreference() {
+  return (
+    <Card className="container m-3 mx-auto">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Course Preference</CardTitle>
+        <CoursePreferenceHeaderActions />
+      </CardHeader>
+      <CoursePreferenceContent />
+      <CoursePreferenceFooter />
+    </Card>
+  );
+}
+
+const CoursePreferenceHeaderActions = memo(() => {
+  const { editMode, toggleEditMode } = useEditProvider();
+  return (
+    <div className="flex items-center gap-2">
+      <AnimatedButton
+        variant="secondary"
+        onClick={toggleEditMode}
+        leftIcon={<EditIcon />}
+      >
+        {editMode ? "View Mode" : "Edit Mode"}
+      </AnimatedButton>
+      <CourseDialog buttonText="Add Course" buttonIcon="add" />
+    </div>
+  );
+});
+CoursePreferenceHeaderActions.displayName = "CoursePreferenceHeaderActions";
+
+const CoursePreferenceContent = memo(() => {
+  return (
+    <CardContent className="min-h-[300px] p-4">
+      <MotionDiv
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+      >
+        <Separator className="mb-4" />
+        <ScrollArea className="h-96">
+          <MotionDiv
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="p-4"
+          >
+            <CourseList />
+          </MotionDiv>
+        </ScrollArea>
+      </MotionDiv>
+      <Separator className="mt-4" />
+    </CardContent>
+  );
+});
+CoursePreferenceContent.displayName = "CoursePreferenceContent";
+
+const CoursePreferenceFooter = memo(() => {
+  const { courses, setExportData, clearAll, clearSelectedTeachers } =
     useScheduleStore();
 
   const courseCount = useMemo(() => courses.length, [courses]);
-
-  useEffect(() => {
-    if (courseCount === 0) setEditMode(false);
-  }, [courseCount]);
-
-  const toggleEditMode = useCallback(() => setEditMode((prev) => !prev), []);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const validateData = (data: any) => {
@@ -115,192 +170,28 @@ export function CoursePreferences() {
   }, [setExportData]);
 
   return (
-    <ScrollAnimation animation="fadeIn" duration={0.8}>
-      <MotionDiv
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="border rounded-lg shadow-sm bg-gray-50 dark:bg-gray-900 overflow-hidden"
+    <CardFooter className="flex justify-end gap-2">
+      <AnimatedButton
+        variant="secondary"
+        size="sm"
+        onClick={handleUploadTimetable}
       >
-        {/* Header with staggered animations */}
-        <MotionDiv
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="flex items-start justify-between p-4 border-b bg-white dark:bg-gray-800 flex-col md:flex-row md:items-center"
-        >
-          <MotionDiv
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <h2 className="font-bold text-lg">Course Preferences</h2>
-          </MotionDiv>
-
-          <AnimatePresenceWrapper>
-            <MotionDiv
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="flex gap-2"
-            >
-              <AnimatePresenceWrapper>
-                {courseCount > 0 && (
-                  <>
-                    <MotionDiv
-                      initial={{ opacity: 0, scale: 0.8, x: 20 }}
-                      animate={{ opacity: 1, scale: 1, x: 0 }}
-                      exit={{ opacity: 0, scale: 0.8, x: 20 }}
-                      transition={{
-                        duration: 0.3,
-                        type: "spring",
-                        stiffness: 300,
-                      }}
-                    >
-                      <IconButton
-                        icon={editMode ? "check" : "edit"}
-                        variant={editMode ? "success" : "warning"}
-                        size="sm"
-                        label={editMode ? "Done" : "Edit"}
-                        onClick={toggleEditMode}
-                      />
-                    </MotionDiv>
-                    <MotionDiv
-                      initial={{ opacity: 0, scale: 0.8, x: 20 }}
-                      animate={{ opacity: 1, scale: 1, x: 0 }}
-                      exit={{ opacity: 0, scale: 0.8, x: 20 }}
-                      transition={{
-                        duration: 0.3,
-                        type: "spring",
-                        stiffness: 300,
-                      }}
-                    >
-                      <BulkAddTeachersDialog
-                        buttonVariant="default"
-                        buttonSize="sm"
-                        disabled={editMode}
-                      />
-                    </MotionDiv>
-                  </>
-                )}
-              </AnimatePresenceWrapper>
-
-              <MotionDiv
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{
-                  duration: 0.3,
-                  delay: 0.4,
-                  type: "spring",
-                  stiffness: 300,
-                }}
-              >
-                <AddCourseDialog
-                  courseToEdit={null}
-                  buttonVariant="default"
-                  buttonSize="sm"
-                  disabled={editMode}
-                />
-              </MotionDiv>
-            </MotionDiv>
-          </AnimatePresenceWrapper>
-        </MotionDiv>
-
-        {/* Content area with scroll animation */}
-        <MotionDiv
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          <ScrollArea className="h-96">
-            <MotionDiv
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              className="p-4"
-            >
-              <CourseList editMode={editMode} />
-            </MotionDiv>
-          </ScrollArea>
-        </MotionDiv>
-
-        {/* Footer with button animations */}
-        <MotionDiv
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-          className="flex items-center justify-end p-4 border-t bg-white dark:bg-gray-800"
-        >
-          <div className="flex flex-wrap gap-2">
-            {[
-              {
-                component: (
-                  <Button
-                    variant="warning"
-                    size="sm"
-                    onClick={handleUploadTimetable}
-                  >
-                    <UploadIcon /> Upload TT
-                  </Button>
-                ),
-                delay: 0.1,
-              },
-              {
-                component: (
-                  <DownloadTimetableDialog disabled={courseCount === 0} />
-                ),
-                delay: 0.2,
-              },
-              {
-                component: (
-                  <DeleteDialog
-                    description="Are you sure you want to clear selected teachers?"
-                    buttonText="Clear Selected"
-                    buttonDisabled={courseCount === 0}
-                    onConfirm={clearSelectedTeachers}
-                  />
-                ),
-                delay: 0.3,
-              },
-              {
-                component: (
-                  <DeleteDialog
-                    description="Are you sure you want to clear all courses and teachers?"
-                    buttonText="Clear All"
-                    buttonDisabled={courseCount === 0}
-                    onConfirm={clearAll}
-                  />
-                ),
-                delay: 0.4,
-              },
-            ].map((item, index) => (
-              <MotionDiv
-                key={index}
-                initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{
-                  duration: 0.4,
-                  delay: 0.7 + item.delay,
-                  type: "spring",
-                  stiffness: 200,
-                  damping: 15,
-                }}
-                whileHover={{
-                  scale: 1.05,
-                  transition: { duration: 0.2 },
-                }}
-                whileTap={{
-                  scale: 0.95,
-                  transition: { duration: 0.1 },
-                }}
-              >
-                {item.component}
-              </MotionDiv>
-            ))}
-          </div>
-        </MotionDiv>
-      </MotionDiv>
-    </ScrollAnimation>
+        <UploadIcon /> Upload TT
+      </AnimatedButton>
+      <DownloadTimetableDialog disabled={courseCount === 0} />
+      <DeleteDialog
+        description="Are you sure you want to clear selected teachers?"
+        buttonText="Clear Selected"
+        buttonDisabled={courseCount === 0}
+        onConfirm={clearSelectedTeachers}
+      />
+      <DeleteDialog
+        description="Are you sure you want to clear all courses and teachers?"
+        buttonText="Clear All"
+        buttonDisabled={courseCount === 0}
+        onConfirm={clearAll}
+      />
+    </CardFooter>
   );
-}
+});
+CoursePreferenceFooter.displayName = "CoursePreferenceFooter";

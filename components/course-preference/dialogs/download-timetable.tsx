@@ -3,7 +3,7 @@
 import { DownloadIcon, Loader, TriangleAlert } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { AnimatedButton } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -74,9 +74,9 @@ export function DownloadTimetableDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" disabled={disabled}>
+        <AnimatedButton size="sm" disabled={disabled} variant={"primary"}>
           <DownloadIcon /> Save TT
-        </Button>
+        </AnimatedButton>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[500px]">
@@ -111,11 +111,11 @@ export function DownloadTimetableDialog({
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <AnimatedButton variant="outline">Cancel</AnimatedButton>
             </DialogClose>
 
-            <Button
-              variant={error ? "error" : "default"}
+            <AnimatedButton
+              variant={error ? "red" : "primary"}
               className="flex items-center gap-2"
               onClick={handleDownload}
               disabled={!name.trim() || isLoading}
@@ -124,7 +124,7 @@ export function DownloadTimetableDialog({
               {error && !isLoading && <TriangleAlert className="w-4 h-4" />}
               {!isLoading && !error && <DownloadIcon className="w-4 h-4" />}
               {isLoading ? "Saving..." : error ? "Retry" : "Save"}
-            </Button>
+            </AnimatedButton>
           </DialogFooter>
         </MotionDiv>
       </DialogContent>

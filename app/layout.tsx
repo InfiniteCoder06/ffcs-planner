@@ -1,13 +1,16 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { MotionDiv } from "@/components/ui/motion";
-import { ToastWrapper } from "./toast";
+
 import { Analytics } from "@vercel/analytics/next";
-import { ChangelogDialog } from "@/components/changelog-dialog";
+import type { Metadata } from "next";
 import getConfig from "next/config";
+import { Geist, Geist_Mono } from "next/font/google";
+
+import { ChangelogDialog } from "@/components/changelog-dialog";
+import { ThemeProvider } from "@/components/nav-bar/theme-provider";
+import { MotionDiv } from "@/components/ui/motion";
+import { TooltipProvider } from "@/components/ui/tooltip";
+
+import { ToastWrapper } from "./toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

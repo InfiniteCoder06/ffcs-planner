@@ -1,8 +1,9 @@
 "use client";
 
-import { Toaster } from "@/components/ui/sonner";
 import { TriangleAlert } from "lucide-react";
 import { useTheme } from "next-themes";
+
+import { Toaster } from "@/components/ui/sonner";
 
 export function ToastWrapper() {
   const { theme } = useTheme();

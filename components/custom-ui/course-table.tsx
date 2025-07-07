@@ -1,4 +1,5 @@
 import { useScheduleStore } from "@/lib/store";
+
 import { CourseRow } from "./course-row";
 
 interface CoursesTableProps {

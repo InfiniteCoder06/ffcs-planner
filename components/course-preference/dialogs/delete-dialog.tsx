@@ -1,3 +1,5 @@
+import { VariantProps } from "class-variance-authority";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,18 +28,19 @@ interface DeleteDialogProps {
 export function DeleteDialog({
   title,
   description,
+  size = "sm",
   useSolid,
   onConfirm,
   buttonText,
   buttonDisabled,
-}: DeleteDialogProps) {
+}: DeleteDialogProps & VariantProps<typeof buttonVariants>) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <IconButton
           icon="delete"
-          variant={useSolid ? "errorSolid" : "error"}
-          size="sm"
+          variant={useSolid ? "redSolid" : "red"}
+          size={size}
           label={buttonText}
           disabled={buttonDisabled}
         />
@@ -59,7 +62,7 @@ export function DeleteDialog({
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={onConfirm}
-              className={cn(buttonVariants({ variant: "error" }))}
+              className={cn(buttonVariants({ variant: "red" }))}
             >
               Delete
             </AlertDialogAction>
