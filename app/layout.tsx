@@ -2,7 +2,6 @@ import "./globals.css";
 
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
-import getConfig from "next/config";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import { ChangelogDialog } from "@/components/changelog-dialog";
@@ -32,8 +31,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { publicRuntimeConfig } = getConfig();
-  const version = publicRuntimeConfig.version;
+  const version = process.env.NEXT_PUBLIC_APP_VERSION;
 
   return (
     <html lang="en" suppressHydrationWarning>

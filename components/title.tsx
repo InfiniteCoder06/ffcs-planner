@@ -1,5 +1,3 @@
-import getConfig from "next/config";
-
 import { ChangelogDialog } from "./changelog-dialog";
 import { HowToButton } from "./nav-bar/buttons/how-to";
 import { IssueButton } from "./nav-bar/buttons/issues";
@@ -7,8 +5,7 @@ import { ModeToggle } from "./nav-bar/buttons/mode-toggle";
 import { MobileNav } from "./nav-bar/mobile-nav";
 
 export function Title() {
-  const { publicRuntimeConfig } = getConfig();
-  const version = publicRuntimeConfig.version;
+  const version = process.env.NEXT_PUBLIC_APP_VERSION;
 
   return (
     <>

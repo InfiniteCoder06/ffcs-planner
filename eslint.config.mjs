@@ -1,3 +1,5 @@
+import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
+import nextTypescript from "eslint-config-next/typescript";
 import { FlatCompat } from "@eslint/eslintrc";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 import { dirname } from "path";
@@ -11,11 +13,9 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
-  ...compat.extends(
-    "next/core-web-vitals",
-    "next/typescript",
-    "plugin:prettier/recommended",
-  ),
+  ...nextCoreWebVitals,
+  ...nextTypescript,
+  ...compat.extends("plugin:prettier/recommended"),
   {
     plugins: {
       "simple-import-sort": simpleImportSort,
@@ -25,6 +25,9 @@ const eslintConfig = [
       "simple-import-sort/exports": "error",
     },
   },
+  {
+    ignores: ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts"]
+  }
 ];
 
 export default eslintConfig;
