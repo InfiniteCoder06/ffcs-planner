@@ -1,5 +1,14 @@
 [
   {
+    "version": "2.5.4",
+    "entries": [
+      {
+        "type": "🔧 Bug Fixes",
+        "description": "Fix Multiple Timetable"
+      }
+    ]
+  },
+  {
     "version": "2.5.3",
     "entries": [
       {
