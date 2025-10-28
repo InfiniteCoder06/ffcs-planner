@@ -1,5 +1,14 @@
 [
   {
+    "version": "2.5.5",
+    "entries": [
+      {
+        "type": "🚑 Fix Faculty Not Adding",
+        "description": "Resolve issue where faculty were not being added correctly to timetables."
+      }
+    ]
+  },
+  {
     "version": "2.5.4",
     "entries": [
       {
