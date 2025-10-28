@@ -1,12 +1,15 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useRef } from "react";
 import { toast } from "sonner";
 
 import { useScheduleStore } from "@/lib/store";
 
-import { useTimetableCreationDialog } from "./timetable-creation-dialog";
-import { useTimetableRenameDialog } from "./timetable-rename-dialog";
+import { TimetableCreationDialog } from "./timetable-creation-dialog";
+import {
+  TimetableRenameDialog,
+  TimetableRenameDialogRef,
+} from "./timetable-rename-dialog";
 import { TimetableSelector } from "./timetable-selector";
 import { TimetableStats } from "./timetable-stats";
 
@@ -21,18 +24,16 @@ export const TimetableManagement = memo(function TimetableManagement() {
     duplicateTimetable,
   } = useScheduleStore();
 
-  const { openDialog, dialog: renameDialog } = useTimetableRenameDialog({
-    onRename: (timetableId, newName) => {
-      renameTimetable(timetableId, newName);
-      toast.success(`Timetable renamed to "${newName}"`);
-    },
-  });
+  const renameDialogRef = useRef<TimetableRenameDialogRef>(null);
 
-  const { dialog: createDialog, triggerButton: createButton } =
-    useTimetableCreationDialog({
-      onCreateTimetable: createTimetable,
-      timetableCount: timetables.length,
-    });
+  const handleRename = (timetableId: string, newName: string) => {
+    renameTimetable(timetableId, newName);
+    toast.success(`Timetable renamed to "${newName}"`);
+  };
+
+  const openRenameDialog = (id: string, currentName: string) => {
+    renameDialogRef.current?.openDialog(id, currentName);
+  };
 
   const handleDuplicate = (timetableId: string, currentName: string) => {
     duplicateTimetable(timetableId, `${currentName} (Copy)`);
@@ -52,16 +53,18 @@ export const TimetableManagement = memo(function TimetableManagement() {
             timetables={timetables}
             activeTimetableId={activeTimetableId}
             setActiveTimetable={setActiveTimetable}
-            onRename={openDialog}
+            onRename={openRenameDialog}
             onDuplicate={handleDuplicate}
             onDelete={handleDelete}
           />
         </div>
 
-        {createButton}
+        <TimetableCreationDialog
+          onCreateTimetable={createTimetable}
+          timetableCount={timetables.length}
+        />
 
-        {renameDialog}
-        {createDialog}
+        <TimetableRenameDialog ref={renameDialogRef} onRename={handleRename} />
       </div>
 
       {activeTimetableId && <TimetableStats timetableId={activeTimetableId} />}

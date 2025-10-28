@@ -1,54 +1,67 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { memo, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { AnimatedButton } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { MotionDiv } from "@/components/ui/motion";
 
 interface TimetableCreationDialogProps {
   onCreateTimetable: (name?: string) => void;
   timetableCount: number;
 }
 
-export function useTimetableCreationDialog({
+export function TimetableCreationDialog({
   onCreateTimetable,
   timetableCount,
 }: TimetableCreationDialogProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [newTimetableName, setNewTimetableName] = useState("");
+
+  // Reset form when dialog is closed
+  useEffect(() => {
+    if (!open) {
+      setNewTimetableName("");
+    }
+  }, [open]);
 
   const handleCreateTimetable = () => {
     const name = newTimetableName.trim() || undefined;
     onCreateTimetable(name);
-    resetState();
-    toast.success("Timetable created successfully!");
+    setOpen(false);
+    toast.success("Timetable Created", {
+      description: "Your new timetable has been created successfully!",
+    });
   };
 
-  const resetState = () => {
-    setNewTimetableName("");
-    setIsOpen(false);
-  };
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <AnimatedButton className="flex items-center gap-2" variant={"primary"}>
+          <Plus className="w-4 h-4" />
+          New Timetable
+        </AnimatedButton>
+      </DialogTrigger>
 
-  const openDialog = () => {
-    setIsOpen(true);
-  };
-
-  // Memoize the DialogComponent to prevent unnecessary re-renders
-  const DialogComponent = memo(function CreateDialogComponent() {
-    return (
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent>
+      <DialogContent className="sm:max-w-[500px]">
+        <MotionDiv
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
           <DialogHeader>
             <DialogTitle>Create New Timetable</DialogTitle>
             <DialogDescription>
@@ -56,8 +69,14 @@ export function useTimetableCreationDialog({
               teachers.
             </DialogDescription>
           </DialogHeader>
+
           <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
+            <MotionDiv
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: 0.05 }}
+              className="grid gap-2"
+            >
               <Label htmlFor="timetable-name">Timetable Name</Label>
               <Input
                 id="timetable-name"
@@ -70,37 +89,19 @@ export function useTimetableCreationDialog({
                   }
                 }}
               />
-            </div>
+            </MotionDiv>
           </div>
+
           <DialogFooter>
-            <AnimatedButton variant="outline" onClick={resetState}>
-              Cancel
-            </AnimatedButton>
+            <DialogClose asChild>
+              <AnimatedButton variant="outline">Cancel</AnimatedButton>
+            </DialogClose>
             <AnimatedButton onClick={handleCreateTimetable} variant={"primary"}>
               Create
             </AnimatedButton>
           </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    );
-  });
-
-  const dialog = <DialogComponent />;
-
-  const triggerButton = (
-    <AnimatedButton
-      className="flex items-center gap-2"
-      variant={"primary"}
-      onClick={openDialog}
-    >
-      <Plus className="w-4 h-4" />
-      New Timetable
-    </AnimatedButton>
+        </MotionDiv>
+      </DialogContent>
+    </Dialog>
   );
-
-  return {
-    openDialog,
-    dialog,
-    triggerButton,
-  };
 }

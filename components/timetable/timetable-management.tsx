@@ -1,38 +1,26 @@
 "use client";
 
-import {
-  Calendar,
-  ChevronDown,
-  Copy,
-  Edit,
-  Plus,
-  Trash2,
-  Users,
-} from "lucide-react";
-import { useState } from "react";
+import { Calendar, ChevronDown, Copy, Edit, Trash2, Users } from "lucide-react";
+import { useRef } from "react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { MotionDiv } from "@/components/ui/motion";
 import { useScheduleStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+
+import { TimetableCreationDialog } from "./management/timetable-creation-dialog";
+import {
+  TimetableRenameDialog,
+  TimetableRenameDialogRef,
+} from "./management/timetable-rename-dialog";
 
 export function TimetableManagement() {
   const {
@@ -46,35 +34,17 @@ export function TimetableManagement() {
     courses,
   } = useScheduleStore();
 
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
-  const [newTimetableName, setNewTimetableName] = useState("");
-  const [renamingTimetableId, setRenamingTimetableId] = useState<string | null>(
-    null,
-  );
+  const renameDialogRef = useRef<TimetableRenameDialogRef>(null);
 
   const activeTimetable = timetables.find((t) => t.id === activeTimetableId);
 
-  const handleCreateTimetable = () => {
-    const name = newTimetableName.trim() || undefined;
-    createTimetable(name);
-    setNewTimetableName("");
-    setIsCreateDialogOpen(false);
-  };
-
-  const handleRename = () => {
-    if (renamingTimetableId && newTimetableName.trim()) {
-      renameTimetable(renamingTimetableId, newTimetableName.trim());
-      setNewTimetableName("");
-      setIsRenameDialogOpen(false);
-      setRenamingTimetableId(null);
-    }
+  const handleRename = (timetableId: string, newName: string) => {
+    renameTimetable(timetableId, newName);
+    toast.success(`Timetable renamed to "${newName}"`);
   };
 
   const openRenameDialog = (timetableId: string, currentName: string) => {
-    setRenamingTimetableId(timetableId);
-    setNewTimetableName(currentName);
-    setIsRenameDialogOpen(true);
+    renameDialogRef.current?.openDialog(timetableId, currentName);
   };
 
   const handleDuplicate = (timetableId: string, currentName: string) => {
@@ -184,84 +154,12 @@ export function TimetableManagement() {
           </DropdownMenu>
         </div>
 
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="flex items-center gap-2 mt-4 md:mt-0">
-              <Plus className="w-4 h-4" />
-              New Timetable
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New Timetable</DialogTitle>
-              <DialogDescription>
-                Create a new timetable that will share the same courses and
-                teachers.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="timetable-name">Timetable Name</Label>
-                <Input
-                  id="timetable-name"
-                  value={newTimetableName}
-                  onChange={(e) => setNewTimetableName(e.target.value)}
-                  placeholder={`Timetable ${timetables.length + 1}`}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      handleCreateTimetable();
-                    }
-                  }}
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setIsCreateDialogOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button onClick={handleCreateTimetable}>Create</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <TimetableCreationDialog
+          onCreateTimetable={createTimetable}
+          timetableCount={timetables.length}
+        />
 
-        <Dialog open={isRenameDialogOpen} onOpenChange={setIsRenameDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Rename Timetable</DialogTitle>
-              <DialogDescription>
-                Enter a new name for this timetable.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="rename-timetable">Timetable Name</Label>
-                <Input
-                  id="rename-timetable"
-                  value={newTimetableName}
-                  onChange={(e) => setNewTimetableName(e.target.value)}
-                  placeholder="Enter timetable name"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      handleRename();
-                    }
-                  }}
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setIsRenameDialogOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button onClick={handleRename}>Rename</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <TimetableRenameDialog ref={renameDialogRef} onRename={handleRename} />
       </div>
 
       {activeTimetable && (
