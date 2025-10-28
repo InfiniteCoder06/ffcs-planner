@@ -24,6 +24,7 @@ import {
   CardTitle,
 } from "../ui/card";
 import { Separator } from "../ui/separator";
+import { BulkAddTeachersDialog } from "./dialogs/add-bulk-teacher-dialog";
 
 export function CoursePreference() {
   return (
@@ -49,6 +50,7 @@ const CoursePreferenceHeaderActions = memo(() => {
       >
         {editMode ? "View Mode" : "Edit Mode"}
       </AnimatedButton>
+      <BulkAddTeachersDialog variant="secondary" disabled={!editMode} />
       <CourseDialog buttonText="Add Course" buttonIcon="add" />
     </div>
   );
