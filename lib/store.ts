@@ -304,11 +304,11 @@ export const useScheduleStore = create<State & Actions>()(
           timetables: state.timetables.map((t) =>
             t.id === state.activeTimetableId
               ? {
-                ...t,
-                selectedTeachers: [],
-                selectedSlots: [],
-                updatedAt: new Date(),
-              }
+                  ...t,
+                  selectedTeachers: [],
+                  selectedSlots: [],
+                  updatedAt: new Date(),
+                }
               : t,
           ),
         }));
@@ -405,7 +405,7 @@ export const useScheduleStore = create<State & Actions>()(
           if (
             teacherToConsider.course === otherSelectedTeacher.course &&
             sortedTeacherToConsiderSlots ===
-            [...getAllSlots(otherSelectedTeacher)].sort().join(",")
+              [...getAllSlots(otherSelectedTeacher)].sort().join(",")
           ) {
             return true;
           }
@@ -464,14 +464,18 @@ export const useScheduleStore = create<State & Actions>()(
           selectedSlots,
           timetables,
           activeTimetableId,
-        } = data
+        } = data;
 
         // If importing with timetables data, restore full structure
         if (timetables) {
           set({
             courses,
             teachers,
-            timetables: timetables.map((t) => ({ ...t, selectedTeachers: [], selectedSlots: [] })),
+            timetables: timetables.map((t) => ({
+              ...t,
+              selectedTeachers: [],
+              selectedSlots: [],
+            })),
             activeTimetableId,
           });
         } else {
