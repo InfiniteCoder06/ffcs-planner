@@ -65,9 +65,9 @@ export default function Home() {
               Timetable
             </h2>
             <div className="space-y-4">
-              {/* <ScrollAnimation animation="scaleUp" delay={0.1}>
+              <ScrollAnimation animation="scaleUp" delay={0.1}>
                 <TimetableManagement />
-              </ScrollAnimation> */}
+              </ScrollAnimation>
               <ScrollAnimation animation="scaleUp" delay={0.2}>
                 <ClashVisualization />
               </ScrollAnimation>

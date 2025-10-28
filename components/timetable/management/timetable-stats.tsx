@@ -6,7 +6,7 @@ import { MotionDiv } from "@/components/ui/motion";
 import { useScheduleStore } from "@/lib/store";
 
 interface TimetableStatsProps {
-  timetableId: string;
+  timetableId: string | null;
 }
 
 export const TimetableStats = memo(function TimetableStats({
