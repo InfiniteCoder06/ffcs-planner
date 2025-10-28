@@ -50,7 +50,7 @@ const CoursePreferenceHeaderActions = memo(() => {
       >
         {editMode ? "View Mode" : "Edit Mode"}
       </AnimatedButton>
-      <BulkAddTeachersDialog variant="secondary" disabled={!editMode} />
+      <BulkAddTeachersDialog variant="secondary" />
       <CourseDialog buttonText="Add Course" buttonIcon="add" />
     </div>
   );
