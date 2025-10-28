@@ -1,5 +1,14 @@
 [
   {
+    "version": "2.5.6",
+    "entries": [
+      {
+        "type": "💄 UI Improvement",
+        "description": "Remove unnecessary edit button click for a cleaner interface."
+      }
+    ]
+  },
+  {
     "version": "2.5.5",
     "entries": [
       {
