@@ -1,5 +1,14 @@
 [
   {
+    "version": "2.5.7",
+    "entries": [
+      {
+        "type": "🐛 Fix Timetable Flickering",
+        "description": "Resolve flickering issue when switching between multiple timetables."
+      }
+    ]
+  },
+  {
     "version": "2.5.6",
     "entries": [
       {
