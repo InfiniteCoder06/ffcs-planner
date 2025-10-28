@@ -281,8 +281,13 @@ export const useScheduleStore = create<State & Actions>()(
       // Active timetable actions
       getActiveTimetable: () => {
         const state = get();
+        let currentTimetableId = state.activeTimetableId;
+        if (!state.activeTimetableId) {
+          currentTimetableId =
+            state.timetables[0]?.id || get().createTimetable();
+        }
         return (
-          state.timetables.find((t) => t.id === state.activeTimetableId) || null
+          state.timetables.find((t) => t.id === currentTimetableId) || null
         );
       },
 
@@ -298,11 +303,15 @@ export const useScheduleStore = create<State & Actions>()(
 
       clearSelectedTeachers: () => {
         const state = get();
-        if (!state.activeTimetableId) return;
+        let currentTimetableId = state.activeTimetableId;
+        if (!state.activeTimetableId) {
+          currentTimetableId =
+            state.timetables[0]?.id || get().createTimetable();
+        }
 
         set((state) => ({
           timetables: state.timetables.map((t) =>
-            t.id === state.activeTimetableId
+            t.id === currentTimetableId
               ? {
                   ...t,
                   selectedTeachers: [],
@@ -318,7 +327,11 @@ export const useScheduleStore = create<State & Actions>()(
 
       toggleTeacherInTimetable: (teacherId) => {
         const state = get();
-        if (!state.activeTimetableId) return;
+        let currentTimetableId = state.activeTimetableId;
+        if (!state.activeTimetableId) {
+          currentTimetableId =
+            state.timetables[0]?.id || get().createTimetable();
+        }
 
         const teacher = state.teachers.find((t) => t.id === teacherId);
         if (!teacher) return;
@@ -334,7 +347,7 @@ export const useScheduleStore = create<State & Actions>()(
 
         set((state) => ({
           timetables: state.timetables.map((t) => {
-            if (t.id !== state.activeTimetableId) return t;
+            if (t.id !== currentTimetableId) return t;
 
             if (isSelected) {
               const newSelectedTeachers = t.selectedTeachers.filter(
@@ -476,7 +489,7 @@ export const useScheduleStore = create<State & Actions>()(
               selectedTeachers: [],
               selectedSlots: [],
             })),
-            activeTimetableId,
+            activeTimetableId: timetables.at(0)?.id || activeTimetableId,
           });
         } else {
           // Legacy import - create a new timetable with the imported data
@@ -488,6 +501,7 @@ export const useScheduleStore = create<State & Actions>()(
             timetables: state.timetables.map((t) =>
               t.id === id ? { ...t, selectedTeachers, selectedSlots } : t,
             ),
+            activeTimetableId: id,
           }));
         }
       },
