@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Download,
-  FileIcon as FilePdf,
-  ImageIcon,
-  Printer,
-  Share2,
-} from "lucide-react";
+import { Download, FileIcon as FilePdf, ImageIcon, Share2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -96,10 +90,6 @@ export function ExportSection() {
                 <ImageIcon className="w-4 h-4" />
                 Image
               </TabsTrigger>
-              <TabsTrigger value="print" className="flex items-center gap-2">
-                <Printer className="w-4 h-4" />
-                Print
-              </TabsTrigger>
             </TabsList>
             <TabsContent value="pdf" className="mt-2">
               <div className="p-4 border rounded-md">
@@ -119,21 +109,11 @@ export function ExportSection() {
                 </p>
               </div>
             </TabsContent>
-            <TabsContent value="print" className="mt-2">
-              <div className="p-4 border rounded-md">
-                <h3 className="mb-2 text-lg font-medium">Print</h3>
-                <p className="text-sm text-muted-foreground">
-                  Open the print dialog to print your timetable directly from
-                  your browser.
-                </p>
-              </div>
-            </TabsContent>
           </Tabs>
 
           <div className="mt-6">
             <h3 className="text-lg font-medium">Preview</h3>
             <div
-              // ref={containerRef}
               className={cn(
                 "border rounded-md p-4 max-h-[60vh] overflow-auto",
                 "flex justify-center items-start",
