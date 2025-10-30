@@ -7,7 +7,6 @@ import {
   Printer,
   Share2,
 } from "lucide-react";
-import { useTheme } from "next-themes";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -30,8 +29,6 @@ export function ExportSection() {
   const [isExporting, setIsExporting] = useState(false);
   const { getSelectedTeachers } = useScheduleStore();
   const previewRef = useRef<HTMLDivElement>(null);
-  const { theme } = useTheme();
-  const isDarkMode = theme === "dark";
 
   const selectedTeachers = getSelectedTeachers();
 
@@ -56,7 +53,7 @@ export function ExportSection() {
           });
           break;
         case "image":
-          await exportToImage(tempDiv, "ffcs-timetable.png", isDarkMode);
+          await exportToImage(tempDiv, "ffcs-timetable.png");
           toast("Image exported successfully", {
             description: "Your timetable has been exported as an image",
           });

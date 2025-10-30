@@ -10,7 +10,7 @@ export function ExportPreview() {
   const { cellsData, totalCredits } = useTimetableRenderData();
 
   return (
-    <div className="print-container">
+    <>
       <ExportTimetableHeader totalCredits={totalCredits} />
       <TimetableGrid cellsData={cellsData} />
       <CoursesTable totalCredits={totalCredits} />
@@ -18,6 +18,6 @@ export function ExportPreview() {
       <div className="mt-4 text-center text-xs text-gray-500">
         <p>Generated with FFCS Planner</p>
       </div>
-    </div>
+    </>
   );
 }

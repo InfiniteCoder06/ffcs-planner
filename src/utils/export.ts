@@ -79,23 +79,23 @@ export async function exportToPdf(
 export async function exportToImage(
   element: HTMLElement,
   filename: string,
-  isDarkMode: boolean = false,
 ): Promise<void> {
   // Add a class to the element for styling during export
   element.classList.add("exporting");
+  element.classList.add("bg-card");
   const html2canvas = (await import("html2canvas-pro")).default;
   try {
     const canvas = await html2canvas(element, {
       scale: 2, // Higher scale for better quality
       useCORS: true,
       logging: false,
-      backgroundColor: isDarkMode ? "#000000" : "#ffffff",
       width: element.scrollWidth,
       height: element.scrollHeight,
     });
 
     // Remove the export class
     element.classList.remove("exporting");
+    element.classList.remove("bg-card");
 
     // Create a download link
     const link = document.createElement("a");
