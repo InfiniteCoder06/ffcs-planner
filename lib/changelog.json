@@ -1,5 +1,14 @@
 [
   {
+    "version": "2.5.8",
+    "entries": [
+      {
+        "type": "🔧 Bug Fixes",
+        "description": "Fix issue with embedded slot merging logic."
+      }
+    ]
+  },
+  {
     "version": "2.5.7",
     "entries": [
       {
