@@ -1,5 +1,14 @@
 [
   {
+    "version": "2.6.0",
+    "entries": [
+      {
+        "type": "💄 UI Improvement",
+        "description": "Enhance Export Section UI for better user experience."
+      }
+    ]
+  },
+  {
     "version": "2.5.11",
     "entries": [
       {
