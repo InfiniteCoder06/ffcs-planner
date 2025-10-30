@@ -8,6 +8,7 @@ import {
   ScrollAnimation,
   slideInFromBottom,
 } from "@/components/ui/motion";
+import { useTotalCredits } from "@/hooks/useTotalCredits";
 import { useScheduleStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -17,15 +18,9 @@ export function SelectedCoursesTable() {
   const { courses, toggleTeacherInTimetable, getSelectedTeachers } =
     useScheduleStore();
 
-  const selectedTeachers = getSelectedTeachers();
+  const totalCredits = useTotalCredits();
 
-  // Calculate total credits
-  const totalCredits = selectedTeachers.reduce((total, teacher) => {
-    const course = courses.find((c) => c.id === teacher.course);
-    return total + (course?.credits || 0);
-  }, 0);
-
-  const sortedTeachers = selectedTeachers.sort((a, b) => {
+  const sortedTeachers = getSelectedTeachers().sort((a, b) => {
     const courseA = courses.find((c) => c.id === a.course);
     const courseB = courses.find((c) => c.id === b.course);
     return (courseA?.name || "").localeCompare(courseB?.name || "");
