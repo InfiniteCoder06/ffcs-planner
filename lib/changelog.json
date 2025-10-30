@@ -1,5 +1,14 @@
 [
   {
+    "version": "2.5.11",
+    "entries": [
+      {
+        "type": "🔧 Bug Fixes",
+        "description": "Remove Unused Print Tab from Export Section."
+      }
+    ]
+  },
+  {
     "version": "2.5.10",
     "entries": [
       {
