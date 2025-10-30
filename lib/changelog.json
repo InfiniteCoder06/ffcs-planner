@@ -1,5 +1,14 @@
 [
   {
+    "version": "2.5.10",
+    "entries": [
+      {
+        "type": "🐛 Fix Incorrect Print Preview Credits",
+        "description": "Fixed incorrect total credits display in print preview."
+      }
+    ]
+  },
+  {
     "version": "2.5.9",
     "entries": [
       {
