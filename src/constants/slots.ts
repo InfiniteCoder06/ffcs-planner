@@ -32,6 +32,7 @@ export const afternoonTheorySlots = [
   "TF2",
   "TG2",
   "TA2",
+  "TAA2",
   "TBB2",
   "TCC2",
   "TDD2",

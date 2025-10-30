@@ -1,6 +1,5 @@
 import { CoursePreference } from "@/components/course-preference/course-preferences";
 import { Footer } from "@/components/footer";
-import { WarnMessage } from "@/components/info";
 import { SelectedCoursesTable } from "@/components/selected-courses-table";
 import { ClashVisualization } from "@/components/timetable/clash-detection/clash-visualization";
 import { ExportSection } from "@/components/timetable/export/export-section";
@@ -32,7 +31,7 @@ export default function Home() {
         </MotionDiv>
       </Parallax>
 
-      <WarnMessage />
+      {/* <WarnMessage /> */}
 
       <Stagger staggerDelay={0.15} animation="slideUp">
         <ScrollAnimation
