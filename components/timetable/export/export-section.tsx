@@ -81,7 +81,7 @@ export function ExportSection() {
             className="mb-4"
             onValueChange={(value) => setExportType(value as "pdf" | "image")}
           >
-            <TabsList className="grid w-full grid-cols-3 mb-4">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
               <TabsTrigger value="pdf" className="flex items-center gap-2">
                 <FilePdf className="w-4 h-4" />
                 PDF

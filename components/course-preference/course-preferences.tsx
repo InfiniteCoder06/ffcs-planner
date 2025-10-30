@@ -29,7 +29,7 @@ import { BulkAddTeachersDialog } from "./dialogs/add-bulk-teacher-dialog";
 export function CoursePreference() {
   return (
     <Card className="container m-3 mx-auto">
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-wrap items-center justify-between">
         <CardTitle>Course Preference</CardTitle>
         <CoursePreferenceHeaderActions />
       </CardHeader>
@@ -42,7 +42,7 @@ export function CoursePreference() {
 const CoursePreferenceHeaderActions = memo(() => {
   const { editMode, toggleEditMode } = useEditProvider();
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 flex-wrap">
       <AnimatedButton
         variant="secondary"
         onClick={toggleEditMode}
@@ -172,7 +172,7 @@ const CoursePreferenceFooter = memo(() => {
   }, [setExportData]);
 
   return (
-    <CardFooter className="flex justify-end gap-2">
+    <CardFooter className="flex justify-end gap-2 flex-wrap">
       <AnimatedButton
         variant="secondary"
         size="sm"

@@ -48,7 +48,7 @@ export const TimetableManagement = memo(function TimetableManagement() {
   return (
     <div className="mb-4">
       <div className="flex flex-col items-start justify-between p-4 border rounded-lg md:flex-row md:items-center">
-        <div className="flex flex-col items-start gap-4 md:flex-row md:items-center">
+        <div className="flex flex-wrap items-start gap-4 md:items-center">
           <TimetableSelector
             timetables={timetables}
             activeTimetableId={activeTimetableId}

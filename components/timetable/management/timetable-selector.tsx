@@ -34,9 +34,11 @@ export const TimetableSelector = memo(function TimetableSelector({
   const activeTimetable = timetables.find((t) => t.id === activeTimetableId);
 
   return (
-    <div className="flex items-center gap-2">
-      <Calendar className="w-5 h-5 text-muted-foreground" />
-      <span className="font-medium">Active Timetable:</span>
+    <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-col">
+        <Calendar className="w-5 h-5 text-muted-foreground" />
+        <span className="font-medium">Active Timetable:</span>
+      </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <AnimatedButton
