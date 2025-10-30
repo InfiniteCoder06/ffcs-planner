@@ -1,5 +1,14 @@
 [
   {
+    "version": "2.5.9",
+    "entries": [
+      {
+        "type": "🐛 Fix Print Styling",
+        "description": "Correct print styles to ensure proper scaling and visibility of timetable during printing."
+      }
+    ]
+  },
+  {
     "version": "2.5.8",
     "entries": [
       {
