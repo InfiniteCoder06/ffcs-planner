@@ -91,12 +91,7 @@ const CoursePreferenceFooter = memo(() => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const validateData = (data: any) => {
-    if (
-      !Array.isArray(data.courses) ||
-      !Array.isArray(data.teachers)
-      // !Array.isArray(data.timetables) ||
-      // !data.activeTimetableId
-    ) {
+    if (!Array.isArray(data.courses) || !Array.isArray(data.teachers)) {
       throw new Error("Invalid data format");
     }
 
@@ -111,28 +106,6 @@ const CoursePreferenceFooter = memo(() => {
         throw new Error("Invalid teacher data");
       }
     });
-
-    // data.timetables.forEach((timetable: Timetable) => {
-    //   if (
-    //     !timetable.id ||
-    //     !timetable.name ||
-    //     !Array.isArray(timetable.selectedTeachers)
-    //   ) {
-    //     throw new Error("Invalid timetable data");
-    //   }
-
-    //   timetable.selectedTeachers.forEach((teacher: Teacher) => {
-    //     if (!teacher.id || !teacher.name || !teacher.course) {
-    //       throw new Error("Invalid selected teacher data");
-    //     }
-    //   });
-
-    //   timetable.selectedSlots.forEach((slot: string) => {
-    //     if (!slot) {
-    //       throw new Error("Invalid selected slot data");
-    //     }
-    //   });
-    // });
   };
 
   const handleUploadTimetable = useCallback(() => {
