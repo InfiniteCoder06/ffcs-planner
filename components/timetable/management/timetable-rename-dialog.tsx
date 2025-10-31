@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import { forwardRef, useImperativeHandle, useState } from "react";
 import { toast } from "sonner";
 
 import { AnimatedButton } from "@/components/ui/button";
@@ -33,18 +33,18 @@ export const TimetableRenameDialog = forwardRef<
   const [timetableId, setTimetableId] = useState<string | null>(null);
   const [newName, setNewName] = useState("");
 
-  // Reset form when dialog is closed
-  useEffect(() => {
-    if (!open) {
+  const handleOpenChange = (value: boolean) => {
+    setOpen(value);
+    if (!value) {
       setNewName("");
       setTimetableId(null);
     }
-  }, [open]);
+  };
 
   const handleRename = () => {
     if (timetableId && newName.trim()) {
       onRename(timetableId, newName.trim());
-      setOpen(false);
+      handleOpenChange(false);
       toast.success("Timetable Renamed", {
         description: "Your timetable has been renamed successfully!",
       });
@@ -54,7 +54,7 @@ export const TimetableRenameDialog = forwardRef<
   const openDialog = (id: string, currentName: string) => {
     setTimetableId(id);
     setNewName(currentName);
-    setOpen(true);
+    handleOpenChange(true);
   };
 
   useImperativeHandle(ref, () => ({
@@ -62,7 +62,7 @@ export const TimetableRenameDialog = forwardRef<
   }));
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <MotionDiv
           initial={{ opacity: 0, y: 20 }}

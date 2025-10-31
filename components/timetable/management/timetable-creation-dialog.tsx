@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { AnimatedButton } from "@/components/ui/button";
@@ -31,24 +31,24 @@ export function TimetableCreationDialog({
   const [open, setOpen] = useState(false);
   const [newTimetableName, setNewTimetableName] = useState("");
 
-  // Reset form when dialog is closed
-  useEffect(() => {
-    if (!open) {
+  const handleOpenChange = (value: boolean) => {
+    setOpen(value);
+    if (!value) {
       setNewTimetableName("");
     }
-  }, [open]);
+  };
 
   const handleCreateTimetable = () => {
     const name = newTimetableName.trim() || undefined;
     onCreateTimetable(name);
-    setOpen(false);
+    handleOpenChange(false);
     toast.success("Timetable Created", {
       description: "Your new timetable has been created successfully!",
     });
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <AnimatedButton className="flex items-center gap-2" variant={"primary"}>
           <Plus className="w-4 h-4" />

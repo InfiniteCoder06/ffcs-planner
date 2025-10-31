@@ -1,7 +1,7 @@
 "use client";
 
 import { DownloadIcon, Loader, TriangleAlert } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { AnimatedButton } from "@/components/ui/button";
 import {
@@ -33,14 +33,20 @@ export function DownloadTimetableDialog({
 
   const activeTimetable = getActiveTimetable();
 
-  useEffect(() => {
-    if (open) {
-      const defaultName = activeTimetable?.name || "timetable";
-      const now = new Date();
-      const datePart = now.toISOString().split("T")[0];
-      setName(`${defaultName}-${datePart}`);
-    }
-  }, [open, activeTimetable]);
+  const handleOpenChange = useCallback(
+    (isOpen: boolean) => {
+      setOpen(isOpen);
+      if (!isOpen) {
+        setError("");
+      } else {
+        const defaultName = activeTimetable?.name || "timetable";
+        const now = new Date();
+        const datePart = now.toISOString().split("T")[0];
+        setName(`${defaultName}-${datePart}`);
+      }
+    },
+    [activeTimetable],
+  );
 
   const handleDownload = useCallback(() => {
     if (!name.trim()) return;
@@ -63,16 +69,16 @@ export function DownloadTimetableDialog({
       setTimeout(() => URL.revokeObjectURL(url), 100);
 
       setIsLoading(false);
-      setOpen(false);
+      handleOpenChange(false);
     } catch (err) {
       console.error("Error while downloading:", err);
       setError("Failed to save timetable. Please try again.");
       setIsLoading(false);
     }
-  }, [getExportData, name]);
+  }, [getExportData, handleOpenChange, name]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <AnimatedButton size="sm" disabled={disabled} variant={"primary"}>
           <DownloadIcon /> Save TT

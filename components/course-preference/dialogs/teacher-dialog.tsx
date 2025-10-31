@@ -1,7 +1,7 @@
 "use client";
 
 import { type VariantProps } from "class-variance-authority";
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { toast } from "sonner";
 
 import { AddIcon, Edit2Icon } from "@/components/icon-memo";
@@ -29,7 +29,11 @@ import {
 import { useScheduleStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { colors } from "@/src/constants/colors";
-import { isAfternoonSlot, isMorningSlot } from "@/src/utils/timetable";
+import {
+  getAllSlots,
+  isAfternoonSlot,
+  isMorningSlot,
+} from "@/src/utils/timetable";
 import { Teacher } from "@/types";
 
 interface TeacherDialogProps {
@@ -50,27 +54,23 @@ export function TeacherDialog({
   const { addTeacher, editTeacher, courses } = useScheduleStore();
 
   const [open, setOpen] = useState(false);
-  const [teacherName, setTeacherName] = useState("");
-  const [selectedColor, setSelectedColor] = useState("purple");
-  const [slots, setSlots] = useState("");
-  const [venue, setVenue] = useState("");
-  const [selectedCourse, setSelectedCourse] = useState("");
-
-  useEffect(() => {
-    if (teacherToEdit) {
-      setTeacherName(teacherToEdit.name);
-      setSelectedColor(teacherToEdit.color);
-      setSlots(
-        teacherToEdit.slots.morning
-          ?.concat(teacherToEdit.slots.afternoon || [])
-          .join("+") || "",
-      );
-      setVenue(
-        teacherToEdit.venue.morning || teacherToEdit.venue.afternoon || "",
-      );
-      setSelectedCourse(teacherToEdit.course);
-    }
-  }, [teacherToEdit, open, course]);
+  const [teacherName, setTeacherName] = useState(
+    teacherToEdit ? teacherToEdit.name : "",
+  );
+  const [selectedColor, setSelectedColor] = useState(
+    teacherToEdit ? teacherToEdit.color : "purple",
+  );
+  const [slots, setSlots] = useState(
+    teacherToEdit ? getAllSlots(teacherToEdit).join("+") : "",
+  );
+  const [venue, setVenue] = useState(
+    teacherToEdit
+      ? teacherToEdit.venue.morning || teacherToEdit.venue.afternoon || ""
+      : "",
+  );
+  const [selectedCourse, setSelectedCourse] = useState(
+    teacherToEdit ? teacherToEdit.course : course || "",
+  );
 
   const handleColorChange = useCallback(
     (value: string) => setSelectedColor(value),

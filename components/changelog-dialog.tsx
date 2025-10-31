@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useEffectEvent, useState } from "react";
 
 import { AnimatedButton } from "@/components/ui/button";
 import {
@@ -23,12 +23,17 @@ interface ChangelogDialogProps {
 export function ChangelogDialog({ currentAppVersion }: ChangelogDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
 
+  const handleUpdate = useEffectEvent(() => {
+    if (!currentAppVersion) return;
+    setIsOpen(true);
+    localStorage.setItem("ffcs_planner_version", currentAppVersion);
+  });
+
   useEffect(() => {
     if (!currentAppVersion) return;
     const lastSeenVersion = localStorage.getItem("ffcs_planner_version");
     if (lastSeenVersion !== currentAppVersion) {
-      setIsOpen(true);
-      localStorage.setItem("ffcs_planner_version", currentAppVersion);
+      handleUpdate();
     }
   }, [currentAppVersion]);
 

@@ -2,7 +2,7 @@
 
 import { VariantProps } from "class-variance-authority";
 import { PlusIcon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
 import { AnimatedButton, buttonVariants } from "@/components/ui/button";
@@ -48,13 +48,13 @@ export function BulkAddTeachersDialog({
   const [merge, setMerge] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState("");
 
-  // Reset form when dialog is opened
-  useEffect(() => {
-    if (!open) {
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
       setRawInput("");
       setSelectedCourse("");
     }
-  }, [open]);
+  };
 
   const handleAddTeachers = useCallback(() => {
     if (!rawInput.trim() || !selectedCourse) {
@@ -159,11 +159,11 @@ export function BulkAddTeachersDialog({
       });
     }
 
-    setOpen(false);
+    handleOpenChange(false);
   }, [rawInput, selectedCourse, merge, addTeacher]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <AnimatedButton variant={variant} size={size} disabled={disabled}>
           {buttonIcon === "add" && <PlusIcon className="w-4 h-4" />}

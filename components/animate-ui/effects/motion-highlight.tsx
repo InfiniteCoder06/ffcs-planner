@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/refs */
+/* eslint-disable react-hooks/preserve-manual-memoization */
 "use client";
 
 import { AnimatePresence, motion, Transition } from "motion/react";
@@ -512,7 +514,7 @@ function MotionHighlightItem({
 
           <div
             data-slot="motion-highlight-item"
-            className={cn("relative z-[1]", className)}
+            className={cn("relative z-1", className)}
             {...dataAttributes}
           >
             {children}

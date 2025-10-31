@@ -2,7 +2,7 @@
 
 import { type VariantProps } from "class-variance-authority";
 import { EditIcon } from "lucide-react";
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { toast } from "sonner";
 
 import { AddIcon } from "@/components/icon-memo";
@@ -41,17 +41,11 @@ export function CourseDialog({
   const { addCourse, editCourse } = useScheduleStore();
 
   const [open, setOpen] = useState(false);
-  const [code, setCode] = useState("");
-  const [name, setName] = useState("");
-  const [credits, setCredits] = useState("4");
-
-  useEffect(() => {
-    if (courseToEdit) {
-      setCode(courseToEdit.code);
-      setName(courseToEdit.name);
-      setCredits(courseToEdit.credits.toString());
-    }
-  }, [courseToEdit, open]);
+  const [code, setCode] = useState(courseToEdit ? courseToEdit.code : "");
+  const [name, setName] = useState(courseToEdit ? courseToEdit.name : "");
+  const [credits, setCredits] = useState(
+    courseToEdit ? courseToEdit.credits.toString() : "4",
+  );
 
   const handleSave = useCallback(() => {
     if (!code.trim() || !name.trim()) return;
