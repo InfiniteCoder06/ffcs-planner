@@ -2,7 +2,6 @@
 
 import { useCallback, useMemo, useState } from "react";
 
-import CourseItem from "@/components/course-preference/items/course-item";
 import {
   AnimatePresenceWrapper,
   fadeIn,
@@ -11,6 +10,7 @@ import {
 } from "@/components/ui/motion";
 import { useScheduleStore } from "@/lib/store";
 
+import CourseItem from "../items/course-item/course-item";
 import { SearchBar } from "../ui/search-bar";
 import { CourseSortMenu } from "../ui/sort-menu";
 

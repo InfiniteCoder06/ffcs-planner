@@ -3,7 +3,6 @@
 import { useCallback, useMemo, useState } from "react";
 
 import { TeacherDialog } from "@/components/course-preference/dialogs/teacher-dialog";
-import TeacherItem from "@/components/course-preference/items/teacher-item";
 import {
   AnimatePresenceWrapper,
   MotionDiv,
@@ -14,6 +13,7 @@ import { getAllSlots } from "@/src/utils/timetable";
 import { Course, Teacher } from "@/types";
 
 import { DeleteDialog } from "../dialogs/delete-dialog";
+import TeacherItem from "../items/teacher-item/teacher-item";
 import { SearchBar } from "../ui/search-bar";
 import { CustomSortMenu } from "../ui/sort-menu";
 
