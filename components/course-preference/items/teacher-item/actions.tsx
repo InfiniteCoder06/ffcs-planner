@@ -51,7 +51,6 @@ const EditActions = memo(({ teacher }: { teacher: Teacher }) => {
         variant="yellowSolid"
         size="icon"
         buttonIcon="edit"
-        course={null}
       />
       <DeleteDialog
         description="Are you sure you want to remove this teacher?"

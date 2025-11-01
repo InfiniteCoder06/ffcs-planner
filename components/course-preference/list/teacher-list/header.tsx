@@ -28,7 +28,6 @@ export function TeacherListHeader({
           course={course.id}
           buttonText="Add Teacher"
           buttonIcon={"add"}
-          teacherToEdit={null}
         />
         {courseTeachers.length > 0 && (
           <DeleteDialog

@@ -21,12 +21,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MotionDiv } from "@/components/ui/motion";
 import { useScheduleStore } from "@/lib/store";
-import { Course } from "@/types";
+import { Course, DialogButtonProps } from "@/types";
 
 interface CourseDialogProps {
-  disabled?: boolean;
-  buttonText?: string;
-  buttonIcon: "add" | "edit";
   courseToEdit?: Course;
 }
 
@@ -37,7 +34,9 @@ export function CourseDialog({
   courseToEdit,
   variant = "primary",
   size,
-}: CourseDialogProps & VariantProps<typeof buttonVariants>) {
+}: CourseDialogProps &
+  DialogButtonProps &
+  VariantProps<typeof buttonVariants>) {
   const { addCourse, editCourse } = useScheduleStore();
 
   const [open, setOpen] = useState(false);

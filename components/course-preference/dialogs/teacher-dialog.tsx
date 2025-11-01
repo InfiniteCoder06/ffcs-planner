@@ -34,13 +34,11 @@ import {
   isAfternoonSlot,
   isMorningSlot,
 } from "@/src/utils/timetable";
-import { Teacher } from "@/types";
+import { DialogButtonProps, Teacher } from "@/types";
 
 interface TeacherDialogProps {
-  teacherToEdit: Teacher | null;
-  buttonText?: string;
-  buttonIcon: "add" | "edit";
-  course: string | null;
+  teacherToEdit?: Teacher;
+  course?: string;
 }
 
 export function TeacherDialog({
@@ -50,7 +48,9 @@ export function TeacherDialog({
   course,
   variant = "primary",
   size,
-}: TeacherDialogProps & VariantProps<typeof buttonVariants>) {
+}: TeacherDialogProps &
+  DialogButtonProps &
+  VariantProps<typeof buttonVariants>) {
   const { addTeacher, editTeacher, courses } = useScheduleStore();
 
   const [open, setOpen] = useState(false);
