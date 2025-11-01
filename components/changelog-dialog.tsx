@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useEffectEvent, useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 
 import { AnimatedButton } from "@/components/ui/button";
 import {
@@ -22,27 +22,33 @@ interface ChangelogDialogProps {
 
 export function ChangelogDialog({ currentAppVersion }: ChangelogDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [lastSeenVersion, setLastSeenVersion] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("ffcs_planner_version");
+  });
 
   const handleUpdate = useEffectEvent(() => {
     if (!currentAppVersion) return;
     setIsOpen(true);
-    localStorage.setItem("ffcs_planner_version", currentAppVersion);
   });
 
   useEffect(() => {
     if (!currentAppVersion) return;
-    const lastSeenVersion = localStorage.getItem("ffcs_planner_version");
     if (lastSeenVersion !== currentAppVersion) {
       handleUpdate();
     }
-  }, [currentAppVersion]);
+  }, [currentAppVersion, lastSeenVersion]);
 
-  const handleDialogClose = useCallback(() => {
-    setIsOpen(false);
-  }, []);
+  const handleDialogOpen = (open: boolean) => {
+    setIsOpen(open);
+    if (!open && currentAppVersion) {
+      setLastSeenVersion(currentAppVersion);
+      localStorage.setItem("ffcs_planner_version", currentAppVersion);
+    }
+  };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleDialogOpen}>
       <DialogTrigger className="" asChild>
         <AnimatedButton
           variant="primary"
@@ -66,25 +72,37 @@ export function ChangelogDialog({ currentAppVersion }: ChangelogDialogProps) {
 
           <ScrollArea className="max-h-[60vh] py-4 pr-4 overflow-hidden overflow-y-auto">
             <div className="space-y-4">
-              {changelogData.map((versionEntry) => (
-                <div key={versionEntry.version}>
-                  <h3 className="font-semibold text-lg mb-2">
-                    Version {versionEntry.version}
-                  </h3>
-                  <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                    {versionEntry.entries.map((entry, index) => (
-                      <li key={index}>
-                        <strong>{entry.type}:</strong> {entry.description}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+              {(() => {
+                const currentIndex = changelogData.findIndex(
+                  (entry) => entry.version === lastSeenVersion,
+                );
+                const filteredData =
+                  currentIndex !== -1 && currentAppVersion
+                    ? changelogData.slice(0, currentIndex + 1)
+                    : changelogData;
+                return filteredData.map((versionEntry) => (
+                  <div key={versionEntry.version}>
+                    <h3 className="font-semibold text-lg mb-2">
+                      Version {versionEntry.version}
+                    </h3>
+                    <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                      {versionEntry.entries.map((entry, index) => (
+                        <li key={index}>
+                          <strong>{entry.type}:</strong> {entry.description}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ));
+              })()}
             </div>
           </ScrollArea>
 
           <div className="flex justify-end pt-4">
-            <AnimatedButton onClick={handleDialogClose} variant="primary">
+            <AnimatedButton
+              onClick={() => handleDialogOpen(false)}
+              variant="primary"
+            >
               Got It!
             </AnimatedButton>
           </div>
