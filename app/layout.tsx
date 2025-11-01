@@ -1,9 +1,9 @@
 import "./globals.css";
 
-import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
+import { VersionAnalytics } from "@/components/analytics";
 import { ChangelogDialog } from "@/components/changelog-dialog";
 import { ThemeProvider } from "@/components/nav-bar/theme-provider";
 import { MotionDiv } from "@/components/ui/motion";
@@ -115,7 +115,7 @@ export default function RootLayout({
           </TooltipProvider>
         </ThemeProvider>
       </body>
-      {process.env.NODE_ENV === "production" && <Analytics />}
+      {process.env.NODE_ENV === "production" && <VersionAnalytics />}
     </html>
   );
 }
