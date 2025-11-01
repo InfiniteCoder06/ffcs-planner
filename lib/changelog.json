@@ -1,5 +1,14 @@
 [
   {
+    "version": "2.8.5",
+    "entries": [
+      {
+        "type": "⚡️ Performance",
+        "description": "Optimize timetable rendering for smoother performance on large datasets."
+      }
+    ]
+  },
+  {
     "version": "2.8.0",
     "entries": [
       {
