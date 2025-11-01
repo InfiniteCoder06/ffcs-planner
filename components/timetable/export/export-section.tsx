@@ -77,18 +77,18 @@ export function ExportSection() {
 
         <div className="p-4">
           <Tabs
-            defaultValue="pdf"
+            defaultValue="image"
             className="mb-4"
             onValueChange={(value) => setExportType(value as "pdf" | "image")}
           >
             <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="pdf" className="flex items-center gap-2">
-                <FilePdf className="w-4 h-4" />
-                PDF
-              </TabsTrigger>
               <TabsTrigger value="image" className="flex items-center gap-2">
                 <ImageIcon className="w-4 h-4" />
                 Image
+              </TabsTrigger>
+              <TabsTrigger value="pdf" className="flex items-center gap-2">
+                <FilePdf className="w-4 h-4" />
+                PDF
               </TabsTrigger>
             </TabsList>
             <TabsContent value="pdf" className="mt-2">
