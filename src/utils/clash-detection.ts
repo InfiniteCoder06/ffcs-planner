@@ -82,3 +82,48 @@ export function getDaysForSlot(slot: string): string[] {
 export const clearClashDetectionCaches = () => {
   slotDayMapCache.clear();
 };
+
+export function teacherSlotClash(
+  teacherId: string,
+  teachers: Teacher[],
+  selectedTeachers: Teacher[],
+): Teacher[] {
+  const teacher = teachers.find((t) => t.id === teacherId);
+  if (!teacher) return [];
+
+  const otherSelectedTeachers = selectedTeachers.filter(
+    (t) => t.id !== teacherId,
+  );
+
+  const clashes = hasClashEnhanced(teacher, otherSelectedTeachers);
+
+  return clashes;
+}
+
+export function hasSameSlotClashWithSelected(
+  teacherId: string,
+  teachers: Teacher[],
+  selectedTeachers: Teacher[],
+): boolean {
+  const teacher = teachers.find((t) => t.id === teacherId);
+  if (!teacher) return false;
+
+  const sortedTeacherToConsiderSlots = [...getAllSlots(teacher)]
+    .sort()
+    .join(",");
+
+  const currentlySelectedTeachers = selectedTeachers.filter(
+    (t) => t.id !== teacherId,
+  );
+
+  for (const otherSelectedTeacher of currentlySelectedTeachers) {
+    if (
+      teacher.course === otherSelectedTeacher.course &&
+      sortedTeacherToConsiderSlots ===
+        [...getAllSlots(otherSelectedTeacher)].sort().join(",")
+    ) {
+      return true;
+    }
+  }
+  return false;
+}

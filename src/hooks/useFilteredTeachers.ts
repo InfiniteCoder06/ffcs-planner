@@ -4,13 +4,18 @@ import { useScheduleStore } from "@/lib/store";
 import { getAllSlots } from "@/src/utils/timetable";
 import { Teacher } from "@/types";
 
+import {
+  hasSameSlotClashWithSelected,
+  teacherSlotClash,
+} from "../utils/clash-detection";
+
 export function useFilteredTeachers(
   courseTeachers: Teacher[],
   searchQuery: string,
   slotFilter: string,
   colorFilter: string,
 ) {
-  const { isTeacherSelected, hasSameSlotClashWithSelected, teacherSlotClash } =
+  const { teachers, isTeacherSelected, getSelectedTeachers } =
     useScheduleStore();
 
   return useMemo(() => {
@@ -36,9 +41,13 @@ export function useFilteredTeachers(
     return filtered
       .map((teacher) => ({
         teacher,
-        clashes: teacherSlotClash(teacher.id),
+        clashes: teacherSlotClash(teacher.id, teachers, getSelectedTeachers()),
         isSelected: isTeacherSelected(teacher.id),
-        hasSameSlotClash: hasSameSlotClashWithSelected(teacher.id),
+        hasSameSlotClash: hasSameSlotClashWithSelected(
+          teacher.id,
+          teachers,
+          getSelectedTeachers(),
+        ),
       }))
       .sort((a, b) => {
         // 1. Prioritize selected teachers
@@ -74,12 +83,12 @@ export function useFilteredTeachers(
         return a.teacher.name.localeCompare(b.teacher.name);
       });
   }, [
+    teachers,
     courseTeachers,
     searchQuery,
     slotFilter,
     colorFilter,
-    teacherSlotClash,
+    getSelectedTeachers,
     isTeacherSelected,
-    hasSameSlotClashWithSelected,
   ]);
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { ClashDetails } from "@/components/timetable/clash-detection/clash-details";
 import { AnimatedButton } from "@/components/ui/button";
@@ -13,7 +13,6 @@ export function ClashVisualization() {
   const { getSelectedTeachers, getAllClashesEnhanced } = useScheduleStore();
   const selectedTeachers = getSelectedTeachers();
   const [showDetails, setShowDetails] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
 
   // Get all clashes in the current timetable
   const clashes = useMemo(
@@ -24,15 +23,10 @@ export function ClashVisualization() {
   // Count of clashes
   const clashCount = useMemo(() => clashes.length, [clashes]);
 
-  // Handle client-side hydration
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
   return (
     <AnimatePresenceWrapper mode="sync">
       {selectedTeachers.length > 0 && (
-        <div className="mb-4" suppressHydrationWarning>
+        <div className="mb-4">
           <MotionDiv
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -74,7 +68,7 @@ export function ClashVisualization() {
                 </p>
               </div>
             </div>
-            {clashCount > 0 && isMounted && (
+            {clashCount > 0 && (
               <AnimatedButton
                 variant="red"
                 onClick={() => setShowDetails(!showDetails)}
@@ -85,7 +79,7 @@ export function ClashVisualization() {
           </MotionDiv>
 
           <AnimatePresenceWrapper mode="sync">
-            {showDetails && clashCount > 0 && isMounted && (
+            {showDetails && clashCount > 0 && (
               <MotionDiv
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
